@@ -4,7 +4,10 @@
 
 ## Документація
 
-**[Wiki](https://github.com/bpashkovskyi/diploma-management-system/wiki)** — вимоги, доменна модель, процеси (v1 MVP, v2, roadmap).
+| Джерело | Зміст |
+|---------|--------|
+| **[Wiki](https://github.com/bpashkovskyi/diploma-management-system/wiki)** | Бізнес-вимоги v1, процеси, roadmap |
+| **[docs/](docs/README.md)** | Імплементація: доменна модель, naming, implementation plan |
 
 ## License
 
