@@ -1,0 +1,33 @@
+# Match .editorconfig (end_of_line = crlf) so Linux CI and Windows agree.
+* text=auto
+
+*.cs text eol=crlf
+*.csproj text eol=crlf
+*.sln text eol=crlf
+*.slnx text eol=crlf
+*.props text eol=crlf
+*.targets text eol=crlf
+*.json text eol=crlf
+*.yml text eol=crlf
+*.yaml text eol=crlf
+*.md text eol=crlf
+*.cshtml text eol=crlf
+*.css text eol=crlf
+*.js text eol=crlf
+*.resx text eol=crlf
+*.sql text eol=crlf
+*.config text eol=crlf
+*.editorconfig text eol=crlf
+*.gitattributes text eol=crlf
+*.gitignore text eol=crlf
+
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.ico binary
+*.webp binary
+*.pdf binary
+*.dll binary
+*.exe binary
+*.pdb binary
