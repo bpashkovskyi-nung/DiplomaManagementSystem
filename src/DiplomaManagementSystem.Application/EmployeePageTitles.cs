@@ -21,4 +21,26 @@ public static class EmployeePageTitles
     public const string AntiPlagiarism = "Антиплагіат — перевірка";
 
     public const string FormattingReview = "Нормоконтроль — перевірка";
+
+    public const string SupervisorRole = "Керівник";
+
+    public const string ReviewerRole = "Рецензент";
+
+    public const string DepartmentHeadRole = "Завідувач кафедри";
+
+    public const string SessionRolesSection = "Ролі в сесії захисту";
+
+    public const string MyStudentsNav = "Мої студенти";
+
+    public const string ConfirmStudentRequestNav = "Підтвердити заявку студента";
+
+    public const string ApproveTopicNav = "Затвердити тему";
+
+    public const string SubmitSupervisorFeedbackNav = "Надіслати відгук";
+
+    public const string SubmitExternalReviewNav = "Надіслати рецензію";
+
+    public const string AntiPlagiarismRole = "Антиплагіат";
+
+    public const string FormattingReviewRole = "Нормоконтроль";
 }

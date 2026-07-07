@@ -26,7 +26,8 @@ public sealed class EmployeeHomeEndpointTests(PostgreSqlFixture fixture)
         Assert.Equal(HttpStatusCode.OK, response.StatusCode);
         string html = await response.Content.ReadAsStringAsync();
         IntegrationTestHtmlAssertions.AssertContainsText(html, EmployeePageTitles.Home);
-        IntegrationTestHtmlAssertions.AssertContainsText(html, EmployeePageTitles.MyStudents);
+        IntegrationTestHtmlAssertions.AssertContainsText(html, EmployeePageTitles.SupervisorRole);
+        IntegrationTestHtmlAssertions.AssertContainsText(html, EmployeePageTitles.MyStudentsNav);
         IntegrationTestHtmlAssertions.AssertContainsText(html, EmployeePageTitles.ApproveTopicAsSupervisor);
         IntegrationTestHtmlAssertions.AssertContainsText(html, EmployeePageTitles.SubmitSupervisorFeedback);
         Assert.Contains("/Employee/Supervisor/Students", html, StringComparison.Ordinal);

@@ -26,7 +26,7 @@ public sealed class SupervisorDetailsEndpointTests(PostgreSqlFixture fixture)
         Assert.Equal(HttpStatusCode.OK, response.StatusCode);
         string html = await response.Content.ReadAsStringAsync();
         Assert.Contains("Student One", html, StringComparison.Ordinal);
-        IntegrationTestHtmlAssertions.AssertContainsText(html, EmployeePageTitles.MyStudents);
+        IntegrationTestHtmlAssertions.AssertContainsText(html, EmployeePageTitles.MyStudentsNav);
         IntegrationTestHtmlAssertions.AssertContainsText(html, "Робота виконується");
         IntegrationTestHtmlAssertions.AssertContainsText(html, EmployeePageTitles.Home);
         Assert.DoesNotContain("Допустити до захисту", WebUtility.HtmlDecode(html), StringComparison.Ordinal);

@@ -1,7 +1,9 @@
+using DiplomaManagementSystem.Application;
 using DiplomaManagementSystem.Application.Admin.DefenceSessions.Dtos;
 using DiplomaManagementSystem.Application.Employee.Dtos;
 using DiplomaManagementSystem.Domain.Enums;
 using DiplomaManagementSystem.Web.Areas.Admin.Models;
+using DiplomaManagementSystem.Web.Areas.Employee;
 using DiplomaManagementSystem.Web.Areas.Employee.Models;
 using DiplomaManagementSystem.Web.Mapping;
 
@@ -88,14 +90,12 @@ public sealed class EmployeeAndAdminMapperTests
 
     // TC-WEB-MAP-009e
     [Fact]
-    public void MapRoleCard_MapsNavigation()
+    public void EmployeeRoleNavigation_ResolveArea_MapsSupervisorKeys()
     {
-        EmployeeRoleCardDto dto = new("supervisor", "Керівник", 3, "Supervisor", "PendingStudents");
-
-        EmployeeRoleCardViewModel viewModel = EmployeeViewModelMapper.MapRoleCard(dto);
-
-        Assert.Equal("Supervisor", viewModel.Controller);
-        Assert.Equal(3, viewModel.PendingCount);
+        Assert.Equal(EmployeeRoleArea.Supervisor, EmployeeRoleNavigationBuilder.ResolveArea("SupervisorStudents"));
+        Assert.Equal(EmployeeRoleArea.Reviewer, EmployeeRoleNavigationBuilder.ResolveArea("Reviewer"));
+        Assert.Equal(EmployeeRoleArea.AntiPlagiarism, EmployeeRoleNavigationBuilder.ResolveArea("AntiPlagiarism"));
+        Assert.Equal(EmployeePageTitles.MyStudentsNav, EmployeeRoleNavigationBuilder.GetSubmenuLabel("SupervisorStudents"));
     }
 
     // TC-WEB-MAP-010

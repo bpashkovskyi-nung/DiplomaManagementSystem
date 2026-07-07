@@ -14,6 +14,6 @@
 
 <partial name="_TempDataAlerts"/>
 
-<partial name="_EmployeeNavLinks" model="EmployeeNavigation.HomeOnly()"/>
+@await Component.InvokeAsync("EmployeeRoleNav", new { activeRole = EmployeeRoleArea.DepartmentHead })
 
 <partial name="_TopicReviewTable" model="table"/>

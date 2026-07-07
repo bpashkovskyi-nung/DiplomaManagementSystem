@@ -13,7 +13,7 @@
 
 <partial name="_TempDataAlerts"/>
 
-<partial name="_EmployeeNavLinks" model="EmployeeNavigation.ReviewerWorkflow()"/>
+@await Component.InvokeAsync("EmployeeRoleNav", new { activeRole = EmployeeRoleArea.Reviewer })
 
 <form method="get" class="row g-2 mb-4">
     <div class="col-md-2">

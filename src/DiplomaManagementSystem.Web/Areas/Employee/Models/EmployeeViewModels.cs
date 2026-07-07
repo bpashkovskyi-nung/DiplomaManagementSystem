@@ -8,10 +8,30 @@ using Microsoft.AspNetCore.Http;
 
 public sealed class EmployeeHomeViewModel
 {
-    public IReadOnlyList<EmployeeRoleCardViewModel> Roles { get; set; } = [];
+    public IReadOnlyList<EmployeeHomeSectionViewModel> Sections { get; set; } = [];
 }
 
-public sealed class EmployeeRoleCardViewModel
+public sealed class EmployeeHomeSectionViewModel
+{
+    public string Title { get; set; } = string.Empty;
+
+    public EmployeeHomeStudentListLinkViewModel? StudentListLink { get; set; }
+
+    public IReadOnlyList<EmployeeHomeItemViewModel> Items { get; set; } = [];
+}
+
+public sealed class EmployeeHomeStudentListLinkViewModel
+{
+    public string Text { get; set; } = string.Empty;
+
+    public int Count { get; set; }
+
+    public string Controller { get; set; } = string.Empty;
+
+    public string Action { get; set; } = string.Empty;
+}
+
+public sealed class EmployeeHomeItemViewModel
 {
     public string RoleKey { get; set; } = string.Empty;
 
@@ -22,6 +42,47 @@ public sealed class EmployeeRoleCardViewModel
     public string Controller { get; set; } = string.Empty;
 
     public string Action { get; set; } = string.Empty;
+
+    public bool CountsStudents { get; set; }
+
+    public bool IsStudentList { get; set; }
+}
+
+public sealed class EmployeeRoleNavViewModel
+{
+    public EmployeeRoleArea ActiveRole { get; set; }
+
+    public IReadOnlyList<EmployeeRoleSwitcherItemViewModel> AvailableRoles { get; set; } = [];
+
+    public IReadOnlyList<EmployeeRoleSubmenuItemViewModel> Submenu { get; set; } = [];
+}
+
+public sealed class EmployeeRoleSwitcherItemViewModel
+{
+    public EmployeeRoleArea Area { get; set; }
+
+    public string Display { get; set; } = string.Empty;
+
+    public string Controller { get; set; } = string.Empty;
+
+    public string Action { get; set; } = string.Empty;
+
+    public int PendingTotal { get; set; }
+
+    public bool IsActive { get; set; }
+}
+
+public sealed class EmployeeRoleSubmenuItemViewModel
+{
+    public string Text { get; set; } = string.Empty;
+
+    public string Controller { get; set; } = string.Empty;
+
+    public string Action { get; set; } = string.Empty;
+
+    public bool IsActive { get; set; }
+
+    public int PendingCount { get; set; }
 
     public bool CountsStudents { get; set; }
 }
@@ -128,10 +189,8 @@ public sealed class PendingCheckpointsViewModel
 
     public string EmptyMessage { get; set; } = "Немає очікуючих перевірок.";
 
-    public IReadOnlyList<EmployeeNavLink> NavLinks { get; set; } = [];
+    public EmployeeRoleArea RoleArea { get; set; }
 }
-
-public sealed record EmployeeNavLink(string Text, string Controller, string Action);
 
 public sealed class PendingCheckpointListViewModel
 {

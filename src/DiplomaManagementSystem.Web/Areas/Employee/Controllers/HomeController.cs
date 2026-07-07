@@ -1,8 +1,9 @@
 using System.Security.Claims;
 using DiplomaManagementSystem.Application.Constants;
 using DiplomaManagementSystem.Application.Employee.Contracts;
+using DiplomaManagementSystem.Application.Employee.Dtos;
+using DiplomaManagementSystem.Web.Areas.Employee;
 using DiplomaManagementSystem.Web.Areas.Employee.Models;
-using DiplomaManagementSystem.Web.Mapping;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -15,12 +16,11 @@ public sealed class HomeController(IEmployeeHomeService employeeHomeService) : C
     [HttpGet]
     public async Task<IActionResult> Index(CancellationToken cancellationToken)
     {
+        EmployeeHomeDto home = await employeeHomeService.GetHomeAsync(GetUserId(), cancellationToken);
+
         EmployeeHomeViewModel model = new()
         {
-            Roles = (await employeeHomeService.GetHomeAsync(GetUserId(), cancellationToken))
-                .Roles
-                .Select(EmployeeViewModelMapper.MapRoleCard)
-                .ToList(),
+            Sections = EmployeeRoleNavigationBuilder.BuildHomeSections(home.Roles),
         };
 
         return View(model);

@@ -178,7 +178,7 @@ public sealed class SupervisorController(
             Title = EmployeePageTitles.SubmitSupervisorFeedback,
             Items = items.Select(EmployeeViewModelMapper.MapPendingCheckpoint).ToList(),
             FormAction = "CompleteCheckpoint",
-            NavLinks = EmployeeNavigation.SupervisorWorkflow(),
+            RoleArea = EmployeeRoleArea.Supervisor,
         };
 
         return View(model);

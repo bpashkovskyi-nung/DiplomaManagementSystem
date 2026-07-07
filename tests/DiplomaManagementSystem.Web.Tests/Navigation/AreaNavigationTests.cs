@@ -1,4 +1,5 @@
 using DiplomaManagementSystem.Application;
+using DiplomaManagementSystem.Application.Employee.Dtos;
 using DiplomaManagementSystem.Web.Areas.Admin;
 using DiplomaManagementSystem.Web.Areas.Admin.Models;
 using DiplomaManagementSystem.Web.Areas.Employee;
@@ -11,27 +12,79 @@ namespace DiplomaManagementSystem.Web.Tests.Navigation;
 public sealed class AreaNavigationTests
 {
     [Fact]
-    public void EmployeeNavigation_SupervisorWorkflow_ContainsExpectedLinksInOrder()
+    public void EmployeeRoleNavigation_BuildSupervisorPage_ShowsSupervisorSubmenuOnly()
     {
-        IReadOnlyList<EmployeeNavLink> links = EmployeeNavigation.SupervisorWorkflow();
+        EmployeeHomeDto home = CreateMultiRoleHome();
 
-        Assert.Equal(5, links.Count);
-        Assert.Equal(EmployeePageTitles.MyStudents, links[0].Text);
-        Assert.Equal("Supervisor", links[0].Controller);
-        Assert.Equal("Students", links[0].Action);
-        Assert.Equal(EmployeePageTitles.SubmitSupervisorFeedback, links[3].Text);
-        Assert.Equal(EmployeePageTitles.Home, links[4].Text);
+        EmployeeRoleNavViewModel nav = EmployeeRoleNavigationBuilder.Build(
+            home,
+            EmployeeRoleArea.Supervisor,
+            "Supervisor",
+            "Students");
+
+        Assert.Equal(EmployeeRoleArea.Supervisor, nav.ActiveRole);
+        Assert.Equal(2, nav.AvailableRoles.Count);
+        Assert.True(nav.AvailableRoles.Single(role => role.Area == EmployeeRoleArea.Supervisor).IsActive);
+        Assert.Equal(4, nav.Submenu.Count);
+        Assert.Equal(EmployeePageTitles.MyStudentsNav, nav.Submenu[0].Text);
+        Assert.True(nav.Submenu[0].IsActive);
+        Assert.DoesNotContain(nav.Submenu, item => item.Controller == "AntiPlagiarism");
     }
 
     [Fact]
-    public void EmployeeNavigation_ReviewerWorkflow_ContainsExpectedLinks()
+    public void EmployeeRoleNavigation_BuildAntiPlagiarismPage_HasNoCrossRoleSubmenu()
     {
-        IReadOnlyList<EmployeeNavLink> links = EmployeeNavigation.ReviewerWorkflow();
+        EmployeeHomeDto home = CreateMultiRoleHome();
 
-        Assert.Equal(3, links.Count);
-        Assert.Equal(EmployeePageTitles.MyReviewStudents, links[0].Text);
-        Assert.Equal(EmployeePageTitles.SubmitExternalReview, links[1].Text);
-        Assert.Equal(EmployeePageTitles.Home, links[2].Text);
+        EmployeeRoleNavViewModel nav = EmployeeRoleNavigationBuilder.Build(
+            home,
+            EmployeeRoleArea.AntiPlagiarism,
+            "AntiPlagiarism",
+            "Pending");
+
+        Assert.Equal(EmployeeRoleArea.AntiPlagiarism, nav.ActiveRole);
+        Assert.Empty(nav.Submenu);
+        Assert.Equal(2, nav.AvailableRoles.Count);
+    }
+
+    [Fact]
+    public void EmployeeRoleNavigation_DetailsPage_HighlightsStudentsSubmenu()
+    {
+        EmployeeHomeDto home = CreateSupervisorOnlyHome();
+
+        EmployeeRoleNavViewModel nav = EmployeeRoleNavigationBuilder.Build(
+            home,
+            EmployeeRoleArea.Supervisor,
+            "Supervisor",
+            "Details");
+
+        EmployeeRoleSubmenuItemViewModel students = Assert.Single(nav.Submenu, item => item.Action == "Students");
+        Assert.True(students.IsActive);
+    }
+
+    [Fact]
+    public void EmployeeRoleNavigation_BuildHomeSections_GroupsRolesByArea()
+    {
+        IReadOnlyList<EmployeeHomeSectionViewModel> sections =
+            EmployeeRoleNavigationBuilder.BuildHomeSections(CreateMultiRoleHome().Roles);
+
+        Assert.Equal(2, sections.Count);
+        Assert.Equal(EmployeePageTitles.SupervisorRole, sections[0].Title);
+        Assert.Equal(3, sections[0].Items.Count);
+        Assert.NotNull(sections[0].StudentListLink);
+        Assert.Equal(EmployeePageTitles.MyStudentsNav, sections[0].StudentListLink!.Text);
+        Assert.Equal(EmployeePageTitles.SessionRolesSection, sections[1].Title);
+        Assert.Single(sections[1].Items);
+        Assert.Equal(EmployeePageTitles.AntiPlagiarismRole, sections[1].Items[0].RoleDisplay);
+    }
+
+    [Fact]
+    public void EmployeeRoleNavigation_GetSubmenuLabel_ReturnsShortLabels()
+    {
+        Assert.Equal(EmployeePageTitles.MyStudentsNav, EmployeeRoleNavigationBuilder.GetSubmenuLabel("SupervisorStudents"));
+        Assert.Equal(EmployeePageTitles.ConfirmStudentRequestNav, EmployeeRoleNavigationBuilder.GetSubmenuLabel("SupervisorPendingStudents"));
+        Assert.Equal(EmployeePageTitles.SubmitExternalReviewNav, EmployeeRoleNavigationBuilder.GetSubmenuLabel("Reviewer"));
+        Assert.Equal(EmployeePageTitles.AntiPlagiarismRole, EmployeeRoleNavigationBuilder.GetSubmenuLabel("AntiPlagiarism"));
     }
 
     [Fact]
@@ -80,4 +133,58 @@ public sealed class AreaNavigationTests
         Assert.Equal("DefenceSessions", links[1].Controller);
         Assert.Equal("Details", links[1].Action);
     }
+
+    private static EmployeeHomeDto CreateSupervisorOnlyHome() =>
+        new(
+        [
+            new EmployeeRoleCardDto(
+                "SupervisorStudents",
+                EmployeePageTitles.MyStudents,
+                2,
+                "Supervisor",
+                "Students",
+                CountsStudents: true),
+            new EmployeeRoleCardDto(
+                "SupervisorPendingStudents",
+                EmployeePageTitles.ConfirmStudentRequest,
+                1,
+                "Supervisor",
+                "PendingStudents"),
+        ]);
+
+    private static EmployeeHomeDto CreateMultiRoleHome() =>
+        new(
+        [
+            new EmployeeRoleCardDto(
+                "SupervisorStudents",
+                EmployeePageTitles.MyStudents,
+                2,
+                "Supervisor",
+                "Students",
+                CountsStudents: true),
+            new EmployeeRoleCardDto(
+                "SupervisorPendingStudents",
+                EmployeePageTitles.ConfirmStudentRequest,
+                1,
+                "Supervisor",
+                "PendingStudents"),
+            new EmployeeRoleCardDto(
+                "SupervisorTopicReviews",
+                EmployeePageTitles.ApproveTopicAsSupervisor,
+                0,
+                "Supervisor",
+                "TopicReviews"),
+            new EmployeeRoleCardDto(
+                "SupervisorFeedback",
+                EmployeePageTitles.SubmitSupervisorFeedback,
+                0,
+                "Supervisor",
+                "Checkpoints"),
+            new EmployeeRoleCardDto(
+                "AntiPlagiarism",
+                EmployeePageTitles.AntiPlagiarism,
+                3,
+                "AntiPlagiarism",
+                "Pending"),
+        ]);
 }

@@ -14,6 +14,6 @@
 
 <partial name="_TempDataAlerts"/>
 
-<partial name="_EmployeeNavLinks" model="Model.NavLinks"/>
+@await Component.InvokeAsync("EmployeeRoleNav", new { activeRole = Model.RoleArea })
 
 <partial name="_PendingCheckpointList" model="listModel"/>

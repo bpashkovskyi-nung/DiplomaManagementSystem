@@ -30,11 +30,12 @@ public sealed class UnifiedUiEndpointTests(PostgreSqlFixture fixture)
 
         UnifiedUiHtmlAssertions.AssertContainsNavTitles(
             html,
-            EmployeePageTitles.MyStudents,
-            EmployeePageTitles.ConfirmStudentRequest,
-            EmployeePageTitles.ApproveTopicAsSupervisor,
-            EmployeePageTitles.SubmitSupervisorFeedback,
-            EmployeePageTitles.Home);
+            EmployeePageTitles.MyStudentsNav,
+            EmployeePageTitles.ConfirmStudentRequestNav,
+            EmployeePageTitles.ApproveTopicNav,
+            EmployeePageTitles.SubmitSupervisorFeedbackNav);
+        Assert.Contains("employee-role-nav", html, StringComparison.Ordinal);
+        IntegrationTestHtmlAssertions.AssertContainsText(html, EmployeePageTitles.Home);
         Assert.Contains("table table-striped align-middle", html, StringComparison.Ordinal);
     }
 
@@ -59,8 +60,8 @@ public sealed class UnifiedUiEndpointTests(PostgreSqlFixture fixture)
         UnifiedUiHtmlAssertions.AssertCheckpointQueueTable(html);
         UnifiedUiHtmlAssertions.AssertContainsNavTitles(
             html,
-            EmployeePageTitles.ConfirmStudentRequest,
-            EmployeePageTitles.ApproveTopicAsSupervisor);
+            EmployeePageTitles.ConfirmStudentRequestNav,
+            EmployeePageTitles.ApproveTopicNav);
     }
 
     [SkippableFact]
@@ -86,8 +87,9 @@ public sealed class UnifiedUiEndpointTests(PostgreSqlFixture fixture)
         Assert.Contains("Student One", html, StringComparison.Ordinal);
         UnifiedUiHtmlAssertions.AssertContainsNavTitles(
             html,
-            EmployeePageTitles.MyReviewStudents,
-            EmployeePageTitles.Home);
+            EmployeePageTitles.MyStudentsNav);
+        IntegrationTestHtmlAssertions.AssertContainsText(html, EmployeePageTitles.Home);
+        Assert.Contains("employee-role-nav", html, StringComparison.Ordinal);
     }
 
     [SkippableFact]
@@ -110,6 +112,9 @@ public sealed class UnifiedUiEndpointTests(PostgreSqlFixture fixture)
         IntegrationTestHtmlAssertions.AssertContainsText(html, EmployeePageTitles.AntiPlagiarism);
         UnifiedUiHtmlAssertions.AssertCheckpointQueueTable(html);
         IntegrationTestHtmlAssertions.AssertContainsText(html, EmployeePageTitles.Home);
+        IntegrationTestHtmlAssertions.AssertContainsText(html, EmployeePageTitles.AntiPlagiarismRole);
+        Assert.Contains("employee-role-nav", html, StringComparison.Ordinal);
+        Assert.DoesNotContain(EmployeePageTitles.ConfirmStudentRequestNav, html, StringComparison.Ordinal);
     }
 
     [SkippableFact]

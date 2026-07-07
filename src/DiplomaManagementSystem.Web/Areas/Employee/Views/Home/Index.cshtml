@@ -7,7 +7,7 @@
 
 <partial name="_TempDataAlerts"/>
 
-@if (!Model.Roles.Any())
+@if (!Model.Sections.Any())
 {
     <div class="alert alert-info">
         Для вашого облікового запису ще немає активних ролей. Після призначення керівником або завідувачем кафедри тут з’являться відповідні розділи.
@@ -15,32 +15,46 @@
 }
 else
 {
-    <div class="row g-3">
-        @foreach (EmployeeRoleCardViewModel role in Model.Roles)
-        {
-            <div class="col-md-6">
-                <div class="card h-100@(role.CountsStudents ? " employee-students-card border-primary" : string.Empty)">
-                    <div class="card-body">
-                        <h5 class="card-title">@role.RoleDisplay</h5>
-                        <p class="card-text">
-                            @if (role.CountsStudents)
-                            {
-                                <text>Студентів: <strong>@role.PendingCount</strong></text>
-                            }
-                            else
-                            {
-                                <text>Очікує дій: <strong>@role.PendingCount</strong></text>
-                            }
-                        </p>
-                        <a class="btn btn-primary"
-                           asp-area="Employee"
-                           asp-controller="@role.Controller"
-                           asp-action="@role.Action">
-                            Перейти
-                        </a>
-                    </div>
-                </div>
+    @foreach (EmployeeHomeSectionViewModel roleSection in Model.Sections)
+    {
+        <section class="employee-home-section mb-4">
+            <div class="employee-home-section-header mb-3">
+                <h2 class="h5 employee-home-section-title mb-0">@roleSection.Title</h2>
+                @if (roleSection.StudentListLink is not null)
+                {
+                    <a class="employee-home-students-link"
+                       asp-area="Employee"
+                       asp-controller="@roleSection.StudentListLink.Controller"
+                       asp-action="@roleSection.StudentListLink.Action">
+                        @roleSection.StudentListLink.Text (@roleSection.StudentListLink.Count)
+                    </a>
+                }
             </div>
-        }
-    </div>
+
+            @if (roleSection.Items.Any())
+            {
+                <div class="row g-3">
+                    @foreach (EmployeeHomeItemViewModel item in roleSection.Items)
+                    {
+                        <div class="col-md-6 col-lg-4">
+                            <div class="card h-100">
+                                <div class="card-body d-flex flex-column">
+                                    <h3 class="h6 card-title">@item.RoleDisplay</h3>
+                                    <p class="card-text">
+                                        Очікує дій: <strong>@item.PendingCount</strong>
+                                    </p>
+                                    <a class="btn btn-primary mt-auto align-self-start"
+                                       asp-area="Employee"
+                                       asp-controller="@item.Controller"
+                                       asp-action="@item.Action">
+                                        Перейти
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    }
+                </div>
+            }
+        </section>
+    }
 }

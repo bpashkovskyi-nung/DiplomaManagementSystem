@@ -28,7 +28,7 @@ public sealed class AntiPlagiarismController(
         {
             Title = EmployeePageTitles.AntiPlagiarism,
             Items = items.Select(EmployeeViewModelMapper.MapPendingCheckpoint).ToList(),
-            NavLinks = EmployeeNavigation.HomeOnly(),
+            RoleArea = EmployeeRoleArea.AntiPlagiarism,
         };
 
         return View(model);

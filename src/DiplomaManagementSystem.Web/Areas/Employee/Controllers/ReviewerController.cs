@@ -61,7 +61,7 @@ public sealed class ReviewerController(
         {
             Title = EmployeePageTitles.SubmitExternalReview,
             Items = items.Select(EmployeeViewModelMapper.MapReviewerAssignment).ToList(),
-            NavLinks = EmployeeNavigation.ReviewerWorkflow(),
+            RoleArea = EmployeeRoleArea.Reviewer,
         };
 
         return View(model);

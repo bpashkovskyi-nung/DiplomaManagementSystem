@@ -7,7 +7,7 @@
 
 <partial name="_TempDataAlerts"/>
 
-<partial name="_EmployeeNavLinks" model="EmployeeNavigation.SupervisorWorkflow()"/>
+@await Component.InvokeAsync("EmployeeRoleNav", new { activeRole = EmployeeRoleArea.Supervisor })
 
 <table class="table table-striped align-middle">
     <thead>

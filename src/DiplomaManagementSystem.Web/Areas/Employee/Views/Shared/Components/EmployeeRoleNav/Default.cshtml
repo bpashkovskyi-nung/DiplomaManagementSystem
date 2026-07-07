@@ -1,0 +1,53 @@
+@model EmployeeRoleNavViewModel
+
+<nav class="employee-role-nav mb-3" aria-label="Навігація кабінету викладача">
+    <p class="mb-2">
+        <a asp-area="Employee" asp-controller="Home" asp-action="Index">@EmployeePageTitles.Home</a>
+    </p>
+
+    @if (Model.AvailableRoles.Count > 1)
+    {
+        <ul class="nav nav-pills employee-role-switcher flex-wrap gap-1 mb-2">
+            @foreach (EmployeeRoleSwitcherItemViewModel role in Model.AvailableRoles)
+            {
+                <li class="nav-item">
+                    <a class="nav-link@(role.IsActive ? " active" : string.Empty)"
+                       asp-area="Employee"
+                       asp-controller="@role.Controller"
+                       asp-action="@role.Action">
+                        @role.Display
+                        @if (role.PendingTotal > 0)
+                        {
+                            <span class="badge rounded-pill text-bg-light ms-1">@role.PendingTotal</span>
+                        }
+                    </a>
+                </li>
+            }
+        </ul>
+    }
+
+    @if (Model.Submenu.Count > 0)
+    {
+        <ul class="nav nav-underline employee-role-submenu flex-wrap gap-2">
+            @foreach (EmployeeRoleSubmenuItemViewModel item in Model.Submenu)
+            {
+                <li class="nav-item">
+                    <a class="nav-link@(item.IsActive ? " active" : string.Empty)"
+                       asp-area="Employee"
+                       asp-controller="@item.Controller"
+                       asp-action="@item.Action">
+                        @item.Text
+                        @if (item.CountsStudents)
+                        {
+                            <span class="text-muted ms-1">(@item.PendingCount)</span>
+                        }
+                        else if (item.PendingCount > 0)
+                        {
+                            <span class="badge rounded-pill text-bg-warning ms-1">@item.PendingCount</span>
+                        }
+                    </a>
+                </li>
+            }
+        </ul>
+    }
+</nav>

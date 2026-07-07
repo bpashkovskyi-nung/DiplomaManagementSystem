@@ -10,6 +10,6 @@
 
 <partial name="_TempDataAlerts"/>
 
-<partial name="_EmployeeNavLinks" model="EmployeeNavigation.SupervisorDetailsBack()"/>
+@await Component.InvokeAsync("EmployeeRoleNav", new { activeRole = EmployeeRoleArea.Supervisor })
 
 <partial name="_DiplomaDetailsReadOnly" model="Model"/>

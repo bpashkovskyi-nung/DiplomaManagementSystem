@@ -54,13 +54,4 @@ internal static class EmployeeViewModelMapper
                 VersionNumber = link.VersionNumber,
             };
 
-    public static EmployeeRoleCardViewModel MapRoleCard(EmployeeRoleCardDto role) => new()
-    {
-        RoleKey = role.RoleKey,
-        RoleDisplay = role.RoleDisplay,
-        PendingCount = role.PendingCount,
-        Controller = role.Controller,
-        Action = role.Action,
-        CountsStudents = role.CountsStudents,
-    };
 }
