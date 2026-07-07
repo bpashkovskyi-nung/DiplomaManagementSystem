@@ -67,6 +67,7 @@ public static class DependencyInjection
         services.AddValidatorsFromAssemblyContaining<StudentImportRowValidator>();
         services.AddValidatorsFromAssemblyContaining<StudyGroupFormValidator>();
         services.AddValidatorsFromAssemblyContaining<EmployeeFormValidator>();
+        services.AddValidatorsFromAssemblyContaining<SetEmployeeWorkloadLimitValidator>();
         services.AddValidatorsFromAssemblyContaining<SelectSupervisorValidator>();
         services.AddValidatorsFromAssemblyContaining<SupervisorRejectValidator>();
         services.AddValidatorsFromAssemblyContaining<CompleteCheckpointValidator>();

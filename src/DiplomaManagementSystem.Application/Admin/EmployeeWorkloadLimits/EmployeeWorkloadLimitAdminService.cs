@@ -7,26 +7,9 @@ using DiplomaManagementSystem.Domain.Entities;
 using DiplomaManagementSystem.Domain.Enums;
 using DiplomaManagementSystem.Domain.Exceptions;
 
-using FluentValidation;
-
 using Microsoft.EntityFrameworkCore;
 
 namespace DiplomaManagementSystem.Application.Admin.EmployeeWorkloadLimits;
-
-internal sealed class SetEmployeeWorkloadLimitValidator : AbstractValidator<SetEmployeeWorkloadLimitDto>
-{
-    public SetEmployeeWorkloadLimitValidator()
-    {
-        RuleFor(dto => dto.DefenceSessionId).NotEmpty();
-        RuleFor(dto => dto.EmployeeId).NotEmpty();
-        RuleFor(dto => dto.MaxSupervisorStudents)
-            .GreaterThanOrEqualTo(0)
-            .When(dto => dto.MaxSupervisorStudents.HasValue);
-        RuleFor(dto => dto.MaxReviewerStudents)
-            .GreaterThanOrEqualTo(0)
-            .When(dto => dto.MaxReviewerStudents.HasValue);
-    }
-}
 
 internal sealed class EmployeeWorkloadLimitAdminService(
     IApplicationDbContext dbContext,
