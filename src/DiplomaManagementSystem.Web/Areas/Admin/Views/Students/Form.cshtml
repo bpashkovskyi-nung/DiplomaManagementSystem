@@ -5,10 +5,10 @@
 }
 
 
-<h2>@ViewData["Title"]</h2>
+<h1 class="mb-1">@ViewData["Title"]</h1>
+<p class="text-muted mb-4">@Model.SessionLabel</p>
 
-<p class="text-muted">Сесія: @Model.SessionLabel</p>
-
+<partial name="_AdminNavLinks" model="AdminNavigation.StudentsBack(Model.DefenceSessionId)"/>
 
 <form asp-action="@(Model.Id is null ? "Create" : "Edit")" method="post">
     @Html.AntiForgeryToken()

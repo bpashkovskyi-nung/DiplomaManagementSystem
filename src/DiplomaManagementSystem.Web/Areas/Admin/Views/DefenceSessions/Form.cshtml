@@ -3,7 +3,9 @@
     ViewData["Title"] = Model.Id is null ? "Нова сесія захисту" : "Редагування сесії";
 }
 
-<h2>@ViewData["Title"]</h2>
+<h1 class="mb-4">@ViewData["Title"]</h1>
+
+<partial name="_AdminNavLinks" model="AdminNavigation.DefenceSessionsBack()"/>
 
 <form asp-action="@(Model.Id is null ? "Create" : "Edit")" method="post">
     @Html.AntiForgeryToken()

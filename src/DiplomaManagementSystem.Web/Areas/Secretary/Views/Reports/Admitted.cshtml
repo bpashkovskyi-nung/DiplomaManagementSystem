@@ -6,13 +6,15 @@
 <h1 class="mb-1">@ViewData["Title"]</h1>
 <p class="text-muted mb-4">@Model.SessionLabel</p>
 
+<partial name="_TempDataAlerts"/>
+
 <p class="mb-3">
     <a asp-action="AdmittedCsv">Завантажити CSV</a>
-    ·
-    <a asp-area="Secretary" asp-controller="Dashboard" asp-action="Index">@SecretaryPageTitles.Home</a>
 </p>
 
-<table class="table table-striped">
+<partial name="_SecretaryNavLinks" model="SecretaryNavigation.DocumentsAndReports()"/>
+
+<table class="table table-striped align-middle">
     <thead>
     <tr>
         <th>Студент</th>
@@ -30,7 +32,7 @@
             <td colspan="6" class="text-muted">Допущених студентів ще немає.</td>
         </tr>
     }
-    @foreach (var item in Model.Items)
+    @foreach (AdmittedReportItemViewModel item in Model.Items)
     {
         <tr>
             <td>@item.StudentFullName</td>

@@ -15,6 +15,12 @@ internal sealed class ApplicationUserConfiguration : IEntityTypeConfiguration<Ap
             .HasMaxLength(200)
             .IsRequired();
 
+        builder.Property(e => e.AcademicRank)
+            .HasConversion<short>();
+
+        builder.Property(e => e.ShortDisplayName)
+            .HasMaxLength(64);
+
         builder.Property(e => e.UserKind)
             .HasConversion<short>();
 

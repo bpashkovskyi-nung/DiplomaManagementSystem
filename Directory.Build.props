@@ -5,4 +5,5 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <TreatWarningsAsErrors>false</TreatWarningsAsErrors>
   </PropertyGroup>
+  <Import Project="$(MSBuildThisFileDirectory)eng\sonar-analyzers.props" Condition="'$(RunSonarAnalyzers)' == 'true'" />
 </Project>

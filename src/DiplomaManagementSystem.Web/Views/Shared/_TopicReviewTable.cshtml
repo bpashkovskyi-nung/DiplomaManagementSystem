@@ -25,7 +25,7 @@
             <td colspan="@columnCount" class="text-muted">@Model.EmptyMessage</td>
         </tr>
     }
-    @foreach (var item in Model.Items)
+    @foreach (TopicReviewItemViewModel item in Model.Items)
     {
         string approveModalId = $"approve-topic-{item.VersionId:N}";
         string rejectModalId = $"reject-topic-{item.VersionId:N}";

@@ -1,48 +1,32 @@
 @model DiplomaManagementSystem.Web.Areas.Admin.Models.StudentDetailsViewModel
-
 @{
-    ViewData["Title"] = "Студент";
+    ViewData["Title"] = AdminPageTitles.Students;
 }
 
+<h1 class="mb-1">@Model.FullName</h1>
+<p class="text-muted mb-4">@Model.Email · @Model.SessionLabel</p>
 
-<h2>@Model.FullName</h2>
+<partial name="_TempDataAlerts"/>
 
+<partial name="_AdminNavLinks" model="AdminNavigation.StudentsBack(Model.DefenceSessionId)"/>
 
 <dl class="row">
-
     <dt class="col-sm-3">Email</dt>
-
     <dd class="col-sm-9">@Model.Email</dd>
-
     <dt class="col-sm-3">Сесія</dt>
-
     <dd class="col-sm-9">@Model.SessionLabel</dd>
-
     <dt class="col-sm-3">Група</dt>
-
     <dd class="col-sm-9">@Model.StudyGroupName</dd>
-
     <dt class="col-sm-3">@DefenceWorkLabel.SingularCapitalized(Model.SessionType)</dt>
-
     <dd class="col-sm-9">@(Model.HasDiploma ? "Є" : "Немає")</dd>
-
     <dt class="col-sm-3">Створено</dt>
-
     <dd class="col-sm-9">@Model.CreatedAt.ToLocalTime().ToString("g")</dd>
-
 </dl>
 
-
 <p>
-
     <a class="btn btn-outline-secondary" asp-action="Edit" asp-route-id="@Model.Id">Редагувати</a>
-
     @if (Model.CanDelete)
-
     {
         <a class="btn btn-outline-danger" asp-action="Delete" asp-route-id="@Model.Id">Видалити</a>
     }
-
-    <a class="btn btn-link" asp-action="Index" asp-route-defenceSessionId="@Model.DefenceSessionId">До списку</a>
-
 </p>

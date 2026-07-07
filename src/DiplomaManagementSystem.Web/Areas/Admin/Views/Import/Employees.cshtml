@@ -1,11 +1,15 @@
 @model DiplomaManagementSystem.Web.Areas.Admin.Models.ImportEmployeesViewModel
 @{
-    ViewData["Title"] = "Імпорт викладачів";
+    ViewData["Title"] = AdminPageTitles.ImportEmployees;
 }
 
-<h2>Імпорт викладачів</h2>
+<h1 class="mb-4">@ViewData["Title"]</h1>
+
 <partial name="_TempDataAlerts"/>
-<p>Формат: ПІБ, email (перший рядок — заголовок, опційно).</p>
+
+<partial name="_AdminNavLinks" model="AdminNavigation.EmployeesBack()"/>
+
+<p>Формат: ПІБ, email, вчене звання (опційно), скорочене ПІБ (опційно). Перший рядок — заголовок.</p>
 
 <form asp-action="Employees" method="post" enctype="multipart/form-data">
     @Html.AntiForgeryToken()

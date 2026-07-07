@@ -26,7 +26,6 @@ public static class WorkflowUkrainianLabels
     public static string FormatCheckpointOutcome(CheckpointOutcome outcome) => outcome switch
     {
         CheckpointOutcome.Approved => "Допущено",
-        CheckpointOutcome.ApprovedWithRemarks => "Зауваження",
         CheckpointOutcome.NotApproved => "Не допущено",
         _ => outcome.ToString(),
     };

@@ -10,6 +10,9 @@ src/DiplomaManagementSystem.Web/App_Data/
 scripts/**/bin/
 scripts/**/obj/
 
+# Local Sonar analyzer report
+sonar-report.txt
+
 # User-specific files
 *.rsuser
 *.suo

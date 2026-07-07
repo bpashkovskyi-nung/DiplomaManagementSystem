@@ -13,12 +13,6 @@
 
 <partial name="_TempDataAlerts"/>
 
-<p class="mb-3">
-    <a asp-area="Employee" asp-controller="Supervisor" asp-action="Students">@EmployeePageTitles.MyStudents</a>
-    ·
-    <a asp-area="Employee" asp-controller="Supervisor" asp-action="PendingStudents">@EmployeePageTitles.ConfirmStudentRequest</a>
-    ·
-    <a asp-area="Employee" asp-controller="Home" asp-action="Index">@EmployeePageTitles.Home</a>
-</p>
+<partial name="_EmployeeNavLinks" model="EmployeeNavigation.SupervisorWorkflow()"/>
 
 <partial name="_TopicReviewTable" model="table"/>

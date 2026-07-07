@@ -14,5 +14,9 @@ public sealed class StudyGroupFormValidator : AbstractValidator<StudyGroupFormDt
         RuleFor(dto => dto.Name)
             .NotEmpty()
             .MaximumLength(50);
+
+        RuleFor(dto => dto.Course)
+            .InclusiveBetween(1, 6)
+            .When(dto => dto.Course.HasValue);
     }
 }

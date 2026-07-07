@@ -9,6 +9,8 @@ public sealed class StudyGroupFormViewModel
     public string SessionLabel { get; set; } = string.Empty;
 
     public string Name { get; set; } = string.Empty;
+
+    public int? Course { get; set; }
 }
 
 public sealed class StudyGroupDeleteViewModel

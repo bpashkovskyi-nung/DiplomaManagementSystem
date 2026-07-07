@@ -54,6 +54,7 @@ public sealed class UploadAndCheckpointHelperTests
         CompleteCheckpointViewModel model = new()
         {
             RequiresDocumentFile = true,
+            Outcome = CheckpointOutcome.Approved,
             Document = null,
         };
 
@@ -61,6 +62,23 @@ public sealed class UploadAndCheckpointHelperTests
 
         Assert.False(success);
         Assert.Contains("PDF", error, StringComparison.Ordinal);
+    }
+
+    [Fact]
+    public void TryGetRequiredDocument_WhenNotApproved_ReturnsTrueWithoutContent()
+    {
+        CompleteCheckpointViewModel model = new()
+        {
+            RequiresDocumentFile = true,
+            Outcome = CheckpointOutcome.NotApproved,
+            Document = null,
+        };
+
+        bool success = CheckpointCompletionHelper.TryGetRequiredDocument(model, out UploadFileContent? content, out string? error);
+
+        Assert.True(success);
+        Assert.Null(content);
+        Assert.Null(error);
     }
 
     // TC-WEB-MAP-012c

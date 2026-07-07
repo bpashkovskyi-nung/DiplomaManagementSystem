@@ -37,6 +37,7 @@ internal static class AdminDefenceSessionViewModelMapper
             {
                 Id = group.Id,
                 Name = group.Name,
+                Course = group.Course,
                 StudentCount = group.StudentCount,
             })
             .ToList(),

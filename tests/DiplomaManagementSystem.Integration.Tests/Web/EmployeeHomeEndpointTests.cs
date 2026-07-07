@@ -28,6 +28,7 @@ public sealed class EmployeeHomeEndpointTests(PostgreSqlFixture fixture)
         IntegrationTestHtmlAssertions.AssertContainsText(html, EmployeePageTitles.Home);
         IntegrationTestHtmlAssertions.AssertContainsText(html, EmployeePageTitles.MyStudents);
         IntegrationTestHtmlAssertions.AssertContainsText(html, EmployeePageTitles.ApproveTopicAsSupervisor);
+        IntegrationTestHtmlAssertions.AssertContainsText(html, EmployeePageTitles.SubmitSupervisorFeedback);
         Assert.Contains("/Employee/Supervisor/Students", html, StringComparison.Ordinal);
     }
 }

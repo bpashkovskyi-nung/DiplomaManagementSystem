@@ -1,4 +1,5 @@
 using DiplomaManagementSystem.Application.Secretary.Dtos;
+using DiplomaManagementSystem.Domain;
 
 using FluentValidation;
 
@@ -54,6 +55,7 @@ public sealed class OverrideAdmissionStepValidator : AbstractValidator<OverrideA
         RuleFor(dto => dto.Outcome).IsInEnum();
         RuleFor(dto => dto.Comment)
             .NotEmpty()
+            .When(dto => CheckpointOutcomeRules.RequiresComment(dto.Outcome))
             .MaximumLength(2000);
     }
 }

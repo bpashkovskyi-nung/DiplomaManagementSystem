@@ -1,3 +1,4 @@
+using DiplomaManagementSystem.Application.Common;
 using DiplomaManagementSystem.Application.Import.Models;
 
 using FluentValidation;
@@ -16,5 +17,12 @@ public sealed class EmployeeImportRowValidator : AbstractValidator<EmployeeImpor
             .NotEmpty()
             .EmailAddress()
             .MaximumLength(256);
+
+        RuleFor(x => x.ShortDisplayName)
+            .MaximumLength(64);
+
+        RuleFor(x => x.AcademicRankRaw)
+            .Must(rank => string.IsNullOrWhiteSpace(rank) || AcademicRankLabels.TryParse(rank, out _))
+            .WithMessage("Невідоме вчене звання.");
     }
 }

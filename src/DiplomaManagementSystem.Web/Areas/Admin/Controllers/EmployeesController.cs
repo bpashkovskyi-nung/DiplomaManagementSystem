@@ -1,6 +1,8 @@
 using DiplomaManagementSystem.Application.Admin.DefenceSessions.Contracts;
 using DiplomaManagementSystem.Application.Admin.Employees.Contracts;
 using DiplomaManagementSystem.Application.Admin.Employees.Dtos;
+using DiplomaManagementSystem.Application.Common;
+using DiplomaManagementSystem.Domain.Enums;
 using DiplomaManagementSystem.Domain.Exceptions;
 using DiplomaManagementSystem.Web.Areas.Admin.Models;
 using DiplomaManagementSystem.Web.Extensions;
@@ -70,6 +72,8 @@ public sealed class EmployeesController(
             Id = dto.Id,
             FullName = dto.FullName,
             Email = dto.Email,
+            AcademicRank = dto.AcademicRank,
+            ShortDisplayName = dto.ShortDisplayName,
         });
     }
 
@@ -110,6 +114,9 @@ public sealed class EmployeesController(
             Id = details.Id,
             FullName = details.FullName,
             Email = details.Email,
+            AcademicRankDisplay = details.AcademicRank is EmployeeAcademicRank rank
+                ? AcademicRankLabels.GetDisplayName(rank)
+                : "—",
             HasAssignments = details.HasAssignments,
             CreatedAt = details.CreatedAt,
         });
@@ -171,9 +178,12 @@ public sealed class EmployeesController(
             Id = item.Id,
             FullName = item.FullName,
             Email = item.Email,
+            AcademicRankDisplay = item.AcademicRank is EmployeeAcademicRank rank
+                ? AcademicRankLabels.GetDisplayName(rank)
+                : "—",
             CreatedAt = item.CreatedAt,
         };
 
     private static EmployeeFormDto ToDto(EmployeeFormViewModel model) =>
-        new(model.Id, model.FullName, model.Email);
+        new(model.Id, model.FullName, model.Email, model.AcademicRank, model.ShortDisplayName);
 }

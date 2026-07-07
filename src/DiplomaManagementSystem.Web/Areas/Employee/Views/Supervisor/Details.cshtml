@@ -10,10 +10,6 @@
 
 <partial name="_TempDataAlerts"/>
 
-<p class="mb-3">
-    <a asp-action="Students">← @EmployeePageTitles.MyStudents</a>
-    ·
-    <a asp-area="Employee" asp-controller="Home" asp-action="Index">@EmployeePageTitles.Home</a>
-</p>
+<partial name="_EmployeeNavLinks" model="EmployeeNavigation.SupervisorDetailsBack()"/>
 
 <partial name="_DiplomaDetailsReadOnly" model="Model"/>

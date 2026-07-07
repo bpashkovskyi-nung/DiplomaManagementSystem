@@ -1,78 +1,42 @@
 @model PendingCheckpointListViewModel
 
-@if (Model.Layout == PendingCheckpointListLayout.Table)
-{
-    <table class="table table-striped align-middle">
-        <thead>
-        <tr>
-            <th>Студент</th>
-            <th>Група</th>
-            <th>Тема</th>
-            <th>Робота</th>
-            <th></th>
-        </tr>
-        </thead>
-        <tbody>
-        @if (!Model.Items.Any())
-        {
-            <tr>
-                <td colspan="5" class="text-muted">@Model.EmptyMessage</td>
-            </tr>
-        }
-        @foreach (PendingCheckpointItemViewModel item in Model.Items)
-        {
-            <tr>
-                <td>@item.StudentFullName</td>
-                <td>@item.StudyGroupName</td>
-                <td>@(item.TopicTitle ?? "—")</td>
-                <td>
-                    <partial name="_PendingStudentWorkLink" model="item.LatestStudentWork"/>
-                </td>
-                <td>
-                    <partial name="_CheckpointReviewActions"
-                             model="new CheckpointReviewActionsViewModel
-                             {
-                                 DiplomaId = item.DiplomaId,
-                                 StudentFullName = item.StudentFullName,
-                                 FormAction = Model.FormAction,
-                                 RequiresDocumentFile = Model.RequiresDocumentFile,
-                             }"/>
-                </td>
-            </tr>
-        }
-        </tbody>
-    </table>
-}
-else
-{
+<table class="table table-striped align-middle">
+    <thead>
+    <tr>
+        <th>Студент</th>
+        <th>Група</th>
+        <th>Тема</th>
+        <th>Робота</th>
+        <th></th>
+    </tr>
+    </thead>
+    <tbody>
     @if (!Model.Items.Any())
     {
-        <p class="text-muted">@Model.EmptyMessage</p>
+        <tr>
+            <td colspan="5" class="text-muted">@Model.EmptyMessage</td>
+        </tr>
     }
-    else
+    @foreach (PendingCheckpointItemViewModel item in Model.Items)
     {
-        @foreach (PendingCheckpointItemViewModel item in Model.Items)
-        {
-            <div class="card mb-3">
-                <div class="card-body">
-                    <h5 class="card-title">
-                        @item.StudentFullName <small class="text-muted">(@item.StudyGroupName)</small>
-                    </h5>
-                    <p class="card-text mb-1">@(item.TopicTitle ?? "—")</p>
-                    <p class="card-text mb-3">
-                        <span class="text-muted">Робота:</span>
-                        <partial name="_PendingStudentWorkLink" model="item.LatestStudentWork"/>
-                    </p>
-                    <partial name="_CheckpointReviewActions"
-                             model="new CheckpointReviewActionsViewModel
-                             {
-                                 DiplomaId = item.DiplomaId,
-                                 StudentFullName = item.StudentFullName,
-                                 FormAction = Model.FormAction,
-                                 RequiresDocumentFile = Model.RequiresDocumentFile,
-                             }"/>
-                </div>
-            </div>
-        }
+        <tr>
+            <td>@item.StudentFullName</td>
+            <td>@item.StudyGroupName</td>
+            <td>@(item.TopicTitle ?? "—")</td>
+            <td>
+                <partial name="_PendingStudentWorkLink" model="item.LatestStudentWork"/>
+            </td>
+            <td class="text-end text-nowrap">
+                <partial name="_CheckpointReviewActions"
+                         model="new CheckpointReviewActionsViewModel
+                         {
+                             DiplomaId = item.DiplomaId,
+                             StudentFullName = item.StudentFullName,
+                             FormAction = Model.FormAction,
+                             RequiresDocumentFile = Model.RequiresDocumentFile,
+                         }"/>
+            </td>
+        </tr>
     }
-}
+    </tbody>
+</table>

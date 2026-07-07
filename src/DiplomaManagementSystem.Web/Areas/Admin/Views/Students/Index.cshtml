@@ -1,19 +1,21 @@
 @model DiplomaManagementSystem.Web.Areas.Admin.Models.StudentListViewModel
 @{
-    ViewData["Title"] = "Студенти";
+    ViewData["Title"] = AdminPageTitles.Students;
 }
 
-<h2>Студенти</h2>
+<h1 class="mb-1">@ViewData["Title"]</h1>
+<p class="text-muted mb-4">@Model.SessionLabel</p>
+
 <partial name="_TempDataAlerts"/>
-<p class="text-muted">Сесія: @Model.SessionLabel</p>
+
+<partial name="_AdminNavLinks" model="AdminNavigation.SessionContext(Model.DefenceSessionId)"/>
 
 <p>
     <a class="btn btn-primary" asp-action="Create" asp-route-defenceSessionId="@Model.DefenceSessionId">Новий студент</a>
-    <a class="btn btn-outline-secondary" asp-controller="Import" asp-action="Students" asp-route-defenceSessionId="@Model.DefenceSessionId">Імпорт</a>
-    <a class="btn btn-link" asp-controller="DefenceSessions" asp-action="Details" asp-route-id="@Model.DefenceSessionId">До сесії</a>
+    <a class="btn btn-outline-secondary" asp-controller="Import" asp-action="Students" asp-route-defenceSessionId="@Model.DefenceSessionId">@AdminPageTitles.ImportStudents</a>
 </p>
 
-<table class="table table-striped">
+<table class="table table-striped align-middle">
     <thead>
     <tr>
         <th>ПІБ</th>
@@ -23,13 +25,13 @@
     </tr>
     </thead>
     <tbody>
-    @foreach (var item in Model.Items)
+    @foreach (StudentListItemViewModel item in Model.Items)
     {
         <tr>
             <td>@item.FullName</td>
             <td>@item.Email</td>
             <td>@item.StudyGroupName</td>
-            <td class="text-end">
+            <td class="text-end text-nowrap">
                 <a class="btn btn-sm btn-outline-primary" asp-action="Details" asp-route-id="@item.Id">Деталі</a>
                 <a class="btn btn-sm btn-outline-secondary" asp-action="Edit" asp-route-id="@item.Id">Редагувати</a>
             </td>

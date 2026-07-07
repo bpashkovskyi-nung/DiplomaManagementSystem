@@ -127,19 +127,31 @@ public sealed class FluentValidationTests
 
     // TC-APP-VAL-014
     [Fact]
-    public void OverrideAdmissionStep_EmptyComment_Invalid()
+    public void OverrideAdmissionStep_EmptyComment_WhenNotApproved_Invalid()
     {
         ValidationResult result = _overrideAdmissionValidator.Validate(
             new OverrideAdmissionStepDto(
                 Guid.NewGuid(),
                 AdmissionStep.SupervisorFeedback,
-                CheckpointOutcome.Approved,
+                CheckpointOutcome.NotApproved,
                 ""));
 
         Assert.False(result.IsValid);
     }
 
     // TC-APP-VAL-014b
+    [Fact]
+    public void OverrideAdmissionStep_ApprovedWithoutComment_Valid()
+    {
+        ValidationResult result = _overrideAdmissionValidator.Validate(
+            new OverrideAdmissionStepDto(
+                Guid.NewGuid(),
+                AdmissionStep.SupervisorFeedback,
+                CheckpointOutcome.Approved,
+                null));
+
+        Assert.True(result.IsValid);
+    }
     [Fact]
     public void ApproveTopic_EmptyVersionId_Invalid()
     {

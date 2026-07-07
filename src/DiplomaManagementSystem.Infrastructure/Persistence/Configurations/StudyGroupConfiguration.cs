@@ -17,6 +17,8 @@ internal sealed class StudyGroupConfiguration : IEntityTypeConfiguration<StudyGr
             .HasMaxLength(50)
             .IsRequired();
 
+        builder.Property(e => e.Course);
+
         builder.Property(e => e.DefenceSessionId)
             .IsRequired();
 

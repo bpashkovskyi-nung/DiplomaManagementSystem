@@ -16,14 +16,14 @@
 else
 {
     <div class="row g-3">
-        @foreach (var role in Model.Roles)
+        @foreach (EmployeeRoleCardViewModel role in Model.Roles)
         {
             <div class="col-md-6">
-                <div class="card h-100">
+                <div class="card h-100@(role.CountsStudents ? " employee-students-card border-primary" : string.Empty)">
                     <div class="card-body">
                         <h5 class="card-title">@role.RoleDisplay</h5>
                         <p class="card-text">
-                            @if (role.RoleKey == "SupervisorStudents")
+                            @if (role.CountsStudents)
                             {
                                 <text>Студентів: <strong>@role.PendingCount</strong></text>
                             }

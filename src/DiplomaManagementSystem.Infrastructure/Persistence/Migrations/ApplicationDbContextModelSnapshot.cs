@@ -28,6 +28,9 @@ namespace DiplomaManagementSystem.Infrastructure.Persistence.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
+                    b.Property<short?>("AcademicRank")
+                        .HasColumnType("smallint");
+
                     b.Property<int>("AccessFailedCount")
                         .HasColumnType("integer");
 
@@ -78,6 +81,10 @@ namespace DiplomaManagementSystem.Infrastructure.Persistence.Migrations
 
                     b.Property<string>("SecurityStamp")
                         .HasColumnType("text");
+
+                    b.Property<string>("ShortDisplayName")
+                        .HasMaxLength(64)
+                        .HasColumnType("character varying(64)");
 
                     b.Property<Guid?>("StudyGroupId")
                         .HasColumnType("uuid");
@@ -322,7 +329,10 @@ namespace DiplomaManagementSystem.Infrastructure.Persistence.Migrations
                     b.HasIndex("DiplomaId", "Step", "AttemptNumber")
                         .IsUnique();
 
-                    b.ToTable("diploma_admission_step_attempts", (string)null);
+                    b.ToTable("diploma_admission_step_attempts", null, t =>
+                        {
+                            t.HasCheckConstraint("CK_diploma_admission_step_attempts_outcome", "\"Outcome\" IN (0, 1)");
+                        });
                 });
 
             modelBuilder.Entity("DiplomaManagementSystem.Domain.Entities.DiplomaComment", b =>
@@ -463,11 +473,45 @@ namespace DiplomaManagementSystem.Infrastructure.Persistence.Migrations
                     b.ToTable("diploma_topic_versions", (string)null);
                 });
 
+            modelBuilder.Entity("DiplomaManagementSystem.Domain.Entities.EmployeeSessionWorkloadLimit", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("DefenceSessionId")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("EmployeeId")
+                        .HasColumnType("uuid");
+
+                    b.Property<int?>("MaxReviewerStudents")
+                        .HasColumnType("integer");
+
+                    b.Property<int?>("MaxSupervisorStudents")
+                        .HasColumnType("integer");
+
+                    b.Property<DateTimeOffset>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("EmployeeId");
+
+                    b.HasIndex("DefenceSessionId", "EmployeeId")
+                        .IsUnique();
+
+                    b.ToTable("employee_session_workload_limits", (string)null);
+                });
+
             modelBuilder.Entity("DiplomaManagementSystem.Domain.Entities.StudyGroup", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
+
+                    b.Property<int?>("Course")
+                        .HasColumnType("integer");
 
                     b.Property<DateTimeOffset>("CreatedAt")
                         .HasColumnType("timestamp with time zone");
@@ -774,6 +818,23 @@ namespace DiplomaManagementSystem.Infrastructure.Persistence.Migrations
                         .OnDelete(DeleteBehavior.SetNull);
 
                     b.Navigation("Diploma");
+                });
+
+            modelBuilder.Entity("DiplomaManagementSystem.Domain.Entities.EmployeeSessionWorkloadLimit", b =>
+                {
+                    b.HasOne("DiplomaManagementSystem.Domain.Entities.DefenceSession", "DefenceSession")
+                        .WithMany()
+                        .HasForeignKey("DefenceSessionId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("DiplomaManagementSystem.Application.Identity.ApplicationUser", null)
+                        .WithMany()
+                        .HasForeignKey("EmployeeId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("DefenceSession");
                 });
 
             modelBuilder.Entity("DiplomaManagementSystem.Domain.Entities.StudyGroup", b =>

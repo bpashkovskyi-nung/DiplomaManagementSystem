@@ -1,25 +1,2 @@
 @model PendingCheckpointsViewModel
-@{
-    ViewData["Title"] = Model.Title;
-    PendingCheckpointListViewModel listModel = new()
-    {
-        Items = Model.Items,
-        Layout = PendingCheckpointListLayout.Table,
-        FormAction = "CompleteCheckpoint",
-        EmptyMessage = "Немає очікуючих записів.",
-    };
-}
-
-<h1 class="mb-4">@ViewData["Title"]</h1>
-
-<partial name="_TempDataAlerts"/>
-
-<p class="mb-3">
-    <a asp-area="Employee" asp-controller="Supervisor" asp-action="PendingStudents">@EmployeePageTitles.ConfirmStudentRequest</a>
-    ·
-    <a asp-area="Employee" asp-controller="Supervisor" asp-action="TopicReviews">@EmployeePageTitles.ApproveTopicAsSupervisor</a>
-    ·
-    <a asp-area="Employee" asp-controller="Home" asp-action="Index">@EmployeePageTitles.Home</a>
-</p>
-
-<partial name="_PendingCheckpointList" model="listModel"/>
+<partial name="_CheckpointQueuePage" model="Model"/>

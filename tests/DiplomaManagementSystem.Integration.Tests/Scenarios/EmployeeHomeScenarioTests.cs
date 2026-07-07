@@ -43,6 +43,28 @@ public sealed class EmployeeHomeScenarioTests(PostgreSqlFixture fixture)
     }
 
     [SkippableFact]
+    public async Task SupervisorHome_AtTopicStage_ShowsSupervisorFeedbackCardEvenWhenQueueEmpty()
+    {
+        IntegrationTestGuards.RequireDatabase(fixture);
+        IntegrationScenario scenario = await new IntegrationScenarioBuilder(fixture.CreateProvider())
+            .SeedFullScenarioAsync();
+
+        await using AsyncServiceScope scope = fixture.CreateProvider().CreateAsyncScope();
+        await WorkflowScenarioRunner.RunUpToTopicSubmittedAsync(scope.ServiceProvider, scenario);
+
+        IEmployeeHomeService employeeHomeService = scope.ServiceProvider.GetRequiredService<IEmployeeHomeService>();
+        EmployeeHomeDto home = await employeeHomeService.GetHomeAsync(scenario.SupervisorId, CancellationToken.None);
+
+        EmployeeRoleCardDto feedbackCard = Assert.Single(
+            home.Roles,
+            role => role.RoleKey == "SupervisorFeedback");
+        Assert.Equal(0, feedbackCard.PendingCount);
+        Assert.Equal(EmployeePageTitles.SubmitSupervisorFeedback, feedbackCard.RoleDisplay);
+        Assert.Equal("Supervisor", feedbackCard.Controller);
+        Assert.Equal("Checkpoints", feedbackCard.Action);
+    }
+
+    [SkippableFact]
     public async Task DepartmentHeadHome_AfterSupervisorApproval_ShowsPendingTopic()
     {
         IntegrationTestGuards.RequireDatabase(fixture);
@@ -145,7 +167,14 @@ public sealed class EmployeeHomeScenarioTests(PostgreSqlFixture fixture)
             home.Roles,
             role => role.RoleKey == "Reviewer");
         Assert.Equal(1, reviewerCard.PendingCount);
+        Assert.Equal(EmployeePageTitles.SubmitExternalReview, reviewerCard.RoleDisplay);
         Assert.Equal("Reviewer", reviewerCard.Controller);
+
+        EmployeeRoleCardDto reviewerStudentsCard = Assert.Single(
+            home.Roles,
+            role => role.RoleKey == "ReviewerStudents");
+        Assert.Equal(EmployeePageTitles.MyReviewStudents, reviewerStudentsCard.RoleDisplay);
+        Assert.Equal(1, reviewerStudentsCard.PendingCount);
     }
 
     [SkippableFact]

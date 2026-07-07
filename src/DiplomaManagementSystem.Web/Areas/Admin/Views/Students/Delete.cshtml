@@ -3,7 +3,9 @@
     ViewData["Title"] = "Видалення студента";
 }
 
-<h2>Видалення студента</h2>
+<h1 class="mb-4">Видалення студента</h1>
+
+<partial name="_AdminNavLinks" model="AdminNavigation.StudentsBack(Model.DefenceSessionId)"/>
 
 <div asp-validation-summary="ModelOnly" class="text-danger"></div>
 

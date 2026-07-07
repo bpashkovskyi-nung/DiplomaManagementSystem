@@ -29,4 +29,5 @@ public sealed record DefenceSessionDetailsDto(
 public sealed record StudyGroupItemDto(
     Guid Id,
     string Name,
+    int? Course,
     int StudentCount);

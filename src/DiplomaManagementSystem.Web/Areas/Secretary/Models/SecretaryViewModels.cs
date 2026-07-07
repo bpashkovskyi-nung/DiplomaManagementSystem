@@ -5,6 +5,8 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 
 namespace DiplomaManagementSystem.Web.Areas.Secretary.Models;
 
+public sealed record SecretaryNavLink(string Text, string Controller, string Action);
+
 public sealed class SessionSelectViewModel
 {
     public IReadOnlyList<SelectListItem> Sessions { get; set; } = [];
@@ -338,4 +340,32 @@ public sealed class AdmittedReportItemViewModel
     public string? ReviewerName { get; set; }
 
     public DateOnly? DefenceDate { get; set; }
+}
+
+public sealed class TopicOrderStudyGroupOptionViewModel
+{
+    public Guid Id { get; set; }
+
+    public string Name { get; set; } = string.Empty;
+
+    public int? Course { get; set; }
+}
+
+public sealed class TopicOrderViewModel
+{
+    public Guid SessionId { get; set; }
+
+    public string SessionLabel { get; set; } = string.Empty;
+
+    public string OrderNumber { get; set; } = string.Empty;
+
+    public int Year { get; set; }
+
+    public IReadOnlyList<TopicOrderStudyGroupOptionViewModel> StudyGroups { get; set; } = [];
+
+    public List<Guid> SelectedStudyGroupIds { get; set; } = [];
+
+    public IReadOnlyList<string> Warnings { get; set; } = [];
+
+    public int? PreviewStudentCount { get; set; }
 }

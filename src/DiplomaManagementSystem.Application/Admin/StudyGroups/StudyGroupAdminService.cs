@@ -43,6 +43,7 @@ internal sealed class StudyGroupAdminService(IApplicationDbContext dbContext) : 
             .Select(group => new StudyGroupListItemDto(
                 group.Id,
                 group.Name,
+                group.Course,
                 group.DefenceSessionId,
                 sessionLabel,
                 studentCounts.GetValueOrDefault(group.Id)))
@@ -68,7 +69,7 @@ internal sealed class StudyGroupAdminService(IApplicationDbContext dbContext) : 
             ? null
             : SecretarySessionLabel.Format(session.Year, session.Type, session.Semester);
 
-        return new StudyGroupFormDto(group.Id, group.DefenceSessionId, group.Name, sessionLabel);
+        return new StudyGroupFormDto(group.Id, group.DefenceSessionId, group.Name, group.Course, sessionLabel);
     }
 
     public async Task<StudyGroupListItemDto?> GetListItemAsync(Guid id, CancellationToken cancellationToken = default)
@@ -102,6 +103,7 @@ internal sealed class StudyGroupAdminService(IApplicationDbContext dbContext) : 
         return new StudyGroupListItemDto(
             group.Id,
             group.Name,
+            group.Course,
             group.DefenceSessionId,
             sessionLabel,
             studentCount);
@@ -116,6 +118,7 @@ internal sealed class StudyGroupAdminService(IApplicationDbContext dbContext) : 
         {
             Id = Guid.NewGuid(),
             Name = dto.Name.Trim(),
+            Course = dto.Course,
             DefenceSessionId = dto.DefenceSessionId,
             CreatedAt = DateTimeOffset.UtcNow,
         };
@@ -143,6 +146,7 @@ internal sealed class StudyGroupAdminService(IApplicationDbContext dbContext) : 
         await EnsureSessionAllowsChangesAsync(group.DefenceSessionId, cancellationToken);
         await EnsureNameAvailableAsync(dto.Name, group.DefenceSessionId, excludeId: id, cancellationToken);
         group.Name = dto.Name.Trim();
+        group.Course = dto.Course;
         await dbContext.SaveChangesAsync(cancellationToken);
     }
 

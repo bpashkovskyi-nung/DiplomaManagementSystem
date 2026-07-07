@@ -16,9 +16,7 @@
 
 <partial name="_TempDataAlerts"/>
 
-<p class="mb-3">
-    <a asp-area="Employee" asp-controller="Home" asp-action="Index">@EmployeePageTitles.Home</a>
-</p>
+<partial name="_EmployeeNavLinks" model="EmployeeNavigation.SupervisorWorkflow()"/>
 
 <form method="get" class="row g-2 mb-4">
     <div class="col-md-2">

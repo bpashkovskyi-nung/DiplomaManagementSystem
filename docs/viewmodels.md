@@ -123,7 +123,7 @@ POST-моделі на тій же сторінці: `AssignReviewerViewModel`, 
 | `Document` | `IFormFile?` — обов'язковий коли `RequiresDocumentFile` |
 | `RequiresDocumentFile` | `false` для normocontrol (formatting) без файлу |
 
-Інші: `EmployeeHomeViewModel`, `PendingCheckpointsViewModel`, `TopicReviewsViewModel`, `ReviewerAssignmentsViewModel`, тощо.
+Інші: `EmployeeHomeViewModel`, `PendingCheckpointsViewModel`, `TopicReviewsViewModel`, тощо.
 
 ---
 

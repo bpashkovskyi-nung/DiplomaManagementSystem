@@ -89,11 +89,7 @@
   <data name="AdmissionStep_AntiPlagiarismClearance" xml:space="preserve"><value>Антиплагіат</value></data>
   <data name="AdmissionStep_ReviewerAssignment" xml:space="preserve"><value>Призначення рецензента</value></data>
   <data name="AdmissionStep_ExternalReview" xml:space="preserve"><value>Рецензія</value></data>
-  <data name="FormattingReviewOutcome_Approved" xml:space="preserve"><value>Допущено</value></data>
-  <data name="FormattingReviewOutcome_ApprovedWithRemarks" xml:space="preserve"><value>Допущено з зауваженнями</value></data>
-  <data name="FormattingReviewOutcome_NotApproved" xml:space="preserve"><value>Не допущено</value></data>
   <data name="CheckpointOutcome_Approved" xml:space="preserve"><value>Допущено</value></data>
-  <data name="CheckpointOutcome_ApprovedWithRemarks" xml:space="preserve"><value>Допущено з зауваженнями</value></data>
   <data name="CheckpointOutcome_NotApproved" xml:space="preserve"><value>Не допущено</value></data>
   <data name="ReviewAssignmentStatus_NotAssigned" xml:space="preserve"><value>Не призначено</value></data>
   <data name="ReviewAssignmentStatus_Assigned" xml:space="preserve"><value>Призначено</value></data>

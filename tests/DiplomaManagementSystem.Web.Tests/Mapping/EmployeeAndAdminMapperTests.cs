@@ -71,17 +71,19 @@ public sealed class EmployeeAndAdminMapperTests
 
     // TC-WEB-MAP-009d
     [Fact]
-    public void MapReviewerAssignment_MapsDisplay()
+    public void MapReviewerAssignment_MapsStudyGroupName()
     {
         ReviewerAssignmentItemDto dto = new(
             Guid.NewGuid(),
             "Іван",
+            "КН-41",
             "Тема",
             ReviewAssignmentStatus.Assigned);
 
-        ReviewerAssignmentItemViewModel viewModel = EmployeeViewModelMapper.MapReviewerAssignment(dto);
+        PendingCheckpointItemViewModel viewModel = EmployeeViewModelMapper.MapReviewerAssignment(dto);
 
-        Assert.Contains("признач", viewModel.ReviewAssignmentDisplay, StringComparison.OrdinalIgnoreCase);
+        Assert.Equal("КН-41", viewModel.StudyGroupName);
+        Assert.Equal("Тема", viewModel.TopicTitle);
     }
 
     // TC-WEB-MAP-009e
@@ -126,7 +128,7 @@ public sealed class EmployeeAndAdminMapperTests
             DefenceSessionType.Master,
             null,
             DefenceSessionStatus.Active,
-            [new StudyGroupItemDto(Guid.NewGuid(), "КН-41", 25)],
+            [new StudyGroupItemDto(Guid.NewGuid(), "КН-41", 4, 25)],
             10);
 
         DefenceSessionDetailsViewModel viewModel = AdminDefenceSessionViewModelMapper.MapDetails(dto);
@@ -134,5 +136,6 @@ public sealed class EmployeeAndAdminMapperTests
         Assert.True(viewModel.CanArchive);
         Assert.Single(viewModel.Groups);
         Assert.Equal(25, viewModel.Groups[0].StudentCount);
+        Assert.Equal(4, viewModel.Groups[0].Course);
     }
 }

@@ -3,7 +3,6 @@
 @{
     string modalId = $"checkpoint-modal-{Model.DiplomaId:N}";
     string approvedLabel = UkrainianDisplay.FormatCheckpointOutcome(CheckpointOutcome.Approved);
-    string remarksLabel = UkrainianDisplay.FormatCheckpointOutcome(CheckpointOutcome.ApprovedWithRemarks);
     string notApprovedLabel = UkrainianDisplay.FormatCheckpointOutcome(CheckpointOutcome.NotApproved);
 }
 
@@ -14,17 +13,9 @@
             data-bs-target="#@modalId"
             data-checkpoint-outcome="@CheckpointOutcome.Approved"
             data-comment-required="false"
+            data-document-required="@Model.RequiresDocumentFile.ToString().ToLowerInvariant()"
             data-modal-title="@approvedLabel">
         @approvedLabel
-    </button>
-    <button type="button"
-            class="btn btn-sm btn-warning"
-            data-bs-toggle="modal"
-            data-bs-target="#@modalId"
-            data-checkpoint-outcome="@CheckpointOutcome.ApprovedWithRemarks"
-            data-comment-required="true"
-            data-modal-title="@remarksLabel">
-        @remarksLabel
     </button>
     <button type="button"
             class="btn btn-sm btn-outline-danger"
@@ -32,6 +23,7 @@
             data-bs-target="#@modalId"
             data-checkpoint-outcome="@CheckpointOutcome.NotApproved"
             data-comment-required="true"
+            data-document-required="false"
             data-modal-title="@notApprovedLabel">
         @notApprovedLabel
     </button>

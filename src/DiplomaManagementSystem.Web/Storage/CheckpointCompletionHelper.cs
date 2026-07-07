@@ -1,4 +1,6 @@
 using DiplomaManagementSystem.Application.Storage;
+using DiplomaManagementSystem.Domain;
+using DiplomaManagementSystem.Domain.Enums;
 using DiplomaManagementSystem.Web.Areas.Employee.Models;
 
 namespace DiplomaManagementSystem.Web.Storage;
@@ -10,7 +12,7 @@ internal static class CheckpointCompletionHelper
         out UploadFileContent? content,
         out string? errorMessage)
     {
-        if (!model.RequiresDocumentFile)
+        if (!RequiresDocumentUpload(model))
         {
             content = null;
             errorMessage = null;
@@ -28,4 +30,7 @@ internal static class CheckpointCompletionHelper
         errorMessage = null;
         return true;
     }
+
+    public static bool RequiresDocumentUpload(CompleteCheckpointViewModel model) =>
+        model.RequiresDocumentFile && CheckpointOutcomeRules.RequiresDocument(model.Outcome);
 }

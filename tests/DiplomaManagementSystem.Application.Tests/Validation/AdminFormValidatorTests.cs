@@ -1,3 +1,5 @@
+using DiplomaManagementSystem.Application.Admin.EmployeeWorkloadLimits;
+using DiplomaManagementSystem.Application.Admin.EmployeeWorkloadLimits.Dtos;
 using DiplomaManagementSystem.Application.Admin.AnnualRoles;
 using DiplomaManagementSystem.Application.Admin.AnnualRoles.Dtos;
 using DiplomaManagementSystem.Application.Admin.DefenceSessions;
@@ -120,6 +122,26 @@ public sealed class AdminFormValidatorTests
     {
         EmployeeFormValidator validator = new(_emailDomainValidator);
         ValidationResult result = validator.Validate(new EmployeeFormDto(null, "Петро Петренко", "petro@test.local"));
+
+        Assert.True(result.IsValid);
+    }
+
+    [Fact]
+    public void SetEmployeeWorkloadLimitValidator_NegativeLimit_Invalid()
+    {
+        SetEmployeeWorkloadLimitValidator validator = new();
+        ValidationResult result = validator.Validate(
+            new SetEmployeeWorkloadLimitDto(Guid.NewGuid(), Guid.NewGuid(), -1, 0));
+
+        Assert.False(result.IsValid);
+    }
+
+    [Fact]
+    public void SetEmployeeWorkloadLimitValidator_ValidLimits_Valid()
+    {
+        SetEmployeeWorkloadLimitValidator validator = new();
+        ValidationResult result = validator.Validate(
+            new SetEmployeeWorkloadLimitDto(Guid.NewGuid(), Guid.NewGuid(), 3, 2));
 
         Assert.True(result.IsValid);
     }

@@ -1,21 +1,2 @@
 @model PendingCheckpointsViewModel
-@{
-    ViewData["Title"] = Model.Title;
-    PendingCheckpointListViewModel listModel = new()
-    {
-        Items = Model.Items,
-        Layout = PendingCheckpointListLayout.Cards,
-        FormAction = "Complete",
-        RequiresDocumentFile = false,
-    };
-}
-
-<h1 class="mb-4">@ViewData["Title"]</h1>
-
-<partial name="_TempDataAlerts"/>
-
-<p class="mb-3">
-    <a asp-area="Employee" asp-controller="Home" asp-action="Index">@EmployeePageTitles.Home</a>
-</p>
-
-<partial name="_PendingCheckpointList" model="listModel"/>
+<partial name="_CheckpointQueuePage" model="Model"/>

@@ -22,6 +22,7 @@ public sealed record CompleteCheckpointDto(
 public sealed record ReviewerAssignmentItemDto(
     Guid DiplomaId,
     string StudentFullName,
+    string StudyGroupName,
     string TopicTitle,
     ReviewAssignmentStatus ReviewAssignmentStatus,
     PendingStudentWorkLinkDto? LatestStudentWork = null);

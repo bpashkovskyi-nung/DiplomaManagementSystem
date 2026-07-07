@@ -37,10 +37,10 @@ document.addEventListener('DOMContentLoaded', () => {
                 title.textContent = button.getAttribute('data-modal-title') ?? '';
             }
 
-            const requiresDocument = modal.querySelector('[data-requires-document]')?.getAttribute('value') === 'true';
             const fileInput = modal.querySelector('[name="Document"]');
             if (fileInput) {
-                fileInput.required = requiresDocument;
+                const documentRequired = button.getAttribute('data-document-required') === 'true';
+                fileInput.required = documentRequired;
                 fileInput.value = '';
             }
         });

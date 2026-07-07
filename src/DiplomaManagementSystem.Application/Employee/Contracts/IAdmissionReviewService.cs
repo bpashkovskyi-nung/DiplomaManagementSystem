@@ -12,7 +12,7 @@ public interface IAdmissionReviewService
     Task CompleteSupervisorFeedbackAsync(
         Guid supervisorId,
         CompleteCheckpointDto request,
-        UploadFileContent document,
+        UploadFileContent? document,
         CancellationToken cancellationToken = default);
 
     Task<IReadOnlyList<ReviewerAssignmentItemDto>> GetReviewerAssignmentsAsync(
@@ -22,7 +22,7 @@ public interface IAdmissionReviewService
     Task CompleteExternalReviewAsync(
         Guid reviewerId,
         CompleteCheckpointDto request,
-        UploadFileContent document,
+        UploadFileContent? document,
         CancellationToken cancellationToken = default);
 
     Task<IReadOnlyList<PendingCheckpointItemDto>> GetAntiPlagiarismPendingAsync(
@@ -32,7 +32,7 @@ public interface IAdmissionReviewService
     Task CompleteAntiPlagiarismAsync(
         Guid officerId,
         CompleteCheckpointDto request,
-        UploadFileContent document,
+        UploadFileContent? document,
         CancellationToken cancellationToken = default);
 
     Task<IReadOnlyList<PendingCheckpointItemDto>> GetFormattingReviewPendingAsync(

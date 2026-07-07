@@ -2,6 +2,8 @@ using DiplomaManagementSystem.Application.Admin.AnnualRoles;
 using DiplomaManagementSystem.Application.Admin.AnnualRoles.Contracts;
 using DiplomaManagementSystem.Application.Admin.DefenceSessions;
 using DiplomaManagementSystem.Application.Admin.DefenceSessions.Contracts;
+using DiplomaManagementSystem.Application.Admin.EmployeeWorkloadLimits;
+using DiplomaManagementSystem.Application.Admin.EmployeeWorkloadLimits.Contracts;
 using DiplomaManagementSystem.Application.Admin.Employees;
 using DiplomaManagementSystem.Application.Admin.Employees.Contracts;
 using DiplomaManagementSystem.Application.Admin.Students;
@@ -29,6 +31,8 @@ using DiplomaManagementSystem.Application.Import.Validation;
 using DiplomaManagementSystem.Application.Options;
 using DiplomaManagementSystem.Application.Secretary;
 using DiplomaManagementSystem.Application.Secretary.Contracts;
+using DiplomaManagementSystem.Application.Secretary.Documents;
+using DiplomaManagementSystem.Application.Secretary.Documents.Contracts;
 using DiplomaManagementSystem.Application.Secretary.Validation;
 using DiplomaManagementSystem.Application.Security;
 using DiplomaManagementSystem.Application.Student;
@@ -67,6 +71,7 @@ public static class DependencyInjection
         services.AddValidatorsFromAssemblyContaining<SupervisorRejectValidator>();
         services.AddValidatorsFromAssemblyContaining<CompleteCheckpointValidator>();
         services.AddValidatorsFromAssemblyContaining<AssignReviewerValidator>();
+        services.AddValidatorsFromAssemblyContaining<TopicOrderGenerateRequestValidator>();
 
         services.AddOptions<BootstrapOptions>()
             .BindConfiguration(BootstrapOptions.SectionName);
@@ -80,6 +85,8 @@ public static class DependencyInjection
             .BindConfiguration(AppLocalizationOptions.SectionName);
         services.AddOptions<FileStorageOptions>()
             .BindConfiguration(FileStorageOptions.SectionName);
+        services.AddOptions<OrganizationOptions>()
+            .BindConfiguration(OrganizationOptions.SectionName);
 
         services.AddScoped<IUserProvisioningService, UserProvisioningService>();
         services.AddScoped<IImportFileParser, ImportFileParser>();
@@ -94,6 +101,8 @@ public static class DependencyInjection
         services.AddScoped<IStudentAdminService, StudentAdminService>();
         services.AddScoped<IEmployeeAdminService, EmployeeAdminService>();
         services.AddScoped<IAnnualRoleService, AnnualRoleService>();
+        services.AddScoped<IEmployeeWorkloadLimitAdminService, EmployeeWorkloadLimitAdminService>();
+        services.AddScoped<IEmployeeWorkloadLimitService, EmployeeWorkloadLimitService>();
         services.AddScoped<ISecretaryAccessService, SecretaryAccessService>();
         services.AddScoped<ISecretaryDashboardService, SecretaryDashboardService>();
         services.AddScoped<ISecretaryDiplomaListService, SecretaryDiplomaListService>();
@@ -101,6 +110,7 @@ public static class DependencyInjection
         services.AddScoped<IEmployeeHomeService, EmployeeHomeService>();
         services.AddScoped<ISupervisorWorkflowService, SupervisorWorkflowService>();
         services.AddScoped<ISupervisorDiplomaListService, SupervisorDiplomaListService>();
+        services.AddScoped<IReviewerDiplomaListService, ReviewerDiplomaListService>();
         services.AddScoped<ISupervisorDiplomaDetailsService, SupervisorDiplomaDetailsService>();
         services.AddScoped<IDepartmentHeadWorkflowService, DepartmentHeadWorkflowService>();
         services.AddScoped<IAdmissionReviewService, AdmissionReviewService>();
@@ -109,6 +119,8 @@ public static class DependencyInjection
         services.AddScoped<ISecretaryDiplomaDetailsService, SecretaryDiplomaDetailsService>();
         services.AddScoped<ISecretaryDiplomaActionService, SecretaryDiplomaActionService>();
         services.AddScoped<IAdmittedReportService, AdmittedReportService>();
+        services.AddScoped<TopicOrderDocxGenerator>();
+        services.AddScoped<ITopicOrderDocumentService, TopicOrderDocumentService>();
         services.AddScoped<IAdminPreviewUserLookup, AdminPreviewUserLookup>();
         services.AddScoped<IAdminPreviewUserPickerService, AdminPreviewUserPickerService>();
 

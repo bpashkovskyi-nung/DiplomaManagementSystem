@@ -1,0 +1,69 @@
+@model DiplomaManagementSystem.Web.Areas.Admin.Models.EmployeeWorkloadLimitsViewModel
+@{
+    ViewData["Title"] = AdminPageTitles.EmployeeWorkloadLimits;
+}
+
+<h1 class="mb-1">@ViewData["Title"]</h1>
+<p class="text-muted mb-4">@Model.SessionLabel</p>
+
+<div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+
+<partial name="_TempDataAlerts"/>
+
+<partial name="_AdminNavLinks" model="AdminNavigation.SessionContext(Model.DefenceSessionId)"/>
+
+<p class="text-muted">
+    Порожнє поле — без ліміту. Студент може подати заявку керівнику понад ліміт; підтвердження та зміни секретарем блокуються.
+</p>
+
+<table class="table table-striped table-sm align-middle">
+    <thead>
+    <tr>
+        <th>Викладач</th>
+        <th class="text-center">Керівник (зараз)</th>
+        <th>Ліміт керівника</th>
+        <th class="text-center">Рецензент (зараз)</th>
+        <th>Ліміт рецензента</th>
+        <th></th>
+    </tr>
+    </thead>
+    <tbody>
+    @foreach (EmployeeWorkloadLimitRowViewModel row in Model.Rows)
+    {
+        <tr>
+            <td>
+                <div>@row.FullName</div>
+                <small class="text-muted">@row.Email</small>
+            </td>
+            <td class="text-center">@row.ConfirmedSupervisorCount</td>
+            <td>
+                <input class="form-control form-control-sm workload-limit-input"
+                       type="number"
+                       min="0"
+                       form="limit-@row.EmployeeId"
+                       name="MaxSupervisorStudents"
+                       value="@row.MaxSupervisorStudents"
+                       placeholder="—"/>
+            </td>
+            <td class="text-center">@row.ReviewerAssignmentCount</td>
+            <td>
+                <input class="form-control form-control-sm workload-limit-input"
+                       type="number"
+                       min="0"
+                       form="limit-@row.EmployeeId"
+                       name="MaxReviewerStudents"
+                       value="@row.MaxReviewerStudents"
+                       placeholder="—"/>
+            </td>
+            <td class="text-end text-nowrap">
+                <form id="limit-@row.EmployeeId" asp-action="SetLimit" method="post">
+                    @Html.AntiForgeryToken()
+                    <input type="hidden" name="DefenceSessionId" value="@Model.DefenceSessionId"/>
+                    <input type="hidden" name="EmployeeId" value="@row.EmployeeId"/>
+                    <button type="submit" class="btn btn-sm btn-primary">Зберегти</button>
+                </form>
+            </td>
+        </tr>
+    }
+    </tbody>
+</table>

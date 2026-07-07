@@ -28,6 +28,8 @@ public sealed class FormattingReviewController(
         {
             Title = EmployeePageTitles.FormattingReview,
             Items = items.Select(EmployeeViewModelMapper.MapPendingCheckpoint).ToList(),
+            RequiresDocumentFile = false,
+            NavLinks = EmployeeNavigation.HomeOnly(),
         };
 
         return View(model);

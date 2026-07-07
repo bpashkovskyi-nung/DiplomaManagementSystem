@@ -75,4 +75,17 @@ internal sealed class AnnualRoleQueries(ApplicationDbContext dbContext) : IAnnua
                 row.session.Semester))
             .ToListAsync(cancellationToken);
     }
+
+    public Task<Guid?> GetEmployeeIdForSessionRoleAsync(
+        Guid defenceSessionId,
+        AnnualRoleType roleType,
+        CancellationToken cancellationToken = default)
+    {
+        return dbContext.AnnualRoleAssignments
+            .AsNoTracking()
+            .Where(assignment => assignment.DefenceSessionId == defenceSessionId
+                                 && assignment.RoleType == roleType)
+            .Select(assignment => (Guid?)assignment.EmployeeId)
+            .FirstOrDefaultAsync(cancellationToken);
+    }
 }

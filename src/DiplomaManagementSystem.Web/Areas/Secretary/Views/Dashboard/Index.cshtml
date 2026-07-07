@@ -1,9 +1,7 @@
 @model SecretaryDashboardViewModel
-
 @{
     ViewData["Title"] = SecretaryPageTitles.Home;
 }
-
 
 <h1 class="mb-1">@ViewData["Title"]</h1>
 
@@ -11,71 +9,56 @@
 
 <p class="text-muted mb-4">@Model.SessionLabel</p>
 
-
 <div class="row g-3 mb-2">
-
     <div class="col-sm-6 col-lg-4 col-xl-3">
-
         <a class="text-decoration-none"
-
            asp-area="Secretary"
-
            asp-controller="Diplomas"
-
            asp-action="Index">
-
             <div class="card h-100 border-secondary dashboard-status-card">
-
                 <div class="card-body">
-
                     <h6 class="card-subtitle text-muted mb-2">Усього @DefenceWorkLabel.GenitivePlural(Model.SessionType)</h6>
-
                     <p class="display-6 mb-0 text-body">@Model.TotalDiplomas</p>
-
                 </div>
-
             </div>
-
         </a>
-
     </div>
-
-    @foreach (var item in Model.Buckets)
-
+    @foreach (SecretaryDashboardBucketViewModel item in Model.Buckets)
     {
         <div class="col-sm-6 col-lg-4 col-xl-3">
-
             <a class="text-decoration-none"
-
                asp-area="Secretary"
-
                asp-controller="Diplomas"
-
                asp-action="Index"
-
                asp-route-lifecycleStatus="@item.LifecycleStatus"
-
                asp-route-currentAdmissionStep="@item.AdmissionStep">
-
                 <div class="card h-100 dashboard-status-card">
-
                     <div class="card-body">
-
                         <div class="d-flex justify-content-between align-items-start gap-2 mb-2">
-
                             <span class="badge @item.BadgeClass">@item.Label</span>
-
                         </div>
-
                         <p class="display-6 mb-0 text-body">@item.Count</p>
-
                     </div>
-
                 </div>
-
             </a>
-
         </div>
     }
+</div>
 
+<div class="mt-4">
+    <h2 class="h5 mb-3">Документи та звіти</h2>
+    <div class="d-flex flex-wrap gap-2">
+        <a class="btn btn-outline-primary"
+           asp-area="Secretary"
+           asp-controller="Documents"
+           asp-action="TopicOrder">
+            @SecretaryPageTitles.TopicOrder
+        </a>
+        <a class="btn btn-outline-secondary"
+           asp-area="Secretary"
+           asp-controller="Reports"
+           asp-action="Admitted">
+            @SecretaryPageTitles.AdmittedReport
+        </a>
+    </div>
 </div>

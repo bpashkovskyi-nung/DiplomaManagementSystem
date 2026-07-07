@@ -12,6 +12,7 @@ public sealed class DesignTimeDbContextFactory : IDesignTimeDbContextFactory<App
             .SetBasePath(Path.Combine(Directory.GetCurrentDirectory(), "../DiplomaManagementSystem.Web"))
             .AddJsonFile("appsettings.json", optional: false)
             .AddJsonFile("appsettings.Development.json", optional: true)
+            .AddJsonFile("appsettings.Development.local.json", optional: true)
             .Build();
 
         string connectionString = configuration.GetConnectionString("DefaultConnection")

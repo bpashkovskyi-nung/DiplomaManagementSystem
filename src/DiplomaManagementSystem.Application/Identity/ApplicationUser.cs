@@ -4,10 +4,13 @@ using DiplomaManagementSystem.Domain.Enums;
 using Microsoft.AspNetCore.Identity;
 
 namespace DiplomaManagementSystem.Application.Identity;
-
 public sealed class ApplicationUser : IdentityUser<Guid>
 {
     public string FullName { get; set; } = string.Empty;
+
+    public EmployeeAcademicRank? AcademicRank { get; set; }
+
+    public string? ShortDisplayName { get; set; }
 
     public UserKind UserKind { get; set; }
 

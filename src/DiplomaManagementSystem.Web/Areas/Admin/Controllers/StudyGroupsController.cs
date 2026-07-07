@@ -140,6 +140,7 @@ public sealed class StudyGroupsController(
         {
             Id = dto.Id,
             Name = dto.Name,
+            Course = dto.Course,
             DefenceSessionId = dto.DefenceSessionId,
             SessionLabel = sessionLabel,
         };
@@ -165,5 +166,5 @@ public sealed class StudyGroupsController(
         RedirectToAction("Details", "DefenceSessions", new { id = defenceSessionId });
 
     private static StudyGroupFormDto ToDto(StudyGroupFormViewModel model) =>
-        new(model.Id, model.DefenceSessionId, model.Name);
+        new(model.Id, model.DefenceSessionId, model.Name, model.Course);
 }

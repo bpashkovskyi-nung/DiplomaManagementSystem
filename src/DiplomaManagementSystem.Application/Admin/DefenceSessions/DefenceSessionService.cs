@@ -63,6 +63,7 @@ internal sealed class DefenceSessionService(
             .Select(g => new StudyGroupItemDto(
                 g.Id,
                 g.Name,
+                g.Course,
                 studentCounts.GetValueOrDefault(g.Id)))
             .ToList();
 

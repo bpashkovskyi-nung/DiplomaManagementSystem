@@ -57,6 +57,11 @@ internal sealed class FakeDiplomaQueries(Diploma? diploma = null) : IDiplomaQuer
         CancellationToken cancellationToken = default) =>
         throw new NotImplementedException();
 
+    public Task<List<Diploma>> ListForReviewerReadAsync(
+        Guid reviewerId,
+        CancellationToken cancellationToken = default) =>
+        throw new NotImplementedException();
+
     public Task<bool> HasApprovedTopicAsync(Guid diplomaId, CancellationToken cancellationToken = default) =>
         throw new NotImplementedException();
 }

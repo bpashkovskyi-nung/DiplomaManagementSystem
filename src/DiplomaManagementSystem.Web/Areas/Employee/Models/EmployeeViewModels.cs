@@ -22,6 +22,8 @@ public sealed class EmployeeRoleCardViewModel
     public string Controller { get; set; } = string.Empty;
 
     public string Action { get; set; } = string.Empty;
+
+    public bool CountsStudents { get; set; }
 }
 
 public sealed class PendingStudentsViewModel
@@ -119,19 +121,21 @@ public sealed class PendingCheckpointsViewModel
     public string Title { get; set; } = string.Empty;
 
     public IReadOnlyList<PendingCheckpointItemViewModel> Items { get; set; } = [];
+
+    public string FormAction { get; set; } = "Complete";
+
+    public bool RequiresDocumentFile { get; set; } = true;
+
+    public string EmptyMessage { get; set; } = "Немає очікуючих перевірок.";
+
+    public IReadOnlyList<EmployeeNavLink> NavLinks { get; set; } = [];
 }
 
-public enum PendingCheckpointListLayout
-{
-    Table,
-    Cards,
-}
+public sealed record EmployeeNavLink(string Text, string Controller, string Action);
 
 public sealed class PendingCheckpointListViewModel
 {
     public IReadOnlyList<PendingCheckpointItemViewModel> Items { get; set; } = [];
-
-    public PendingCheckpointListLayout Layout { get; set; }
 
     public string FormAction { get; set; } = "Complete";
 
@@ -184,24 +188,4 @@ public sealed class CheckpointReviewActionsViewModel
     public string FormAction { get; set; } = "Complete";
 
     public bool RequiresDocumentFile { get; set; } = true;
-}
-
-public sealed class ReviewerAssignmentsViewModel
-{
-    public IReadOnlyList<ReviewerAssignmentItemViewModel> Items { get; set; } = [];
-}
-
-public sealed class ReviewerAssignmentItemViewModel
-{
-    public Guid DiplomaId { get; set; }
-
-    public string StudentFullName { get; set; } = string.Empty;
-
-    public string TopicTitle { get; set; } = string.Empty;
-
-    public ReviewAssignmentStatus ReviewAssignmentStatus { get; set; }
-
-    public string ReviewAssignmentDisplay { get; set; } = string.Empty;
-
-    public PendingStudentWorkLinkViewModel? LatestStudentWork { get; set; }
 }

@@ -139,31 +139,6 @@ public sealed class AdmissionReadinessServiceTests
         Assert.False(result);
     }
 
-    [Fact]
-    public void IsReadyForAdmission_WhenApprovedWithRemarks_ReturnsTrue()
-    {
-        Diploma diploma = new()
-        {
-            SupervisorAssignmentStatus = SupervisorAssignmentStatus.Confirmed,
-            ReviewAssignmentStatus = ReviewAssignmentStatus.Completed,
-            CurrentAdmissionStep = null,
-        };
-
-        DiplomaTopicVersion topic = new() { Status = TopicVersionStatus.Approved };
-
-        List<DiplomaAdmissionStepAttempt> attempts =
-        [
-            CreatePassing(AdmissionStep.SupervisorFeedback),
-            CreatePassing(AdmissionStep.ExternalReview),
-            CreatePassing(AdmissionStep.AntiPlagiarismClearance),
-            CreatePassing(AdmissionStep.FormattingReview, CheckpointOutcome.ApprovedWithRemarks),
-        ];
-
-        bool result = _service.IsReadyForAdmission(diploma, topic, attempts);
-
-        Assert.True(result);
-    }
-
     private static DiplomaAdmissionStepAttempt CreatePassing(
         AdmissionStep step,
         CheckpointOutcome outcome = CheckpointOutcome.Approved)

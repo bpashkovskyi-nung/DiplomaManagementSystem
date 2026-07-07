@@ -20,6 +20,7 @@ internal sealed class SupervisorWorkflowService(
     IUserDisplayQueries userDisplayQueries,
     IArchiveGuard archiveGuard,
     IDiplomaAuthorizationService diplomaAuthorizationService,
+    IEmployeeWorkloadLimitService employeeWorkloadLimitService,
     SupervisorConfirmationService supervisorConfirmationService,
     TopicReviewService topicReviewService,
     DiplomaLifecycleService diplomaLifecycleService) : ISupervisorWorkflowService
@@ -51,6 +52,12 @@ internal sealed class SupervisorWorkflowService(
 
         Diploma diploma = await RequireWritableDiplomaAsync(diplomaId, cancellationToken);
         DefenceSession session = diploma.DefenceSession;
+
+        await employeeWorkloadLimitService.EnsureCanAssignSupervisorAsync(
+            session.Id,
+            supervisorId,
+            diploma.Id,
+            cancellationToken);
 
         supervisorConfirmationService.Confirm(diploma, session, supervisorId);
         await DiplomaLifecycleHelper.RecalculateAsync(

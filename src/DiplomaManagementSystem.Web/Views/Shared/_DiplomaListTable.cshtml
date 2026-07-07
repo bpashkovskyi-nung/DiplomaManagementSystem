@@ -6,7 +6,7 @@
     int columnCount = Model.ShowSupervisorColumn ? 5 : 4;
 }
 
-<table class="table table-hover align-middle">
+<table class="table table-striped align-middle">
     <thead>
     <tr>
         <th>Студент</th>
@@ -26,7 +26,7 @@
             <td colspan="@columnCount" class="text-muted">Записів не знайдено.</td>
         </tr>
     }
-    @foreach (var item in Model.Items)
+    @foreach (DiplomaListItemViewModel item in Model.Items)
     {
         <tr>
             <td>

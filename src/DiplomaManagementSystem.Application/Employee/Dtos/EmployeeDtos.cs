@@ -10,7 +10,8 @@ public sealed record EmployeeRoleCardDto(
     string RoleDisplay,
     int PendingCount,
     string Controller,
-    string Action);
+    string Action,
+    bool CountsStudents = false);
 
 public sealed record PendingStudentDto(
     Guid DiplomaId,
@@ -30,6 +31,11 @@ public sealed record TopicReviewItemDto(
 public sealed record SupervisorActionDto(Guid DiplomaId, string? Comment);
 
 public sealed record SupervisorDiplomaListPageDto(
+    IReadOnlyList<DiplomaListItemDto> Items,
+    DiplomaListFilterDto Filter,
+    IReadOnlyList<StudyGroupFilterOptionDto> StudyGroups);
+
+public sealed record ReviewerDiplomaListPageDto(
     IReadOnlyList<DiplomaListItemDto> Items,
     DiplomaListFilterDto Filter,
     IReadOnlyList<StudyGroupFilterOptionDto> StudyGroups);

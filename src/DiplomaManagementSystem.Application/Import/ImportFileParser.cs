@@ -115,7 +115,7 @@ internal sealed class ImportFileParser : IImportFileParser
                 continue;
             }
 
-            rows.Add(new EmployeeImportRow(parts[0].Trim(), parts[1].Trim().ToLowerInvariant()));
+            rows.Add(ParseEmployeeRow(parts[0].Trim(), parts[1].Trim().ToLowerInvariant(), parts, lineNumber, parseErrors));
         }
 
         return new ImportParseResult<EmployeeImportRow> { Rows = rows, ParseErrors = parseErrors };
@@ -192,9 +192,36 @@ internal sealed class ImportFileParser : IImportFileParser
                 continue;
             }
 
-            rows.Add(new EmployeeImportRow(fullName, email));
+            rows.Add(ParseEmployeeRow(fullName, email, row, rowNumber, parseErrors));
         }
 
         return new ImportParseResult<EmployeeImportRow> { Rows = rows, ParseErrors = parseErrors };
     }
+
+    private static EmployeeImportRow ParseEmployeeRow(
+        string fullName,
+        string email,
+        string[] parts,
+        int lineNumber,
+        List<string> parseErrors)
+    {
+        string? rank = parts.Length > 2 ? NullIfEmpty(parts[2]) : null;
+        string? shortName = parts.Length > 3 ? NullIfEmpty(parts[3]) : null;
+        return new EmployeeImportRow(fullName, email, rank, shortName);
+    }
+
+    private static EmployeeImportRow ParseEmployeeRow(
+        string fullName,
+        string email,
+        ClosedXML.Excel.IXLRow row,
+        int rowNumber,
+        List<string> parseErrors)
+    {
+        string? rank = NullIfEmpty(row.Cell(3).GetString());
+        string? shortName = NullIfEmpty(row.Cell(4).GetString());
+        return new EmployeeImportRow(fullName, email, rank, shortName);
+    }
+
+    private static string? NullIfEmpty(string value) =>
+        string.IsNullOrWhiteSpace(value) ? null : value.Trim();
 }

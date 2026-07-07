@@ -1,11 +1,15 @@
 @model DiplomaManagementSystem.Web.Areas.Admin.Models.ImportStudentsViewModel
 @{
-    ViewData["Title"] = "Імпорт студентів";
+    ViewData["Title"] = AdminPageTitles.ImportStudents;
 }
 
-<h2>Імпорт студентів</h2>
+<h1 class="mb-1">@ViewData["Title"]</h1>
+<p class="text-muted mb-4">@Model.SessionLabel</p>
+
 <partial name="_TempDataAlerts"/>
-<p class="text-muted">Сесія: @Model.SessionLabel</p>
+
+<partial name="_AdminNavLinks" model="AdminNavigation.StudentsBack(Model.DefenceSessionId)"/>
+
 <p>Формат: ПІБ, email, група (перший рядок — заголовок, опційно). Групи створюються в межах сесії.</p>
 
 <form asp-action="Students" method="post" enctype="multipart/form-data">
@@ -17,7 +21,6 @@
         <span asp-validation-for="File" class="text-danger"></span>
     </div>
     <button type="submit" class="btn btn-primary">Імпортувати</button>
-    <a class="btn btn-link" asp-controller="Students" asp-action="Index" asp-route-defenceSessionId="@Model.DefenceSessionId">До списку</a>
 </form>
 
 @section Scripts {

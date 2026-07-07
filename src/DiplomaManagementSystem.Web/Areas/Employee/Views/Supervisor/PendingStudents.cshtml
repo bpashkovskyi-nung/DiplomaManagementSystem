@@ -1,184 +1,86 @@
 @model PendingStudentsViewModel
-
 @{
-
     ViewData["Title"] = EmployeePageTitles.ConfirmStudentRequest;
-
 }
-
-
 
 <h1 class="mb-4">@ViewData["Title"]</h1>
 
-
-
 <partial name="_TempDataAlerts"/>
 
-
-
-<p class="mb-3">
-
-    <a asp-area="Employee" asp-controller="Supervisor" asp-action="Students">@EmployeePageTitles.MyStudents</a>
-
-    ·
-
-    <a asp-area="Employee" asp-controller="Supervisor" asp-action="TopicReviews">@EmployeePageTitles.ApproveTopicAsSupervisor</a>
-
-    ·
-
-    <a asp-area="Employee" asp-controller="Home" asp-action="Index">@EmployeePageTitles.Home</a>
-
-</p>
-
-
+<partial name="_EmployeeNavLinks" model="EmployeeNavigation.SupervisorWorkflow()"/>
 
 <table class="table table-striped align-middle">
-
     <thead>
-
     <tr>
-
         <th>Студент</th>
-
         <th>Група</th>
-
         <th>Запит</th>
-
         <th></th>
-
     </tr>
-
     </thead>
-
     <tbody>
-
     @if (!Model.Items.Any())
-
     {
-
         <tr>
-
             <td colspan="4" class="text-muted">Немає очікуючих запитів.</td>
-
         </tr>
-
     }
-
-    @foreach (var item in Model.Items)
-
+    @foreach (SupervisorStudentItemViewModel item in Model.Items)
     {
-
         string rejectModalId = $"reject-student-{item.DiplomaId:N}";
 
-
-
         <tr>
-
             <td>@item.StudentFullName</td>
-
             <td>@item.StudyGroupName</td>
-
             <td>@item.RequestedAt.ToLocalTime().ToString("g")</td>
-
             <td class="text-end text-nowrap">
-
                 <form asp-action="Confirm" method="post" class="d-inline">
-
                     @Html.AntiForgeryToken()
-
                     <input type="hidden" name="diplomaId" value="@item.DiplomaId"/>
-
                     <button type="submit" class="btn btn-sm btn-success">Підтвердити</button>
-
                 </form>
-
                 <button type="button"
-
                         class="btn btn-sm btn-outline-danger"
-
                         data-bs-toggle="modal"
-
                         data-bs-target="#@rejectModalId">
-
                     Відхилити
-
                 </button>
-
             </td>
-
         </tr>
-
     }
-
     </tbody>
-
 </table>
 
-
-
-@foreach (var item in Model.Items)
-
+@foreach (SupervisorStudentItemViewModel item in Model.Items)
 {
-
     string rejectModalId = $"reject-student-{item.DiplomaId:N}";
 
-
-
     <div class="modal fade" id="@rejectModalId" tabindex="-1" aria-labelledby="@($"{rejectModalId}-label")" aria-hidden="true">
-
         <div class="modal-dialog">
-
             <div class="modal-content">
-
                 <form asp-action="Reject" method="post">
-
                     @Html.AntiForgeryToken()
-
                     <input type="hidden" name="DiplomaId" value="@item.DiplomaId"/>
-
                     <div class="modal-header">
-
                         <h5 class="modal-title" id="@($"{rejectModalId}-label")">Відхилити запит — @item.StudentFullName</h5>
-
                         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Закрити"></button>
-
                     </div>
-
                     <div class="modal-body">
-
                         <label class="form-label" for="@($"{rejectModalId}-comment")">Коментар</label>
-
                         <textarea class="form-control"
-
                                   id="@($"{rejectModalId}-comment")"
-
                                   name="Comment"
-
                                   rows="3"
-
                                   required
-
                                   maxlength="1000"
-
                                   placeholder="Поясніть причину відхилення"></textarea>
-
                     </div>
-
                     <div class="modal-footer">
-
                         <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Скасувати</button>
-
                         <button type="submit" class="btn btn-danger">Надіслати відхилення</button>
-
                     </div>
-
                 </form>
-
             </div>
-
         </div>
-
     </div>
-
 }
-

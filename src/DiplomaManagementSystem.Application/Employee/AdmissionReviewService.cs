@@ -1,6 +1,7 @@
 using DiplomaManagementSystem.Application.Authorization;
 using DiplomaManagementSystem.Application.Authorization.Contracts;
 using DiplomaManagementSystem.Application.Common.Contracts;
+using DiplomaManagementSystem.Application.Documents;
 using DiplomaManagementSystem.Application.Documents.Contracts;
 using DiplomaManagementSystem.Application.Documents.Dtos;
 using DiplomaManagementSystem.Application.Employee.Contracts;
@@ -43,7 +44,7 @@ internal sealed class AdmissionReviewService(
     public Task CompleteSupervisorFeedbackAsync(
         Guid supervisorId,
         CompleteCheckpointDto request,
-        UploadFileContent document,
+        UploadFileContent? document,
         CancellationToken cancellationToken = default) =>
         CompleteCheckpointWithDocumentAsync(
             supervisorId,
@@ -81,7 +82,7 @@ internal sealed class AdmissionReviewService(
     public Task CompleteExternalReviewAsync(
         Guid reviewerId,
         CompleteCheckpointDto request,
-        UploadFileContent document,
+        UploadFileContent? document,
         CancellationToken cancellationToken = default) =>
         CompleteCheckpointWithDocumentAsync(
             reviewerId,
@@ -114,7 +115,7 @@ internal sealed class AdmissionReviewService(
     public Task CompleteAntiPlagiarismAsync(
         Guid officerId,
         CompleteCheckpointDto request,
-        UploadFileContent document,
+        UploadFileContent? document,
         CancellationToken cancellationToken = default) =>
         CompleteCheckpointWithDocumentAsync(
             officerId,
@@ -179,11 +180,18 @@ internal sealed class AdmissionReviewService(
     private async Task CompleteCheckpointWithDocumentAsync(
         Guid actorId,
         CompleteCheckpointDto request,
-        UploadFileContent document,
+        UploadFileContent? document,
         AdmissionStep step,
         DiplomaAction action,
         CancellationToken cancellationToken)
     {
+        if (CheckpointOutcomeRules.RequiresDocument(request.Outcome)
+            && DiplomaDocumentNaming.RequiresFile(step)
+            && document is null)
+        {
+            throw new DomainException("Обов'язково додайте файл (PDF, DOCX або ODT).");
+        }
+
         Diploma diploma = await RequireWritableDiplomaAsync(request.DiplomaId, cancellationToken);
 
         await diplomaAuthorizationService.EnsureCanPerformAsync(
@@ -210,13 +218,16 @@ internal sealed class AdmissionReviewService(
             cancellationToken);
         await dbContext.SaveChangesAsync(cancellationToken);
 
-        await diplomaDocumentService.UploadCheckpointDocumentAsync(
-            actorId,
-            request.DiplomaId,
-            step,
-            attempt.Id,
-            document,
-            cancellationToken);
+        if (document is not null)
+        {
+            await diplomaDocumentService.UploadCheckpointDocumentAsync(
+                actorId,
+                request.DiplomaId,
+                step,
+                attempt.Id,
+                document,
+                cancellationToken);
+        }
     }
 
     private async Task<IReadOnlyList<PendingCheckpointItemDto>> GetPendingByStepAsync(

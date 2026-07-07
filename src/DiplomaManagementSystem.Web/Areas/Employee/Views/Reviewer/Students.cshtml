@@ -1,0 +1,36 @@
+@model SupervisorStudentsListViewModel
+@{
+    ViewData["Title"] = EmployeePageTitles.MyReviewStudents;
+    var table = new DiplomaManagementSystem.Web.Models.Shared.DiplomaListTableViewModel
+    {
+        Items = Model.Items,
+        ShowSupervisorColumn = Model.ShowSupervisorColumn,
+        ShowDetailsLink = Model.ShowDetailsLink,
+    };
+}
+
+<h1 class="mb-4">@ViewData["Title"]</h1>
+
+<partial name="_TempDataAlerts"/>
+
+<partial name="_EmployeeNavLinks" model="EmployeeNavigation.ReviewerWorkflow()"/>
+
+<form method="get" class="row g-2 mb-4">
+    <div class="col-md-2">
+        <select class="form-select" name="lifecycleStatus" asp-items="Model.Filter.LifecycleStatuses"></select>
+    </div>
+    <div class="col-md-2">
+        <select class="form-select" name="currentAdmissionStep" asp-items="Model.Filter.AdmissionSteps"></select>
+    </div>
+    <div class="col-md-2">
+        <select class="form-select" name="studyGroupId" asp-items="Model.Filter.StudyGroups"></select>
+    </div>
+    <div class="col-md-4">
+        <input class="form-control" type="search" name="search" value="@Model.Filter.Search" placeholder="ПІБ або email"/>
+    </div>
+    <div class="col-md-1">
+        <button type="submit" class="btn btn-primary w-100">Фільтр</button>
+    </div>
+</form>
+
+<partial name="_DiplomaListTable" model="table"/>

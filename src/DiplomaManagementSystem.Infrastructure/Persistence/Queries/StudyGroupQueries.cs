@@ -14,7 +14,7 @@ internal sealed class StudyGroupQueries(ApplicationDbContext dbContext) : IStudy
             .AsNoTracking()
             .Where(group => group.DefenceSessionId == sessionId)
             .OrderBy(group => group.Name)
-            .Select(group => new StudyGroupOption(group.Id, group.Name))
+            .Select(group => new StudyGroupOption(group.Id, group.Name, group.Course))
             .ToListAsync(cancellationToken);
     }
 

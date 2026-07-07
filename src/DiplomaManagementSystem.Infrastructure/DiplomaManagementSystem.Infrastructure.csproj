@@ -25,6 +25,11 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <InternalsVisibleTo Include="DiplomaManagementSystem.Application.Tests" />
+    <InternalsVisibleTo Include="DiplomaManagementSystem.Integration.Tests" />
+  </ItemGroup>
+
+  <ItemGroup>
     <FrameworkReference Include="Microsoft.AspNetCore.App" />
   </ItemGroup>
 

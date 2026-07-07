@@ -16,7 +16,7 @@ public sealed record DiplomaDashboardState(
 
 public sealed record UserOption(Guid Id, string FullName, string Email);
 
-public sealed record StudyGroupOption(Guid Id, string Name);
+public sealed record StudyGroupOption(Guid Id, string Name, int? Course = null);
 
 public sealed record SecretarySessionRow(
     Guid Id,

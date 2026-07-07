@@ -1,11 +1,13 @@
 @model DiplomaManagementSystem.Web.Areas.Admin.Models.DefenceSessionListViewModel
 @{
-    ViewData["Title"] = "Сесії захисту";
+    ViewData["Title"] = AdminPageTitles.DefenceSessions;
 }
 
-<h2>Сесії захисту</h2>
+<h1 class="mb-4">@ViewData["Title"]</h1>
 
 <partial name="_TempDataAlerts"/>
+
+<partial name="_AdminNavLinks" model="AdminNavigation.Global()"/>
 
 <p>
     <a class="btn btn-primary" asp-action="Create">Нова сесія</a>
@@ -22,7 +24,7 @@
     </tr>
     </thead>
     <tbody>
-    @foreach (var item in Model.Items)
+    @foreach (DefenceSessionListItemViewModel item in Model.Items)
     {
         <tr>
             <td>
@@ -33,7 +35,7 @@
             <td>@item.StatusDisplay</td>
             <td>@item.GroupCount</td>
             <td>@item.DiplomaCount</td>
-            <td class="text-end">
+            <td class="text-end text-nowrap">
                 <div class="session-row-actions">
                     <a class="btn btn-sm btn-outline-success" asp-controller="Students" asp-action="Index" asp-route-defenceSessionId="@item.Id">Студенти</a>
                     @if (item.IsActive)

@@ -3,6 +3,7 @@ using DiplomaManagementSystem.Application.Authorization;
 using DiplomaManagementSystem.Application.Authorization.Contracts;
 using DiplomaManagementSystem.Application.Common.Contracts;
 using DiplomaManagementSystem.Application.Employee;
+using DiplomaManagementSystem.Application.Employee.Contracts;
 using DiplomaManagementSystem.Application.Persistence;
 using DiplomaManagementSystem.Application.Persistence.Contracts;
 using DiplomaManagementSystem.Application.Secretary.Contracts;
@@ -25,6 +26,7 @@ internal sealed class SecretaryDiplomaActionService(
     IUserDisplayQueries userDisplayQueries,
     ITopicVersionQueries topicVersionQueries,
     IAdmissionStepQueries admissionStepQueries,
+    IEmployeeWorkloadLimitService employeeWorkloadLimitService,
     ReviewerAssignmentService reviewerAssignmentService,
     DiplomaAdmissionService diplomaAdmissionService,
     SecretarySupervisorOverrideService supervisorOverrideService,
@@ -55,6 +57,15 @@ internal sealed class SecretaryDiplomaActionService(
         Guid? oldReviewerId = diploma.ReviewerId;
 
         bool hasApprovedTopic = await diplomaQueries.HasApprovedTopicAsync(diploma.Id, cancellationToken);
+
+        if (diploma.ReviewerId != request.ReviewerId)
+        {
+            await employeeWorkloadLimitService.EnsureCanAssignReviewerAsync(
+                sessionId,
+                request.ReviewerId,
+                diploma.Id,
+                cancellationToken);
+        }
 
         reviewerAssignmentService.Assign(
             diploma,
@@ -138,6 +149,19 @@ internal sealed class SecretaryDiplomaActionService(
         }
 
         Guid? oldSupervisorId = diploma.SupervisorId;
+
+        bool supervisorChanges = diploma.SupervisorId != request.SupervisorId
+                                 || diploma.SupervisorAssignmentStatus != SupervisorAssignmentStatus.Confirmed;
+
+        if (supervisorChanges)
+        {
+            await employeeWorkloadLimitService.EnsureCanAssignSupervisorAsync(
+                sessionId,
+                request.SupervisorId,
+                diploma.Id,
+                cancellationToken);
+        }
+
         supervisorOverrideService.Override(diploma, diploma.DefenceSession, request.SupervisorId);
 
         dbContext.DiplomaComments.Add(new DiplomaComment

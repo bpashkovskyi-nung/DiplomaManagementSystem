@@ -36,4 +36,10 @@ internal sealed class FakeAnnualRoleQueries : IAnnualRoleQueries
         Guid userId,
         CancellationToken cancellationToken = default) =>
         throw new NotImplementedException();
+
+    public Task<Guid?> GetEmployeeIdForSessionRoleAsync(
+        Guid defenceSessionId,
+        AnnualRoleType roleType,
+        CancellationToken cancellationToken = default) =>
+        Task.FromResult<Guid?>(null);
 }

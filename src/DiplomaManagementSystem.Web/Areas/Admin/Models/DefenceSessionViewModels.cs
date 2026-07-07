@@ -74,6 +74,8 @@ public sealed class StudyGroupListItemViewModel
 
     public string Name { get; set; } = string.Empty;
 
+    public int? Course { get; set; }
+
     public int StudentCount { get; set; }
 
     public bool CanDelete => StudentCount == 0;

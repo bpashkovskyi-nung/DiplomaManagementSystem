@@ -150,23 +150,6 @@ public sealed class AdmissionWorkflowServiceTests
     }
 
     [Fact]
-    public void RecordAttempt_ApprovedWithRemarks_StoresTrimmedComment()
-    {
-        Diploma diploma = new() { CurrentAdmissionStep = AdmissionStep.SupervisorFeedback };
-        List<DiplomaAdmissionStepAttempt> attempts = [];
-
-        DiplomaAdmissionStepAttempt attempt = _service.RecordAttempt(
-            diploma,
-            AdmissionStep.SupervisorFeedback,
-            attempts,
-            Guid.NewGuid(),
-            CheckpointOutcome.ApprovedWithRemarks,
-            "  Зауваження  ");
-
-        Assert.Equal("Зауваження", attempt.Comment);
-    }
-
-    [Fact]
     public void AdvanceAfterReviewerAssignment_AtReviewerAssignmentNotAssigned_ResolvesStep()
     {
         Diploma diploma = new()

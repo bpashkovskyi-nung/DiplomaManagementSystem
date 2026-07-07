@@ -11,13 +11,6 @@ public sealed class CheckpointOutcomeRulesTests
         Assert.True(CheckpointOutcomeRules.IsPassing(CheckpointOutcome.Approved));
     }
 
-    // TC-DOM-CHK-002
-    [Fact]
-    public void IsPassing_ApprovedWithRemarks_ReturnsTrue()
-    {
-        Assert.True(CheckpointOutcomeRules.IsPassing(CheckpointOutcome.ApprovedWithRemarks));
-    }
-
     // TC-DOM-CHK-003
     [Fact]
     public void IsPassing_NotApproved_ReturnsFalse()
@@ -39,17 +32,22 @@ public sealed class CheckpointOutcomeRulesTests
         Assert.True(CheckpointOutcomeRules.RequiresComment(CheckpointOutcome.NotApproved));
     }
 
-    // TC-DOM-CHK-006
-    [Fact]
-    public void RequiresComment_ApprovedWithRemarks_ReturnsTrue()
-    {
-        Assert.True(CheckpointOutcomeRules.RequiresComment(CheckpointOutcome.ApprovedWithRemarks));
-    }
-
     // TC-DOM-CHK-007
     [Fact]
     public void RequiresComment_Approved_ReturnsFalse()
     {
         Assert.False(CheckpointOutcomeRules.RequiresComment(CheckpointOutcome.Approved));
+    }
+
+    [Fact]
+    public void RequiresDocument_Approved_ReturnsTrue()
+    {
+        Assert.True(CheckpointOutcomeRules.RequiresDocument(CheckpointOutcome.Approved));
+    }
+
+    [Fact]
+    public void RequiresDocument_NotApproved_ReturnsFalse()
+    {
+        Assert.False(CheckpointOutcomeRules.RequiresDocument(CheckpointOutcome.NotApproved));
     }
 }

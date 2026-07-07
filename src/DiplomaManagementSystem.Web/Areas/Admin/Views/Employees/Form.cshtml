@@ -3,7 +3,9 @@
     ViewData["Title"] = Model.Id is null ? "Новий викладач" : "Редагування викладача";
 }
 
-<h2>@ViewData["Title"]</h2>
+<h1 class="mb-4">@ViewData["Title"]</h1>
+
+<partial name="_AdminNavLinks" model="AdminNavigation.EmployeesBack()"/>
 
 <form asp-action="@(Model.Id is null ? "Create" : "Edit")" method="post">
     @Html.AntiForgeryToken()
@@ -21,6 +23,18 @@
         <label asp-for="Email" class="form-label">Email</label>
         <input asp-for="Email" class="form-control" type="email" maxlength="256"/>
         <span asp-validation-for="Email" class="text-danger"></span>
+    </div>
+    <div class="mb-3">
+        <label asp-for="AcademicRank" class="form-label">Вчене звання</label>
+        <select asp-for="AcademicRank" class="form-select" asp-items="Html.GetEnumSelectList<EmployeeAcademicRank>()">
+            <option value="">— не задано —</option>
+        </select>
+        <span asp-validation-for="AcademicRank" class="text-danger"></span>
+    </div>
+    <div class="mb-3">
+        <label asp-for="ShortDisplayName" class="form-label">Скорочене ПІБ для наказів</label>
+        <input asp-for="ShortDisplayName" class="form-control" maxlength="64" placeholder="Автоматично з ПІБ, якщо порожнє"/>
+        <span asp-validation-for="ShortDisplayName" class="text-danger"></span>
     </div>
     <button type="submit" class="btn btn-primary">Зберегти</button>
     <a class="btn btn-link" asp-action="Index">Скасувати</a>

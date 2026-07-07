@@ -8,9 +8,7 @@
 
 <partial name="_TempDataAlerts"/>
 
-<p class="mb-3">
-    <a asp-action="Index">← @DefenceWorkLabel.PluralCapitalized(Model.SessionType)</a>
-</p>
+<partial name="_SecretaryNavLinks" model="SecretaryNavigation.DiplomaDetailsBack(Model.SessionType)"/>
 
 <partial name="_DiplomaDetailsReadOnly" model="Model"/>
 
@@ -146,7 +144,7 @@
                         </select>
                     </div>
                     <div class="col-12">
-                        <textarea class="form-control" name="Comment" rows="3" required maxlength="2000" placeholder="Коментар до рішення"></textarea>
+                        <textarea class="form-control" name="Comment" rows="3" maxlength="2000" placeholder="Коментар до рішення (обов'язковий для «Не допущено»)"></textarea>
                     </div>
                     <div class="col-12">
                         <button type="submit" class="btn btn-outline-warning">@WorkflowUkrainianLabels.SecretaryOverrideApplyButton</button>

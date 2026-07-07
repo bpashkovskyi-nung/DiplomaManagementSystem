@@ -59,7 +59,7 @@ public abstract class EmployeeControllerBase : Controller
     protected async Task<IActionResult> CompleteCheckpointWithDocumentAsync(
         CompleteCheckpointViewModel model,
         IValidator<CompleteCheckpointDto> validator,
-        Func<Guid, CompleteCheckpointDto, UploadFileContent, CancellationToken, Task> completeAction,
+        Func<Guid, CompleteCheckpointDto, UploadFileContent?, CancellationToken, Task> completeAction,
         string successMessage,
         string redirectAction,
         CancellationToken cancellationToken)
@@ -82,7 +82,7 @@ public abstract class EmployeeControllerBase : Controller
 
         try
         {
-            await completeAction(GetUserId(), dto, document!, cancellationToken);
+            await completeAction(GetUserId(), dto, document, cancellationToken);
             TempData["Success"] = successMessage;
         }
         catch (DomainException ex)

@@ -25,6 +25,7 @@ internal sealed class EmployeeAdminService(
                 user.Id,
                 user.FullName,
                 user.Email ?? string.Empty,
+                user.AcademicRank,
                 user.CreatedAt))
             .ToListAsync(cancellationToken);
     }
@@ -35,7 +36,12 @@ internal sealed class EmployeeAdminService(
 
         return employee is null
             ? null
-            : new EmployeeFormDto(employee.Id, employee.FullName, employee.Email ?? string.Empty);
+            : new EmployeeFormDto(
+                employee.Id,
+                employee.FullName,
+                employee.Email ?? string.Empty,
+                employee.AcademicRank,
+                employee.ShortDisplayName);
     }
 
     public async Task<EmployeeDetailsDto?> GetDetailsAsync(Guid id, CancellationToken cancellationToken = default)
@@ -52,6 +58,7 @@ internal sealed class EmployeeAdminService(
             employee.Id,
             employee.FullName,
             employee.Email ?? string.Empty,
+            employee.AcademicRank,
             hasAssignments,
             employee.CreatedAt);
     }
@@ -62,6 +69,10 @@ internal sealed class EmployeeAdminService(
             dto.FullName.Trim(),
             dto.Email.Trim(),
             cancellationToken);
+
+        user.AcademicRank = dto.AcademicRank;
+        user.ShortDisplayName = NormalizeShortDisplayName(dto.ShortDisplayName);
+        await userManager.UpdateAsync(user);
 
         return user.Id;
     }
@@ -86,6 +97,8 @@ internal sealed class EmployeeAdminService(
         }
 
         employee.FullName = dto.FullName.Trim();
+        employee.AcademicRank = dto.AcademicRank;
+        employee.ShortDisplayName = NormalizeShortDisplayName(dto.ShortDisplayName);
 
         IdentityResult result = await userManager.UpdateAsync(employee);
         if (!result.Succeeded)
@@ -173,4 +186,7 @@ internal sealed class EmployeeAdminService(
             version => version.ReviewedById == employeeId,
             cancellationToken);
     }
+
+    private static string? NormalizeShortDisplayName(string? value) =>
+        string.IsNullOrWhiteSpace(value) ? null : value.Trim();
 }

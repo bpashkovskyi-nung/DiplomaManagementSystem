@@ -15,11 +15,11 @@
 | ID | Case | Input | Expected | Status | Test |
 |----|------|-------|----------|--------|------|
 | TC-DOM-CHK-001 | Approved is passing | `Approved` | `IsPassing=true` | implemented | `IsPassing_Approved_ReturnsTrue` |
-| TC-DOM-CHK-002 | ApprovedWithRemarks is passing | `ApprovedWithRemarks` | `IsPassing=true` | implemented | `IsPassing_ApprovedWithRemarks_ReturnsTrue` |
+| TC-DOM-CHK-002 | NotApproved is not passing | `NotApproved` | `IsPassing=false` | implemented | `IsPassing_NotApproved_ReturnsFalse` |
 | TC-DOM-CHK-003 | NotApproved not passing | `NotApproved` | `IsPassing=false` | implemented | `IsPassing_NotApproved_ReturnsFalse` |
 | TC-DOM-CHK-004 | Null outcome not passing | `null` | `IsPassing=false` | implemented | `IsPassing_Null_ReturnsFalse` |
 | TC-DOM-CHK-005 | NotApproved requires comment | `NotApproved` | `RequiresComment=true` | implemented | `RequiresComment_NotApproved_ReturnsTrue` |
-| TC-DOM-CHK-006 | ApprovedWithRemarks requires comment | `ApprovedWithRemarks` | `RequiresComment=true` | implemented | `RequiresComment_ApprovedWithRemarks_ReturnsTrue` |
+| TC-DOM-CHK-006 | Approved no comment required | `Approved` | `RequiresComment=false` | implemented | `RequiresComment_Approved_ReturnsFalse` |
 | TC-DOM-CHK-007 | Approved no comment required | `Approved` | `RequiresComment=false` | implemented | `RequiresComment_Approved_ReturnsFalse` |
 
 ### 1.2 AdmissionStepStatusResolver

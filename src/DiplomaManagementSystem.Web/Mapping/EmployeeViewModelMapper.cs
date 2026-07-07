@@ -34,13 +34,12 @@ internal static class EmployeeViewModelMapper
         LatestStudentWork = MapStudentWorkLink(item.LatestStudentWork),
     };
 
-    public static ReviewerAssignmentItemViewModel MapReviewerAssignment(ReviewerAssignmentItemDto item) => new()
+    public static PendingCheckpointItemViewModel MapReviewerAssignment(ReviewerAssignmentItemDto item) => new()
     {
         DiplomaId = item.DiplomaId,
         StudentFullName = item.StudentFullName,
+        StudyGroupName = item.StudyGroupName,
         TopicTitle = item.TopicTitle,
-        ReviewAssignmentStatus = item.ReviewAssignmentStatus,
-        ReviewAssignmentDisplay = UkrainianDisplay.FormatReviewAssignmentStatus(item.ReviewAssignmentStatus),
         LatestStudentWork = MapStudentWorkLink(item.LatestStudentWork),
     };
 
@@ -62,5 +61,6 @@ internal static class EmployeeViewModelMapper
         PendingCount = role.PendingCount,
         Controller = role.Controller,
         Action = role.Action,
+        CountsStudents = role.CountsStudents,
     };
 }

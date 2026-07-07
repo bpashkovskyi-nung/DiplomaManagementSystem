@@ -27,6 +27,10 @@ internal sealed class DiplomaAdmissionStepAttemptConfiguration : IEntityTypeConf
         builder.HasIndex(e => new { e.DiplomaId, e.Step, e.AttemptNumber })
             .IsUnique();
 
+        builder.ToTable(table => table.HasCheckConstraint(
+            "CK_diploma_admission_step_attempts_outcome",
+            "\"Outcome\" IN (0, 1)"));
+
         builder.HasOne(e => e.Diploma)
             .WithMany(d => d.AdmissionStepAttempts)
             .HasForeignKey(e => e.DiplomaId)

@@ -3,7 +3,10 @@
     ViewData["Title"] = "Видалення викладача";
 }
 
-<h2>Видалення викладача</h2>
+<h1 class="mb-1">Видалення викладача</h1>
+<p class="text-muted mb-4">@Model.FullName</p>
+
+<partial name="_AdminNavLinks" model="AdminNavigation.EmployeesBack()"/>
 
 <div asp-validation-summary="ModelOnly" class="text-danger"></div>
 

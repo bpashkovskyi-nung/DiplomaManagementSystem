@@ -203,3 +203,11 @@ body {
   box-shadow: 0 0.25rem 0.75rem rgba(0, 0, 0, 0.08);
   transform: translateY(-1px);
 }
+
+.employee-students-card {
+  background-color: rgba(var(--bs-primary-rgb), 0.06);
+}
+
+.employee-students-card .card-title {
+  color: var(--bs-primary);
+}

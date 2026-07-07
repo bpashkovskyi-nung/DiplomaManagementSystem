@@ -109,7 +109,7 @@ internal static class EmployeeDiplomaListProjection
         }
 
         HashSet<Guid> studentIds = diplomas.Select(diploma => diploma.StudentId).ToHashSet();
-        Dictionary<Guid, string> studentNames = await userDisplayQueries.LoadFullNamesAsync(
+        Dictionary<Guid, StudentDisplayInfo> displays = await userDisplayQueries.LoadStudentDisplaysAsync(
             studentIds,
             cancellationToken);
 
@@ -121,11 +121,13 @@ internal static class EmployeeDiplomaListProjection
         return diplomas
             .Select(diploma =>
             {
+                displays.TryGetValue(diploma.StudentId, out StudentDisplayInfo? display);
                 latestStudentWorkByDiplomaId.TryGetValue(diploma.Id, out DiplomaDocumentDto? latestWork);
 
                 return new ReviewerAssignmentItemDto(
                     diploma.Id,
-                    studentNames.GetValueOrDefault(diploma.StudentId, MissingLabel),
+                    display?.FullName ?? MissingLabel,
+                    display?.GroupName ?? MissingLabel,
                     topicTitles.GetValueOrDefault(diploma.Id, MissingLabel),
                     diploma.ReviewAssignmentStatus,
                     MapStudentWorkLink(latestWork));

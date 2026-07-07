@@ -12,6 +12,7 @@ internal sealed class EmployeeHomeService(
     IAnnualRoleQueries annualRoleQueries,
     ISupervisorWorkflowService supervisorWorkflowService,
     ISupervisorDiplomaListService supervisorDiplomaListService,
+    IReviewerDiplomaListService reviewerDiplomaListService,
     IDepartmentHeadWorkflowService departmentHeadWorkflowService,
     IAdmissionReviewService admissionReviewService) : IEmployeeHomeService
 {
@@ -25,6 +26,13 @@ internal sealed class EmployeeHomeService(
                             || pendingSupervisorTopics > 0
                             || await employeeHomeQueries.HasAnySupervisorDiplomasAsync(employeeId, cancellationToken);
 
+        int pendingReviewerAssignments = (await admissionReviewService.GetReviewerAssignmentsAsync(
+            employeeId,
+            cancellationToken)).Count;
+
+        bool isReviewer = pendingReviewerAssignments > 0
+                          || await employeeHomeQueries.HasAnyReviewerDiplomasAsync(employeeId, cancellationToken);
+
         if (isSupervisor)
         {
             SupervisorDiplomaListPageDto studentsPage = await supervisorDiplomaListService.GetListAsync(
@@ -37,8 +45,28 @@ internal sealed class EmployeeHomeService(
                 EmployeePageTitles.MyStudents,
                 studentsPage.Items.Count,
                 "Supervisor",
-                "Students"));
+                "Students",
+                CountsStudents: true));
+        }
 
+        if (isReviewer)
+        {
+            ReviewerDiplomaListPageDto reviewStudentsPage = await reviewerDiplomaListService.GetListAsync(
+                employeeId,
+                new DiplomaListFilterDto(null, null, null, null, null, null),
+                cancellationToken);
+
+            roles.Add(new EmployeeRoleCardDto(
+                "ReviewerStudents",
+                EmployeePageTitles.MyReviewStudents,
+                reviewStudentsPage.Items.Count,
+                "Reviewer",
+                "Students",
+                CountsStudents: true));
+        }
+
+        if (isSupervisor)
+        {
             roles.Add(new EmployeeRoleCardDto(
                 "SupervisorPendingStudents",
                 EmployeePageTitles.ConfirmStudentRequest,
@@ -75,7 +103,7 @@ internal sealed class EmployeeHomeService(
             employeeId,
             cancellationToken)).Count;
 
-        if (isSupervisor && pendingSupervisorFeedback > 0)
+        if (isSupervisor)
         {
             roles.Add(new EmployeeRoleCardDto(
                 "SupervisorFeedback",
@@ -85,16 +113,11 @@ internal sealed class EmployeeHomeService(
                 "Checkpoints"));
         }
 
-        int pendingReviewerAssignments = (await admissionReviewService.GetReviewerAssignmentsAsync(
-            employeeId,
-            cancellationToken)).Count;
-
-        if (pendingReviewerAssignments > 0
-            || await employeeHomeQueries.HasAnyReviewerDiplomasAsync(employeeId, cancellationToken))
+        if (isReviewer)
         {
             roles.Add(new EmployeeRoleCardDto(
                 "Reviewer",
-                EmployeePageTitles.Reviewer,
+                EmployeePageTitles.SubmitExternalReview,
                 pendingReviewerAssignments,
                 "Reviewer",
                 "Assignments"));

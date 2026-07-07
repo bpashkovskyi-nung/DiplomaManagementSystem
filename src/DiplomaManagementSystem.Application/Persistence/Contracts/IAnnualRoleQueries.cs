@@ -25,4 +25,9 @@ public interface IAnnualRoleQueries
     Task<List<SecretarySessionRow>> ListAccessibleSecretarySessionsAsync(
         Guid userId,
         CancellationToken cancellationToken = default);
+
+    Task<Guid?> GetEmployeeIdForSessionRoleAsync(
+        Guid defenceSessionId,
+        AnnualRoleType roleType,
+        CancellationToken cancellationToken = default);
 }

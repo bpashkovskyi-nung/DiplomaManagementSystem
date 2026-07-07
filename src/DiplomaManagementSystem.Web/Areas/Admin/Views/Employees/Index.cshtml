@@ -1,30 +1,36 @@
 @model DiplomaManagementSystem.Web.Areas.Admin.Models.EmployeeListViewModel
 @{
-    ViewData["Title"] = "Викладачі";
+    ViewData["Title"] = AdminPageTitles.Employees;
 }
 
-<h2>Викладачі</h2>
+<h1 class="mb-4">@ViewData["Title"]</h1>
+
+<partial name="_TempDataAlerts"/>
+
+<partial name="_AdminNavLinks" model="AdminNavigation.Global()"/>
 
 <p>
     <a class="btn btn-primary" asp-action="Create">Новий викладач</a>
-    <a class="btn btn-outline-secondary" asp-controller="Import" asp-action="Employees">Імпорт</a>
+    <a class="btn btn-outline-secondary" asp-controller="Import" asp-action="Employees">@AdminPageTitles.ImportEmployees</a>
 </p>
 
-<table class="table table-striped">
+<table class="table table-striped align-middle">
     <thead>
     <tr>
+        <th>Вчене звання</th>
         <th>ПІБ</th>
         <th>Email</th>
         <th></th>
     </tr>
     </thead>
     <tbody>
-    @foreach (var item in Model.Items)
+    @foreach (EmployeeListItemViewModel item in Model.Items)
     {
         <tr>
+            <td>@item.AcademicRankDisplay</td>
             <td>@item.FullName</td>
             <td>@item.Email</td>
-            <td class="text-end">
+            <td class="text-end text-nowrap">
                 <a class="btn btn-sm btn-outline-primary" asp-action="Details" asp-route-id="@item.Id">Деталі</a>
                 <a class="btn btn-sm btn-outline-secondary" asp-action="Edit" asp-route-id="@item.Id">Редагувати</a>
             </td>

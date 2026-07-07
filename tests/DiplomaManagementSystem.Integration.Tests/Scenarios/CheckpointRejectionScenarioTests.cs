@@ -31,7 +31,7 @@ public sealed class CheckpointRejectionScenarioTests(PostgreSqlFixture fixture)
         await admissionReviewService.CompleteSupervisorFeedbackAsync(
             scenario.SupervisorId,
             new CompleteCheckpointDto(scenario.DiplomaId, CheckpointOutcome.NotApproved, "Доробити вступ"),
-            IntegrationTestDocuments.CreatePdf("supervisor-feedback-reject.pdf"),
+            null,
             CancellationToken.None);
 
         DiplomaDetailsDto rejectedDetails = await IntegrationScenarioAssertions.GetDiplomaDetailsAsync(

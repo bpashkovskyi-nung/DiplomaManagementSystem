@@ -49,6 +49,7 @@ public static class PersistenceServiceCollectionExtensions
         services.AddScoped<IDiplomaDocumentQueries, DiplomaDocumentQueries>();
         services.AddScoped<IEmployeeHomeQueries, EmployeeHomeQueries>();
         services.AddScoped<IAdmissionStepQueries, AdmissionStepQueries>();
+        services.AddScoped<IEmployeeWorkloadLimitQueries, EmployeeWorkloadLimitQueries>();
 
         return services;
     }

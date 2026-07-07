@@ -3,8 +3,10 @@
     ViewData["Title"] = "Видалення групи";
 }
 
-<h2>Видалення групи</h2>
-<p class="text-muted">Сесія: @Model.SessionLabel</p>
+<h1 class="mb-1">Видалення групи</h1>
+<p class="text-muted mb-4">@Model.SessionLabel</p>
+
+<partial name="_AdminNavLinks" model="AdminNavigation.SessionContext(Model.DefenceSessionId)"/>
 
 <div asp-validation-summary="ModelOnly" class="text-danger"></div>
 

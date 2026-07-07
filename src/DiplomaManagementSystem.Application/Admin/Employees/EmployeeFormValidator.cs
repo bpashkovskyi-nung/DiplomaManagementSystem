@@ -1,5 +1,6 @@
 using DiplomaManagementSystem.Application.Admin.Employees.Dtos;
 using DiplomaManagementSystem.Application.Security;
+using DiplomaManagementSystem.Domain.Enums;
 
 using FluentValidation;
 
@@ -19,5 +20,12 @@ public sealed class EmployeeFormValidator : AbstractValidator<EmployeeFormDto>
             .MaximumLength(256)
             .Must(emailDomainValidator.IsAllowed)
             .WithMessage("Email domain is not allowed.");
+
+        RuleFor(dto => dto.ShortDisplayName)
+            .MaximumLength(64);
+
+        RuleFor(dto => dto.AcademicRank)
+            .IsInEnum()
+            .When(dto => dto.AcademicRank.HasValue);
     }
 }

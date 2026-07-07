@@ -1,0 +1,19 @@
+@model PendingCheckpointsViewModel
+@{
+    ViewData["Title"] = Model.Title;
+    PendingCheckpointListViewModel listModel = new()
+    {
+        Items = Model.Items,
+        FormAction = Model.FormAction,
+        RequiresDocumentFile = Model.RequiresDocumentFile,
+        EmptyMessage = Model.EmptyMessage,
+    };
+}
+
+<h1 class="mb-4">@Model.Title</h1>
+
+<partial name="_TempDataAlerts"/>
+
+<partial name="_EmployeeNavLinks" model="Model.NavLinks"/>
+
+<partial name="_PendingCheckpointList" model="listModel"/>

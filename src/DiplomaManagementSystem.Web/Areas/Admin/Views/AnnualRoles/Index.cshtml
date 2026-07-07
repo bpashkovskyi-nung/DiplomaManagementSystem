@@ -1,16 +1,18 @@
 @model DiplomaManagementSystem.Web.Areas.Admin.Models.AnnualRolesViewModel
 @{
-    ViewData["Title"] = $"Ролі сесії {Model.SessionLabel}";
+    ViewData["Title"] = AdminPageTitles.AnnualRoles;
 }
 
-<h2>Ролі на сесію захисту</h2>
-<p class="lead">@Model.SessionLabel</p>
+<h1 class="mb-1">@ViewData["Title"]</h1>
+<p class="text-muted mb-4">@Model.SessionLabel</p>
 
 <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
 
 <partial name="_TempDataAlerts"/>
 
-<table class="table">
+<partial name="_AdminNavLinks" model="AdminNavigation.SessionContext(Model.DefenceSessionId)"/>
+
+<table class="table table-striped align-middle">
     <thead>
     <tr>
         <th>Роль</th>
@@ -19,7 +21,7 @@
     </tr>
     </thead>
     <tbody>
-    @foreach (var role in Model.Roles)
+    @foreach (AnnualRoleSlotViewModel role in Model.Roles)
     {
         <tr>
             <td>@role.RoleDisplay</td>
@@ -41,5 +43,3 @@
     }
     </tbody>
 </table>
-
-<a class="btn btn-link" asp-controller="DefenceSessions" asp-action="Details" asp-route-id="@Model.DefenceSessionId">До сесії</a>

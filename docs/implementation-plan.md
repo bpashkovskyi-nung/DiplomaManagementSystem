@@ -139,7 +139,7 @@ enum TopicVersionStatus { PendingSupervisor, PendingHead, Approved, Rejected }
 enum AdmissionStep {
     SupervisorFeedback, ExternalReview, AntiPlagiarismClearance, FormattingReview
 }
-enum FormattingReviewOutcome { Approved, ApprovedWithRemarks, NotApproved }
+enum CheckpointOutcome { Approved, NotApproved }
 ```
 
 ### 1.2 Domain services

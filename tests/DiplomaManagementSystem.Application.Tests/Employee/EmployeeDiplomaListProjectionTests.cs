@@ -222,7 +222,7 @@ public sealed class EmployeeDiplomaListProjectionTests
 
         FakeUserDisplayQueries userQueries = new()
         {
-            FullNames = { [studentId] = "Петро Студент" },
+            StudentDisplays = { [studentId] = new StudentDisplayInfo("Петро Студент", "КН-42") },
         };
 
         FakeTopicVersionQueries topicQueries = new()
@@ -247,6 +247,7 @@ public sealed class EmployeeDiplomaListProjectionTests
 
         ReviewerAssignmentItemDto item = Assert.Single(items);
         Assert.Equal("Петро Студент", item.StudentFullName);
+        Assert.Equal("КН-42", item.StudyGroupName);
         Assert.Equal("Затверджена тема", item.TopicTitle);
         Assert.Equal(ReviewAssignmentStatus.Assigned, item.ReviewAssignmentStatus);
     }

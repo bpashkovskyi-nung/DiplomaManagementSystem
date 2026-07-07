@@ -32,15 +32,50 @@
 | `AntiPlagiarismClearance` | Звіт антиплагіату |
 | `FormattingReview` | Нормоконтроль |
 
-## Статуси нормоконтролю (`FormattingReviewOutcome`)
+## Результат перевірки кроку допуску (`CheckpointOutcome`)
 
 | Код | UI |
 |-----|-----|
 | `Approved` | Допущено |
-| `ApprovedWithRemarks` | Допущено з зауваженнями |
 | `NotApproved` | Не допущено |
 
 ## Принцип
 
 - **Код:** зрозумілі англійські доменні терміни (`ExamCommission`, `FormattingReview`).
 - **UI:** `.resx` / `IStringLocalizer` — лише українські підписи для користувачів.
+
+## Заголовки сторінок (`EmployeePageTitles`)
+
+| Код | UI |
+|-----|-----|
+| `MyStudents` | Мої студенти — керівник |
+| `MyReviewStudents` | Мої студенти — рецензент |
+| `ConfirmStudentRequest` | Керівник — підтвердити заявку студента |
+| `ApproveTopicAsSupervisor` | Керівник — затвердити тему |
+| `SubmitSupervisorFeedback` | Керівник — надіслати відгук |
+| `SubmitExternalReview` | Рецензент — надіслати рецензію |
+| `AntiPlagiarism` | Антиплагіат — перевірка |
+| `FormattingReview` | Нормоконтроль — перевірка |
+
+## Заголовки сторінок секретаря (`SecretaryPageTitles`)
+
+| Код | UI |
+|-----|-----|
+| `Home` | Кабінет секретаря |
+| `TopicOrder` | Наказ на теми |
+| `AdmittedReport` | Звіт допущених |
+| `SelectSession` | Оберіть сесію захисту |
+
+## Заголовки сторінок адміністратора (`AdminPageTitles`)
+
+| Код | UI |
+|-----|-----|
+| `Home` | Кабінет адміністратора |
+| `DefenceSessions` | Сесії захисту |
+| `DefenceSession` | Сесія захисту |
+| `Employees` | Викладачі |
+| `Students` | Студенти |
+| `AnnualRoles` | Ролі на сесію захисту |
+| `EmployeeWorkloadLimits` | Ліміти викладачів |
+| `ImportEmployees` | Імпорт викладачів |
+| `ImportStudents` | Імпорт студентів |

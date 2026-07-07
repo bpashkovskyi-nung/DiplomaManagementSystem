@@ -47,5 +47,9 @@ public interface IDiplomaQueries
         Guid diplomaId,
         CancellationToken cancellationToken = default);
 
+    Task<List<Diploma>> ListForReviewerReadAsync(
+        Guid reviewerId,
+        CancellationToken cancellationToken = default);
+
     Task<bool> HasApprovedTopicAsync(Guid diplomaId, CancellationToken cancellationToken = default);
 }

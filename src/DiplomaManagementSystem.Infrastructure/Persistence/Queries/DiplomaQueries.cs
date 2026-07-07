@@ -204,4 +204,18 @@ internal sealed class DiplomaQueries(ApplicationDbContext dbContext) : IDiplomaQ
                            && diploma.DefenceSession.Status == DefenceSessionStatus.Active,
                 cancellationToken);
     }
+
+    public Task<List<Diploma>> ListForReviewerReadAsync(
+        Guid reviewerId,
+        CancellationToken cancellationToken = default)
+    {
+        return dbContext.Diplomas
+            .AsNoTracking()
+            .Include(diploma => diploma.AdmissionStepAttempts)
+            .Include(diploma => diploma.TopicVersions)
+            .Include(diploma => diploma.DefenceSession)
+            .Where(diploma => diploma.ReviewerId == reviewerId
+                              && diploma.DefenceSession.Status == DefenceSessionStatus.Active)
+            .ToListAsync(cancellationToken);
+    }
 }

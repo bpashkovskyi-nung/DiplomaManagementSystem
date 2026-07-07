@@ -1,12 +1,15 @@
 @model DiplomaManagementSystem.Web.Areas.Admin.Models.DefenceSessionDetailsViewModel
 @{
-    ViewData["Title"] = "Сесія захисту";
-    bool canManageGroups = Model.Status == DiplomaManagementSystem.Domain.Enums.DefenceSessionStatus.Active;
+    ViewData["Title"] = AdminPageTitles.DefenceSession;
+    bool canManageGroups = Model.Status == DefenceSessionStatus.Active;
 }
 
-<h2>Сесія захисту</h2>
+<h1 class="mb-1">@ViewData["Title"]</h1>
+<p class="text-muted mb-4">@Model.Year · @Model.TypeDisplay · @Model.StatusDisplay</p>
 
 <partial name="_TempDataAlerts"/>
+
+<partial name="_AdminNavLinks" model="AdminNavigation.SessionContext(Model.Id)"/>
 
 <dl class="row">
     <dt class="col-sm-3">Рік</dt>
@@ -30,6 +33,7 @@
     @if (canManageGroups)
     {
         <a class="btn btn-outline-info" asp-controller="AnnualRoles" asp-action="Index" asp-route-defenceSessionId="@Model.Id">Ролі</a>
+        <a class="btn btn-outline-info" asp-controller="EmployeeWorkloadLimits" asp-action="Index" asp-route-defenceSessionId="@Model.Id">Ліміти викладачів</a>
     }
     <a class="btn btn-outline-secondary" asp-action="Edit" asp-route-id="@Model.Id">Редагувати</a>
     @if (Model.CanArchive)
@@ -39,31 +43,32 @@
             <button type="submit" class="btn btn-outline-warning">Архівувати</button>
         </form>
     }
-    <a class="btn btn-link text-secondary" asp-action="Index">До списку</a>
 </div>
 
-<h4>Групи</h4>
+<h2 class="h5 mb-3">Групи</h2>
 @if (Model.Groups.Count == 0)
 {
     <p class="text-muted">У цій сесії ще немає груп.</p>
 }
 else
 {
-    <table class="table">
+    <table class="table table-striped align-middle">
         <thead>
         <tr>
+            <th>Курс</th>
             <th>Група</th>
             <th>Студентів</th>
             <th></th>
         </tr>
         </thead>
         <tbody>
-        @foreach (var group in Model.Groups)
+        @foreach (StudyGroupListItemViewModel group in Model.Groups)
         {
             <tr>
+                <td>@(group.Course?.ToString() ?? "—")</td>
                 <td>@group.Name</td>
                 <td>@group.StudentCount</td>
-                <td class="text-end">
+                <td class="text-end text-nowrap">
                     @if (canManageGroups)
                     {
                         <a class="btn btn-sm btn-outline-secondary" asp-controller="StudyGroups" asp-action="Edit" asp-route-id="@group.Id">Редагувати</a>

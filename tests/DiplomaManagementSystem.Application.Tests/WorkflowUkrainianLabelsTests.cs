@@ -18,7 +18,6 @@ public sealed class WorkflowUkrainianLabelsTests
     [Theory]
     [InlineData(CheckpointOutcome.Approved, "Допущено")]
     [InlineData(CheckpointOutcome.NotApproved, "Не допущено")]
-    [InlineData(CheckpointOutcome.ApprovedWithRemarks, "Зауваження")]
     public void FormatCheckpointOutcome_ReturnsUkrainian(CheckpointOutcome outcome, string expected)
     {
         Assert.Equal(expected, WorkflowUkrainianLabels.FormatCheckpointOutcome(outcome));
@@ -91,11 +90,11 @@ public sealed class WorkflowUkrainianLabelsTests
     {
         string value = WorkflowUkrainianLabels.BuildAdmissionStepOverrideAuditNewValue(
             AdmissionStep.FormattingReview,
-            CheckpointOutcome.ApprovedWithRemarks,
+            CheckpointOutcome.Approved,
             "  Примітка  ");
 
         Assert.Contains("Нормоконтроль", value, StringComparison.Ordinal);
-        Assert.Contains("Зауваження", value, StringComparison.Ordinal);
+        Assert.Contains("Допущено", value, StringComparison.Ordinal);
         Assert.Contains("Примітка", value, StringComparison.Ordinal);
         Assert.DoesNotContain("  ", value, StringComparison.Ordinal);
     }
