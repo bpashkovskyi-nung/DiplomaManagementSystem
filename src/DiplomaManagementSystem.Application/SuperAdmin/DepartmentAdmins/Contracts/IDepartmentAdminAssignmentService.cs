@@ -8,6 +8,10 @@ public interface IDepartmentAdminAssignmentService
         Guid departmentId,
         CancellationToken cancellationToken = default);
 
+    Task<IReadOnlyList<DepartmentEmployeeOptionDto>> GetAssignableEmployeesAsync(
+        Guid departmentId,
+        CancellationToken cancellationToken = default);
+
     Task AssignAsync(DepartmentAdminAssignDto dto, CancellationToken cancellationToken = default);
 
     Task RemoveAsync(Guid assignmentId, CancellationToken cancellationToken = default);

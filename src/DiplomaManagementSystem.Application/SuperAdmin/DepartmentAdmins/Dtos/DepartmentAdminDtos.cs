@@ -9,4 +9,9 @@ public sealed record DepartmentAdminListItemDto(
 
 public sealed record DepartmentAdminAssignDto(
     Guid DepartmentId,
+    Guid UserId);
+
+public sealed record DepartmentEmployeeOptionDto(
+    Guid Id,
+    string FullName,
     string Email);

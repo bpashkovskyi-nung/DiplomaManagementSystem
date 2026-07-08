@@ -6,11 +6,15 @@ public sealed record StudyGroupListItemDto(
     int? Course,
     Guid DefenceSessionId,
     string SessionLabel,
+    string SpecialtyLabel,
+    string StudyForm,
     int StudentCount);
 
 public sealed record StudyGroupFormDto(
     Guid? Id,
     Guid DefenceSessionId,
     string Name,
+    Guid SpecialtyId,
+    string StudyForm,
     int? Course = null,
     string? SessionLabel = null);

@@ -5,16 +5,11 @@ public sealed record DepartmentListItemDto(
     Guid FacultyId,
     string FacultyName,
     string Name,
-    string SpecialtyCode,
-    string SpecialtyName,
-    string StudyForm,
+    int SpecialtyCount,
     bool IsActive,
     DateTimeOffset CreatedAt);
 
 public sealed record DepartmentFormDto(
     Guid? Id,
     Guid FacultyId,
-    string Name,
-    string SpecialtyCode,
-    string SpecialtyName,
-    string StudyForm);
+    string Name);

@@ -5,7 +5,7 @@
 
 <h1 class="mb-4">@ViewData["Title"]</h1>
 
-<partial name="_SuperAdminNavLinks" model="SuperAdminNavigation.FacultiesBack()"/>
+<partial name="_SuperAdminNavLinks" model="SuperAdminNavigation.FacultiesFormBack()"/>
 
 <form asp-action="@(Model.Id is null ? "Create" : "Edit")" method="post">
     @Html.AntiForgeryToken()

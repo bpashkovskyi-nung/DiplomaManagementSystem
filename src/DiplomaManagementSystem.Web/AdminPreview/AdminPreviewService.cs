@@ -21,7 +21,7 @@ internal sealed class AdminPreviewService : IAdminPreviewService
         AdminPreviewMode mode = httpContext.Session.GetInt32(ModeSessionKey) switch
         {
             int value => AdminPreviewModeRules.FromStoredValue(value),
-            _ => AdminPreviewMode.Admin,
+            _ => AdminPreviewMode.SuperAdmin,
         };
 
         return mode;
@@ -31,7 +31,7 @@ internal sealed class AdminPreviewService : IAdminPreviewService
     {
         if (!IsAdmin(httpContext.User, httpContext))
         {
-            throw new UnauthorizedAccessException("Only administrators can switch preview mode.");
+            throw new UnauthorizedAccessException("Only super administrators can switch preview mode.");
         }
 
         if (!Enum.IsDefined(mode))
@@ -50,12 +50,12 @@ internal sealed class AdminPreviewService : IAdminPreviewService
         AdminPreviewMode previousMode = GetMode(httpContext);
         httpContext.Session.SetInt32(ModeSessionKey, (int)modeToStore);
 
-        if (modeToStore is AdminPreviewMode.Admin || modeToStore != previousMode)
+        if (AdminPreviewModeRules.IsHomeMode(modeToStore) || modeToStore != previousMode)
         {
             ClearImpersonation(httpContext);
         }
 
-        if (modeToStore is AdminPreviewMode.Admin)
+        if (AdminPreviewModeRules.IsHomeMode(modeToStore))
         {
             httpContext.Session.Remove(OperatorSessionKey);
         }
@@ -96,7 +96,9 @@ internal sealed class AdminPreviewService : IAdminPreviewService
     }
 
     public bool RequiresImpersonation(AdminPreviewMode mode) =>
-        mode == AdminPreviewMode.Student || AdminPreviewModeRules.IsEmployeePreviewMode(mode);
+        mode is AdminPreviewMode.Student
+            or AdminPreviewMode.Secretary
+            or AdminPreviewMode.Employee;
 
     public bool HasImpersonation(HttpContext httpContext, ClaimsPrincipal? user = null) =>
         GetImpersonatedUserId(httpContext, user).HasValue;
@@ -108,7 +110,7 @@ internal sealed class AdminPreviewService : IAdminPreviewService
             return false;
         }
 
-        if (user.IsInRole(RoleNames.Admin))
+        if (user.IsInRole(RoleNames.SuperAdmin))
         {
             return true;
         }
@@ -134,11 +136,13 @@ internal sealed class AdminPreviewService : IAdminPreviewService
     }
 
     public bool IsActivePreview(HttpContext httpContext) =>
-        IsAdmin(httpContext.User, httpContext) && GetMode(httpContext) != AdminPreviewMode.Admin;
+        IsAdmin(httpContext.User, httpContext) && !AdminPreviewModeRules.IsHomeMode(GetMode(httpContext));
 
     public string GetModeDisplayName(AdminPreviewMode mode) => AdminPreviewModeRules.Normalize(mode) switch
     {
+        AdminPreviewMode.SuperAdmin => "Супер Адміністратор",
         AdminPreviewMode.Admin => "Адміністратор",
+        AdminPreviewMode.Secretary => "Секретар",
         AdminPreviewMode.Student => "Студент",
         AdminPreviewMode.Employee => "Викладач",
         _ => mode.ToString(),

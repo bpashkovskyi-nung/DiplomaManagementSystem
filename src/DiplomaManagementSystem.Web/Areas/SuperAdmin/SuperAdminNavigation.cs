@@ -7,38 +7,25 @@ internal static class SuperAdminNavigation
 {
     public static IReadOnlyList<SuperAdminNavLink> Global() =>
     [
-        new(SuperAdminPageTitles.Home, "Home", "Index"),
         new(SuperAdminPageTitles.Faculties, "Faculties", "Index"),
-        new(SuperAdminPageTitles.Departments, "Departments", "Index"),
-        new(SuperAdminPageTitles.DepartmentAdmins, "DepartmentAdmins", "Index"),
         new(SuperAdminPageTitles.OrganizationImport, "OrganizationImport", "Index"),
     ];
 
-    public static IReadOnlyList<SuperAdminNavLink> FacultiesBack() =>
+    public static IReadOnlyList<SuperAdminNavLink> FacultiesFormBack() =>
     [
         new(SuperAdminPageTitles.Faculties, "Faculties", "Index"),
-        new(SuperAdminPageTitles.Home, "Home", "Index"),
     ];
 
-    public static IReadOnlyList<SuperAdminNavLink> DepartmentsBack() =>
-    [
-        new(SuperAdminPageTitles.Departments, "Departments", "Index"),
-        new(SuperAdminPageTitles.Home, "Home", "Index"),
-    ];
+    public static IReadOnlyList<SuperAdminNavLink> FacultyDepartmentsBack() =>
+        FacultiesFormBack();
 
-    public static IReadOnlyList<SuperAdminNavLink> DepartmentAdminsBack(Guid? departmentId = null) =>
+    public static IReadOnlyList<SuperAdminNavLink> DepartmentFormBack(Guid facultyId, string facultyName) =>
     [
+        new(SuperAdminPageTitles.Faculties, "Faculties", "Index"),
         new(
-            SuperAdminPageTitles.DepartmentAdmins,
-            "DepartmentAdmins",
+            facultyName,
+            "Departments",
             "Index",
-            departmentId is Guid id ? new Dictionary<string, string> { ["departmentId"] = id.ToString() } : null),
-        new(SuperAdminPageTitles.Home, "Home", "Index"),
-    ];
-
-    public static IReadOnlyList<SuperAdminNavLink> OrganizationImportBack() =>
-    [
-        new(SuperAdminPageTitles.OrganizationImport, "OrganizationImport", "Index"),
-        new(SuperAdminPageTitles.Home, "Home", "Index"),
+            new Dictionary<string, string> { ["facultyId"] = facultyId.ToString() }),
     ];
 }

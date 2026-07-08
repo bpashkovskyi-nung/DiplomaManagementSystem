@@ -29,7 +29,8 @@
                     @await Component.InvokeAsync("StudentNav")
                     @await Component.InvokeAsync("EmployeeNav")
                     @await Component.InvokeAsync("SecretaryNav")
-                    @if (User.IsInRole(RoleNames.SuperAdmin))
+                    @if (User.IsInRole(RoleNames.SuperAdmin)
+                         && AdminPreviewService.GetMode(Context) == AdminPreviewMode.SuperAdmin)
                     {
                         <li class="nav-item">
                             <a class="nav-link text-dark" asp-area="SuperAdmin" asp-controller="Home" asp-action="Index">@SuperAdminPageTitles.Home</a>
@@ -48,6 +49,7 @@
                     @if (User.Identity?.IsAuthenticated == true)
                     {
                         @await Component.InvokeAsync("AdminPreview", new { part = "switcher" })
+                        @await Component.InvokeAsync("ImpersonationDepartment")
                         <li class="nav-item">
                             <span class="nav-link text-dark mb-0 py-2">@User.Identity.Name</span>
                         </li>

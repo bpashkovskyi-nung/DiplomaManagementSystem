@@ -29,6 +29,7 @@
             <td>@item.DepartmentCount</td>
             <td>@(item.IsActive ? "Активний" : "Неактивний")</td>
             <td class="text-end text-nowrap">
+                <a class="btn btn-sm btn-primary" asp-controller="Departments" asp-action="Index" asp-route-facultyId="@item.Id">@SuperAdminPageTitles.Departments</a>
                 <a class="btn btn-sm btn-outline-secondary" asp-action="Edit" asp-route-id="@item.Id">Редагувати</a>
                 @if (item.IsActive)
                 {

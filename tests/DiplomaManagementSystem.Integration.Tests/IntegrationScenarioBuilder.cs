@@ -51,8 +51,10 @@ internal sealed class IntegrationScenarioBuilder
         Guid sessionId = await defenceSessionService.CreateAsync(
             new DefenceSessionFormDto(null, 2026, DefenceSessionType.Bachelor, 1));
 
+        Guid specialtyId = await IntegrationDepartmentHelper.GetDefaultSpecialtyIdAsync(services);
+
         Guid groupId = await studyGroupAdminService.CreateAsync(
-            new StudyGroupFormDto(null, sessionId, $"КН-41-{suffix}"));
+            new StudyGroupFormDto(null, sessionId, $"КН-41-{suffix}", specialtyId, "очної форми навчання"));
 
         ApplicationUser student = await userProvisioningService.CreateStudentAsync(
             "Student One",
@@ -115,6 +117,7 @@ internal sealed class IntegrationScenarioBuilder
             reviewer.Id,
             antiPlagiarism.Id,
             formatting.Id,
+            specialtyId,
             $"КН-41-{suffix}");
     }
 
@@ -133,8 +136,10 @@ internal sealed class IntegrationScenarioBuilder
         Guid sessionId = await defenceSessionService.CreateAsync(
             new DefenceSessionFormDto(null, 2026, DefenceSessionType.Bachelor, 1));
 
+        Guid specialtyId = await IntegrationDepartmentHelper.GetDefaultSpecialtyIdAsync(services);
+
         Guid groupId = await studyGroupAdminService.CreateAsync(
-            new StudyGroupFormDto(null, sessionId, $"КН-42-{suffix}"));
+            new StudyGroupFormDto(null, sessionId, $"КН-42-{suffix}", specialtyId, "очної форми навчання"));
 
         ApplicationUser student = await userProvisioningService.CreateStudentAsync(
             "Student Without Diploma",
@@ -163,4 +168,5 @@ internal sealed record IntegrationScenario(
     Guid ReviewerId,
     Guid AntiPlagiarismId,
     Guid FormattingId,
+    Guid SpecialtyId,
     string StudyGroupName);

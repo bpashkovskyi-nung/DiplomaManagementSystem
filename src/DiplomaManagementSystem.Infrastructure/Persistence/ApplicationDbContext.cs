@@ -15,6 +15,8 @@ public sealed partial class ApplicationDbContext(DbContextOptions<ApplicationDbC
 
     public DbSet<Department> Departments => Set<Department>();
 
+    public DbSet<Specialty> Specialties => Set<Specialty>();
+
     public DbSet<DepartmentAdminAssignment> DepartmentAdminAssignments => Set<DepartmentAdminAssignment>();
 
     public DbSet<DepartmentEmployee> DepartmentEmployees => Set<DepartmentEmployee>();

@@ -20,11 +20,13 @@ public sealed class DefaultOrganizationSeedScenarioTests(PostgreSqlFixture fixtu
 
         Faculty faculty = await dbContext.Faculties.SingleAsync();
         Department department = await dbContext.Departments.SingleAsync();
+        Specialty specialty = await dbContext.Specialties.SingleAsync();
 
         Assert.Equal("факультет інформаційних технологій", faculty.Name);
         Assert.Equal("кафедра комп'ютерних систем і мереж", department.Name);
         Assert.Equal(faculty.Id, department.FacultyId);
-        Assert.Equal("123", department.SpecialtyCode);
+        Assert.Equal("123", specialty.Code);
+        Assert.Equal(department.Id, specialty.DepartmentId);
 
         bool allSessionsAssigned = await dbContext.DefenceSessions
             .AllAsync(session => session.DepartmentId == department.Id);

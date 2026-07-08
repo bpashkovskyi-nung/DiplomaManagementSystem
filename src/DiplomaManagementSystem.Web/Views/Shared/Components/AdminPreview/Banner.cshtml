@@ -28,8 +28,8 @@
         <span class="ms-2">
             <form asp-controller="AdminPreview" asp-action="Set" method="post" class="d-inline">
                 @Html.AntiForgeryToken()
-                <input type="hidden" name="mode" value="@AdminPreviewMode.Admin"/>
-                <button type="submit" class="btn btn-link btn-sm p-0 align-baseline">Повернутись до адміна</button>
+                <input type="hidden" name="mode" value="@AdminPreviewMode.SuperAdmin"/>
+                <button type="submit" class="btn btn-link btn-sm p-0 align-baseline">Повернутись до супер адміна</button>
             </form>
         </span>
         <span class="text-muted">. Дії виконуються від імені обраного користувача.</span>

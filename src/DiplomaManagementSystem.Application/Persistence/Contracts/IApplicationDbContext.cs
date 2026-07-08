@@ -13,6 +13,8 @@ public interface IApplicationDbContext
 
     DbSet<Department> Departments { get; }
 
+    DbSet<Specialty> Specialties { get; }
+
     DbSet<DepartmentAdminAssignment> DepartmentAdminAssignments { get; }
 
     DbSet<DepartmentEmployee> DepartmentEmployees { get; }

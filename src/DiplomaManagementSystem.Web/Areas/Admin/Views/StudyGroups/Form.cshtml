@@ -22,6 +22,22 @@
         <span asp-validation-for="Name" class="text-danger"></span>
     </div>
     <div class="mb-3">
+        <label asp-for="SpecialtyId" class="form-label">Спеціальність</label>
+        <select asp-for="SpecialtyId" class="form-select" asp-items="@(new SelectList(Model.SpecialtyOptions, nameof(StudyGroupSpecialtyOptionViewModel.Id), nameof(StudyGroupSpecialtyOptionViewModel.Label)))">
+            <option value="">Оберіть спеціальність</option>
+        </select>
+        <span asp-validation-for="SpecialtyId" class="text-danger"></span>
+        @if (Model.SpecialtyOptions.Count == 0)
+        {
+            <div class="form-text text-warning">Спочатку додайте спеціальність для кафедри сесії.</div>
+        }
+    </div>
+    <div class="mb-3">
+        <label asp-for="StudyForm" class="form-label">Форма навчання</label>
+        <input asp-for="StudyForm" class="form-control" maxlength="128"/>
+        <span asp-validation-for="StudyForm" class="text-danger"></span>
+    </div>
+    <div class="mb-3">
         <label asp-for="Course" class="form-label">Курс</label>
         <input asp-for="Course" class="form-control" type="number" min="1" max="6"/>
         <span asp-validation-for="Course" class="text-danger"></span>

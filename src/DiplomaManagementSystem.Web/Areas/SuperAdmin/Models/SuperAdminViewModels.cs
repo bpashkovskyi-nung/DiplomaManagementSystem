@@ -33,9 +33,9 @@ public sealed class FacultyFormViewModel
 
 public sealed class DepartmentListViewModel
 {
-    public Guid? SelectedFacultyId { get; init; }
+    public Guid FacultyId { get; init; }
 
-    public IReadOnlyList<FacultyOptionViewModel> FacultyOptions { get; init; } = [];
+    public string FacultyName { get; init; } = string.Empty;
 
     public IReadOnlyList<DepartmentListItemViewModel> Items { get; init; } = [];
 }
@@ -57,11 +57,7 @@ public sealed class DepartmentListItemViewModel
 
     public string Name { get; init; } = string.Empty;
 
-    public string SpecialtyCode { get; init; } = string.Empty;
-
-    public string SpecialtyName { get; init; } = string.Empty;
-
-    public string StudyForm { get; init; } = string.Empty;
+    public int SpecialtyCount { get; init; }
 
     public bool IsActive { get; init; }
 }
@@ -77,54 +73,61 @@ public sealed class DepartmentFormViewModel
     [MaxLength(256)]
     public string Name { get; set; } = string.Empty;
 
-    [MaxLength(64)]
-    public string SpecialtyCode { get; set; } = string.Empty;
-
-    [MaxLength(256)]
-    public string SpecialtyName { get; set; } = string.Empty;
-
-    [MaxLength(128)]
-    public string StudyForm { get; set; } = "очної форми навчання";
-
     public IReadOnlyList<FacultyOptionViewModel> FacultyOptions { get; set; } = [];
+
+    public IReadOnlyList<SpecialtyListItemViewModel> Specialties { get; set; } = [];
+
+    public SpecialtyFormViewModel NewSpecialty { get; set; } = new();
+
+    public IReadOnlyList<DepartmentAdminListItemViewModel> Admins { get; set; } = [];
+
+    public IReadOnlyList<DepartmentEmployeeOptionViewModel> EmployeeOptions { get; set; } = [];
+
+    public Guid? AssignUserId { get; set; }
+
+    public string FacultyName { get; set; } = string.Empty;
 }
 
-public sealed class SuperAdminHomeViewModel
-{
-    public IReadOnlyList<FacultyOverviewViewModel> Faculties { get; init; } = [];
-
-    public IReadOnlyList<DepartmentListItemViewModel> Departments { get; init; } = [];
-}
-
-public sealed class FacultyOverviewViewModel
+public sealed class SpecialtyListItemViewModel
 {
     public Guid Id { get; init; }
+
+    public string Code { get; init; } = string.Empty;
 
     public string Name { get; init; } = string.Empty;
 
     public bool IsActive { get; init; }
 
-    public int DepartmentCount { get; init; }
+    public int StudyGroupCount { get; init; }
 }
 
-public sealed class DepartmentAdminListViewModel
+public sealed class SpecialtyFormViewModel
 {
-    public Guid? SelectedDepartmentId { get; set; }
+    public Guid? Id { get; set; }
 
-    public string? SelectedDepartmentName { get; set; }
+    public Guid DepartmentId { get; set; }
 
-    public string AssignEmail { get; set; } = string.Empty;
+    [Required(ErrorMessage = "Код обов'язковий.")]
+    [MaxLength(64)]
+    public string Code { get; set; } = string.Empty;
 
-    public IReadOnlyList<DepartmentOptionViewModel> DepartmentOptions { get; set; } = [];
-
-    public IReadOnlyList<DepartmentAdminListItemViewModel> Items { get; set; } = [];
+    [Required(ErrorMessage = "Назва обов'язкова.")]
+    [MaxLength(256)]
+    public string Name { get; set; } = string.Empty;
 }
 
-public sealed class DepartmentOptionViewModel
+public sealed class SuperAdminHomeViewModel
+{
+    public int FacultyCount { get; init; }
+}
+
+public sealed class DepartmentEmployeeOptionViewModel
 {
     public Guid Id { get; init; }
 
-    public string Label { get; init; } = string.Empty;
+    public string FullName { get; init; } = string.Empty;
+
+    public string Email { get; init; } = string.Empty;
 }
 
 public sealed class DepartmentAdminListItemViewModel

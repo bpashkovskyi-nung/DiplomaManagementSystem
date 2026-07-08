@@ -1,7 +1,11 @@
+using DiplomaManagementSystem.Application.SuperAdmin.DepartmentAdmins.Contracts;
+using DiplomaManagementSystem.Application.SuperAdmin.DepartmentAdmins.Dtos;
 using DiplomaManagementSystem.Application.SuperAdmin.Departments.Contracts;
 using DiplomaManagementSystem.Application.SuperAdmin.Departments.Dtos;
 using DiplomaManagementSystem.Application.SuperAdmin.Faculties.Contracts;
 using DiplomaManagementSystem.Application.SuperAdmin.Faculties.Dtos;
+using DiplomaManagementSystem.Application.SuperAdmin.Specialties.Contracts;
+using DiplomaManagementSystem.Application.SuperAdmin.Specialties.Dtos;
 using DiplomaManagementSystem.Domain.Exceptions;
 using DiplomaManagementSystem.Web.Areas.SuperAdmin.Models;
 using DiplomaManagementSystem.Web.Departments;
@@ -13,20 +17,39 @@ namespace DiplomaManagementSystem.Web.Areas.SuperAdmin.Controllers;
 
 public sealed class DepartmentsController(
     IDepartmentAdminService departmentAdminService,
+    IDepartmentAdminAssignmentService assignmentService,
     IFacultyAdminService facultyAdminService,
+    ISpecialtyAdminService specialtyAdminService,
     IDepartmentSessionService departmentSessionService) : SuperAdminControllerBase
 {
     [HttpGet]
     public async Task<IActionResult> Index(Guid? facultyId, CancellationToken cancellationToken)
     {
-        DepartmentListViewModel model = await BuildListViewModelAsync(facultyId, cancellationToken);
+        if (facultyId is not Guid id)
+        {
+            return RedirectToAction("Index", "Faculties");
+        }
+
+        FacultyFormDto? faculty = await facultyAdminService.GetForEditAsync(id, cancellationToken);
+        if (faculty is null)
+        {
+            return NotFound();
+        }
+
+        DepartmentListViewModel model = await BuildListViewModelAsync(id, faculty.Name, cancellationToken);
         return View(model);
     }
 
     [HttpGet]
-    public async Task<IActionResult> Create(Guid? facultyId, CancellationToken cancellationToken)
+    public async Task<IActionResult> Create(Guid facultyId, CancellationToken cancellationToken)
     {
-        return View("Form", await BuildFormViewModelAsync(null, facultyId, cancellationToken));
+        FacultyFormDto? faculty = await facultyAdminService.GetForEditAsync(facultyId, cancellationToken);
+        if (faculty is null)
+        {
+            return NotFound();
+        }
+
+        return View("Form", await BuildFormViewModelAsync(null, facultyId, faculty.Name, cancellationToken));
     }
 
     [HttpPost]
@@ -36,6 +59,7 @@ public sealed class DepartmentsController(
         if (!TryValidateModel(model))
         {
             model.FacultyOptions = await LoadFacultyOptionsAsync(cancellationToken);
+            model.FacultyName = await ResolveFacultyNameAsync(model.FacultyId, cancellationToken);
             return View("Form", model);
         }
 
@@ -48,6 +72,7 @@ public sealed class DepartmentsController(
         {
             ModelState.AddModelError(string.Empty, ex.Message);
             model.FacultyOptions = await LoadFacultyOptionsAsync(cancellationToken);
+            model.FacultyName = await ResolveFacultyNameAsync(model.FacultyId, cancellationToken);
             return View("Form", model);
         }
     }
@@ -61,7 +86,13 @@ public sealed class DepartmentsController(
             return NotFound();
         }
 
-        return View("Form", await BuildFormViewModelAsync(dto, dto.FacultyId, cancellationToken));
+        FacultyFormDto? faculty = await facultyAdminService.GetForEditAsync(dto.FacultyId, cancellationToken);
+        if (faculty is null)
+        {
+            return NotFound();
+        }
+
+        return View("Form", await BuildFormViewModelAsync(dto, dto.FacultyId, faculty.Name, cancellationToken));
     }
 
     [HttpPost]
@@ -72,6 +103,10 @@ public sealed class DepartmentsController(
         if (!TryValidateModel(model))
         {
             model.FacultyOptions = await LoadFacultyOptionsAsync(cancellationToken);
+            model.FacultyName = await ResolveFacultyNameAsync(model.FacultyId, cancellationToken);
+            model.Admins = await LoadAdminsAsync(id, cancellationToken);
+            model.EmployeeOptions = await LoadEmployeeOptionsAsync(id, cancellationToken);
+            model.Specialties = await LoadSpecialtiesAsync(id, cancellationToken);
             return View("Form", model);
         }
 
@@ -84,8 +119,99 @@ public sealed class DepartmentsController(
         {
             ModelState.AddModelError(string.Empty, ex.Message);
             model.FacultyOptions = await LoadFacultyOptionsAsync(cancellationToken);
+            model.FacultyName = await ResolveFacultyNameAsync(model.FacultyId, cancellationToken);
+            model.Admins = await LoadAdminsAsync(id, cancellationToken);
+            model.EmployeeOptions = await LoadEmployeeOptionsAsync(id, cancellationToken);
+            model.Specialties = await LoadSpecialtiesAsync(id, cancellationToken);
             return View("Form", model);
         }
+    }
+
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> AddSpecialty(
+        Guid departmentId,
+        Guid facultyId,
+        string code,
+        string name,
+        CancellationToken cancellationToken)
+    {
+        try
+        {
+            await specialtyAdminService.CreateAsync(
+                new SpecialtyFormDto(null, departmentId, code, name),
+                cancellationToken);
+            TempData["Success"] = "Спеціальність додано.";
+        }
+        catch (DomainException ex)
+        {
+            TempData["Error"] = ex.Message;
+        }
+
+        return RedirectToAction(nameof(Edit), new { id = departmentId });
+    }
+
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> DeactivateSpecialty(
+        Guid specialtyId,
+        Guid departmentId,
+        CancellationToken cancellationToken)
+    {
+        try
+        {
+            await specialtyAdminService.DeactivateAsync(specialtyId, cancellationToken);
+            TempData["Success"] = "Спеціальність деактивовано.";
+        }
+        catch (DomainException ex)
+        {
+            TempData["Error"] = ex.Message;
+        }
+
+        return RedirectToAction(nameof(Edit), new { id = departmentId });
+    }
+
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> AssignAdmin(
+        Guid departmentId,
+        Guid facultyId,
+        Guid assignUserId,
+        CancellationToken cancellationToken)
+    {
+        try
+        {
+            await assignmentService.AssignAsync(
+                new DepartmentAdminAssignDto(departmentId, assignUserId),
+                cancellationToken);
+            TempData["Success"] = "Адміністратора призначено.";
+        }
+        catch (DomainException ex)
+        {
+            TempData["Error"] = ex.Message;
+        }
+
+        return RedirectToAction(nameof(Edit), new { id = departmentId });
+    }
+
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> RemoveAdmin(
+        Guid assignmentId,
+        Guid departmentId,
+        CancellationToken cancellationToken)
+    {
+        try
+        {
+            await assignmentService.RemoveAsync(assignmentId, cancellationToken);
+            TempData["Success"] = "Призначення знято.";
+        }
+        catch (DomainException ex)
+        {
+            TempData["Error"] = ex.Message;
+        }
+
+        return RedirectToAction(nameof(Edit), new { id = departmentId });
     }
 
     [HttpPost]
@@ -119,7 +245,8 @@ public sealed class DepartmentsController(
     }
 
     private async Task<DepartmentListViewModel> BuildListViewModelAsync(
-        Guid? facultyId,
+        Guid facultyId,
+        string facultyName,
         CancellationToken cancellationToken)
     {
         IReadOnlyList<DepartmentListItemDto> items =
@@ -127,36 +254,81 @@ public sealed class DepartmentsController(
 
         return new DepartmentListViewModel
         {
-            SelectedFacultyId = facultyId,
-            FacultyOptions = await LoadFacultyOptionsAsync(cancellationToken),
+            FacultyId = facultyId,
+            FacultyName = facultyName,
             Items = items.Select(SuperAdminViewModelMapper.Map).ToList(),
         };
     }
 
     private async Task<DepartmentFormViewModel> BuildFormViewModelAsync(
         DepartmentFormDto? dto,
-        Guid? facultyId,
+        Guid facultyId,
+        string facultyName,
         CancellationToken cancellationToken)
     {
         IReadOnlyList<FacultyOptionViewModel> facultyOptions = await LoadFacultyOptionsAsync(cancellationToken);
-        Guid selectedFacultyId = dto?.FacultyId ?? facultyId ?? facultyOptions.FirstOrDefault()?.Id ?? Guid.Empty;
+        Guid selectedFacultyId = dto?.FacultyId ?? facultyId;
 
-        return dto is null
+        DepartmentFormViewModel model = dto is null
             ? new DepartmentFormViewModel
             {
                 FacultyId = selectedFacultyId,
+                FacultyName = facultyName,
                 FacultyOptions = facultyOptions,
             }
             : new DepartmentFormViewModel
             {
                 Id = dto.Id,
                 FacultyId = dto.FacultyId,
+                FacultyName = facultyName,
                 Name = dto.Name,
-                SpecialtyCode = dto.SpecialtyCode,
-                SpecialtyName = dto.SpecialtyName,
-                StudyForm = dto.StudyForm,
                 FacultyOptions = facultyOptions,
             };
+
+        if (dto?.Id is Guid departmentId)
+        {
+            model.Admins = await LoadAdminsAsync(departmentId, cancellationToken);
+            model.EmployeeOptions = await LoadEmployeeOptionsAsync(departmentId, cancellationToken);
+            model.Specialties = await LoadSpecialtiesAsync(departmentId, cancellationToken);
+        }
+
+        return model;
+    }
+
+    private async Task<IReadOnlyList<SpecialtyListItemViewModel>> LoadSpecialtiesAsync(
+        Guid departmentId,
+        CancellationToken cancellationToken)
+    {
+        IReadOnlyList<SpecialtyListItemDto> items =
+            await specialtyAdminService.GetByDepartmentAsync(departmentId, cancellationToken);
+
+        return items.Select(SuperAdminViewModelMapper.Map).ToList();
+    }
+
+    private async Task<IReadOnlyList<DepartmentAdminListItemViewModel>> LoadAdminsAsync(
+        Guid departmentId,
+        CancellationToken cancellationToken)
+    {
+        IReadOnlyList<DepartmentAdminListItemDto> items =
+            await assignmentService.GetByDepartmentAsync(departmentId, cancellationToken);
+
+        return items.Select(SuperAdminViewModelMapper.Map).ToList();
+    }
+
+    private async Task<IReadOnlyList<DepartmentEmployeeOptionViewModel>> LoadEmployeeOptionsAsync(
+        Guid departmentId,
+        CancellationToken cancellationToken)
+    {
+        IReadOnlyList<DepartmentEmployeeOptionDto> employees =
+            await assignmentService.GetAssignableEmployeesAsync(departmentId, cancellationToken);
+
+        return employees.Select(SuperAdminViewModelMapper.Map).ToList();
+    }
+
+    private async Task<string> ResolveFacultyNameAsync(Guid facultyId, CancellationToken cancellationToken)
+    {
+        FacultyFormDto? faculty = await facultyAdminService.GetForEditAsync(facultyId, cancellationToken);
+        return faculty?.Name ?? string.Empty;
     }
 
     private async Task<IReadOnlyList<FacultyOptionViewModel>> LoadFacultyOptionsAsync(
@@ -175,8 +347,5 @@ public sealed class DepartmentsController(
         new(
             model.Id,
             model.FacultyId,
-            model.Name.Trim(),
-            model.SpecialtyCode.Trim(),
-            model.SpecialtyName.Trim(),
-            model.StudyForm.Trim());
+            model.Name.Trim());
 }

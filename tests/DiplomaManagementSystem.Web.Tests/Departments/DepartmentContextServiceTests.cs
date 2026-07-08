@@ -108,9 +108,6 @@ public sealed class DepartmentContextServiceTests
             Id = Guid.NewGuid(),
             FacultyId = facultyA.Id,
             Name = "Кафедра A",
-            SpecialtyCode = "111",
-            SpecialtyName = "Спеціальність A",
-            StudyForm = "очної форми навчання",
             IsActive = true,
             CreatedAt = now,
         };
@@ -119,9 +116,6 @@ public sealed class DepartmentContextServiceTests
             Id = Guid.NewGuid(),
             FacultyId = facultyB.Id,
             Name = "Кафедра B",
-            SpecialtyCode = "222",
-            SpecialtyName = "Спеціальність B",
-            StudyForm = "очної форми навчання",
             IsActive = true,
             CreatedAt = now,
         };

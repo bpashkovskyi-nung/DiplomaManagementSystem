@@ -7,7 +7,7 @@ namespace DiplomaManagementSystem.Application.Tests.Organization;
 public sealed class DefaultOrganizationSeedBuilderTests
 {
     [Fact]
-    public void FromOptions_MapsFacultyAndDepartmentFromOrganizationOptions()
+    public void FromOptions_MapsFacultyDepartmentAndSpecialtyFromOrganizationOptions()
     {
         OrganizationOptions options = new()
         {
@@ -19,16 +19,19 @@ public sealed class DefaultOrganizationSeedBuilderTests
         };
 
         DateTimeOffset createdAt = new(2026, 1, 1, 0, 0, 0, TimeSpan.Zero);
-        (Faculty faculty, Department department) = DefaultOrganizationSeedBuilder.FromOptions(options, createdAt);
+        (Faculty faculty, Department department, Specialty specialty) =
+            DefaultOrganizationSeedBuilder.FromOptions(options, createdAt);
 
         Assert.Equal("факультет інформаційних технологій", faculty.Name);
         Assert.Equal("кафедра комп'ютерних систем і мереж", department.Name);
         Assert.Equal(faculty.Id, department.FacultyId);
-        Assert.Equal("123", department.SpecialtyCode);
-        Assert.Equal("Комп'ютерна інженерія", department.SpecialtyName);
-        Assert.Equal("очної форми навчання", department.StudyForm);
+        Assert.Equal("123", specialty.Code);
+        Assert.Equal("Комп'ютерна інженерія", specialty.Name);
+        Assert.Equal(department.Id, specialty.DepartmentId);
         Department linked = Assert.Single(faculty.Departments);
         Assert.Equal(department.Id, linked.Id);
+        Specialty linkedSpecialty = Assert.Single(department.Specialties);
+        Assert.Equal(specialty.Id, linkedSpecialty.Id);
     }
 
     [Fact]
@@ -36,12 +39,12 @@ public sealed class DefaultOrganizationSeedBuilderTests
     {
         OrganizationOptions options = new();
 
-        (Faculty faculty, Department department) = DefaultOrganizationSeedBuilder.FromOptions(
+        (Faculty faculty, Department department, Specialty specialty) = DefaultOrganizationSeedBuilder.FromOptions(
             options,
             DateTimeOffset.UtcNow);
 
         Assert.Equal("Факультет", faculty.Name);
         Assert.Equal("Кафедра", department.Name);
-        Assert.Equal("очної форми навчання", department.StudyForm);
+        Assert.Equal("Кафедра", specialty.Name);
     }
 }

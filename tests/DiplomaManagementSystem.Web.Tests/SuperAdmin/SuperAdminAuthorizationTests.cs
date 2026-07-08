@@ -39,7 +39,6 @@ public sealed class SuperAdminAuthorizationTests
             typeof(Areas.SuperAdmin.Controllers.HomeController),
             typeof(Areas.SuperAdmin.Controllers.FacultiesController),
             typeof(Areas.SuperAdmin.Controllers.DepartmentsController),
-            typeof(Areas.SuperAdmin.Controllers.DepartmentAdminsController),
             typeof(Areas.SuperAdmin.Controllers.OrganizationImportController),
         ];
 

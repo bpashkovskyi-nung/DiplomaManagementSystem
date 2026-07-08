@@ -71,7 +71,8 @@ public sealed class AdminFormValidatorTests
     public void StudyGroupFormValidator_EmptyName_Invalid()
     {
         StudyGroupFormValidator validator = new();
-        ValidationResult result = validator.Validate(new StudyGroupFormDto(null, Guid.NewGuid(), ""));
+        ValidationResult result = validator.Validate(
+            new StudyGroupFormDto(null, Guid.NewGuid(), "", Guid.NewGuid(), "очної форми навчання"));
 
         Assert.False(result.IsValid);
     }

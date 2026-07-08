@@ -17,18 +17,6 @@ internal sealed class DepartmentConfiguration : IEntityTypeConfiguration<Departm
             .HasMaxLength(256)
             .IsRequired();
 
-        builder.Property(e => e.SpecialtyCode)
-            .HasMaxLength(32)
-            .IsRequired();
-
-        builder.Property(e => e.SpecialtyName)
-            .HasMaxLength(256)
-            .IsRequired();
-
-        builder.Property(e => e.StudyForm)
-            .HasMaxLength(128)
-            .IsRequired();
-
         builder.HasIndex(e => new { e.FacultyId, e.Name })
             .IsUnique();
 

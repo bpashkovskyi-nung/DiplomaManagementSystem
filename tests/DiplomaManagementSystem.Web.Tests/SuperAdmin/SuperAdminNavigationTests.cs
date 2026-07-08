@@ -15,22 +15,20 @@ public sealed class SuperAdminNavigationTests
     {
         IReadOnlyList<SuperAdminNavLink> links = SuperAdminNavigation.Global();
 
-        Assert.Equal(5, links.Count);
-        Assert.Equal(SuperAdminPageTitles.Home, links[0].Text);
-        Assert.Equal("Home", links[0].Controller);
-        Assert.Equal(SuperAdminPageTitles.Faculties, links[1].Text);
-        Assert.Equal(SuperAdminPageTitles.Departments, links[2].Text);
-        Assert.Equal(SuperAdminPageTitles.DepartmentAdmins, links[3].Text);
-        Assert.Equal(SuperAdminPageTitles.OrganizationImport, links[4].Text);
+        Assert.Equal(2, links.Count);
+        Assert.Equal(SuperAdminPageTitles.Faculties, links[0].Text);
+        Assert.Equal("Faculties", links[0].Controller);
+        Assert.Equal(SuperAdminPageTitles.OrganizationImport, links[1].Text);
     }
 
     [Fact]
-    public void SuperAdminNavigation_DepartmentAdminsBack_IncludesDepartmentRoute()
+    public void SuperAdminNavigation_FacultyDepartmentsBack_ReturnsFacultiesLinkOnly()
     {
-        Guid departmentId = Guid.Parse("aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee");
-        IReadOnlyList<SuperAdminNavLink> links = SuperAdminNavigation.DepartmentAdminsBack(departmentId);
+        IReadOnlyList<SuperAdminNavLink> links = SuperAdminNavigation.FacultyDepartmentsBack();
 
-        Assert.Equal(departmentId.ToString(), links[0].RouteValues!["departmentId"]);
+        Assert.Single(links);
+        Assert.Equal(SuperAdminPageTitles.Faculties, links[0].Text);
+        Assert.Equal("Faculties", links[0].Controller);
     }
 }
 

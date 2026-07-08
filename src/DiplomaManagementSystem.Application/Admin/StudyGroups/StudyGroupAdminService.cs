@@ -37,6 +37,14 @@ internal sealed class StudyGroupAdminService(IApplicationDbContext dbContext) : 
             .Select(grouping => new { GroupId = grouping.Key, Count = grouping.Count() })
             .ToDictionaryAsync(item => item.GroupId, item => item.Count, cancellationToken);
 
+        Dictionary<Guid, string> specialtyLabels = await dbContext.Specialties
+            .AsNoTracking()
+            .Where(specialty => groups.Select(group => group.SpecialtyId).Contains(specialty.Id))
+            .ToDictionaryAsync(
+                specialty => specialty.Id,
+                specialty => specialty.Code + " — " + specialty.Name,
+                cancellationToken);
+
         string sessionLabel = SecretarySessionLabel.Format(session.Year, session.Type, session.Semester);
 
         return groups
@@ -46,6 +54,8 @@ internal sealed class StudyGroupAdminService(IApplicationDbContext dbContext) : 
                 group.Course,
                 group.DefenceSessionId,
                 sessionLabel,
+                specialtyLabels.GetValueOrDefault(group.SpecialtyId, "—"),
+                group.StudyForm,
                 studentCounts.GetValueOrDefault(group.Id)))
             .ToList();
     }
@@ -69,7 +79,14 @@ internal sealed class StudyGroupAdminService(IApplicationDbContext dbContext) : 
             ? null
             : SecretarySessionLabel.Format(session.Year, session.Type, session.Semester);
 
-        return new StudyGroupFormDto(group.Id, group.DefenceSessionId, group.Name, group.Course, sessionLabel);
+        return new StudyGroupFormDto(
+            group.Id,
+            group.DefenceSessionId,
+            group.Name,
+            group.SpecialtyId,
+            group.StudyForm,
+            group.Course,
+            sessionLabel);
     }
 
     public async Task<StudyGroupListItemDto?> GetListItemAsync(Guid id, CancellationToken cancellationToken = default)
@@ -92,6 +109,10 @@ internal sealed class StudyGroupAdminService(IApplicationDbContext dbContext) : 
             return null;
         }
 
+        Specialty? specialty = await dbContext.Specialties
+            .AsNoTracking()
+            .FirstOrDefaultAsync(item => item.Id == group.SpecialtyId, cancellationToken);
+
         int studentCount = await dbContext.Users
             .AsNoTracking()
             .CountAsync(
@@ -106,6 +127,8 @@ internal sealed class StudyGroupAdminService(IApplicationDbContext dbContext) : 
             group.Course,
             group.DefenceSessionId,
             sessionLabel,
+            specialty is null ? "—" : specialty.Code + " — " + specialty.Name,
+            group.StudyForm,
             studentCount);
     }
 
@@ -113,6 +136,7 @@ internal sealed class StudyGroupAdminService(IApplicationDbContext dbContext) : 
     {
         await EnsureSessionAllowsChangesAsync(dto.DefenceSessionId, cancellationToken);
         await EnsureNameAvailableAsync(dto.Name, dto.DefenceSessionId, excludeId: null, cancellationToken);
+        await EnsureSpecialtyBelongsToSessionDepartmentAsync(dto.DefenceSessionId, dto.SpecialtyId, cancellationToken);
 
         StudyGroup group = new()
         {
@@ -120,6 +144,8 @@ internal sealed class StudyGroupAdminService(IApplicationDbContext dbContext) : 
             Name = dto.Name.Trim(),
             Course = dto.Course,
             DefenceSessionId = dto.DefenceSessionId,
+            SpecialtyId = dto.SpecialtyId,
+            StudyForm = dto.StudyForm.Trim(),
             CreatedAt = DateTimeOffset.UtcNow,
         };
 
@@ -145,8 +171,12 @@ internal sealed class StudyGroupAdminService(IApplicationDbContext dbContext) : 
 
         await EnsureSessionAllowsChangesAsync(group.DefenceSessionId, cancellationToken);
         await EnsureNameAvailableAsync(dto.Name, group.DefenceSessionId, excludeId: id, cancellationToken);
+        await EnsureSpecialtyBelongsToSessionDepartmentAsync(dto.DefenceSessionId, dto.SpecialtyId, cancellationToken);
+
         group.Name = dto.Name.Trim();
         group.Course = dto.Course;
+        group.SpecialtyId = dto.SpecialtyId;
+        group.StudyForm = dto.StudyForm.Trim();
         await dbContext.SaveChangesAsync(cancellationToken);
     }
 
@@ -210,6 +240,36 @@ internal sealed class StudyGroupAdminService(IApplicationDbContext dbContext) : 
         if (exists)
         {
             throw new DomainException($"Study group name is already in use ({trimmedName}).");
+        }
+    }
+
+    private async Task EnsureSpecialtyBelongsToSessionDepartmentAsync(
+        Guid defenceSessionId,
+        Guid specialtyId,
+        CancellationToken cancellationToken)
+    {
+        Guid? departmentId = await dbContext.DefenceSessions
+            .AsNoTracking()
+            .Where(session => session.Id == defenceSessionId)
+            .Select(session => (Guid?)session.DepartmentId)
+            .FirstOrDefaultAsync(cancellationToken);
+
+        if (departmentId is not Guid id)
+        {
+            throw new DomainException("Defence session not found.");
+        }
+
+        bool belongs = await dbContext.Specialties
+            .AsNoTracking()
+            .AnyAsync(
+                specialty => specialty.Id == specialtyId
+                             && specialty.DepartmentId == id
+                             && specialty.IsActive,
+                cancellationToken);
+
+        if (!belongs)
+        {
+            throw new DomainException("Оберіть дійсну спеціальність кафедри сесії.");
         }
     }
 }

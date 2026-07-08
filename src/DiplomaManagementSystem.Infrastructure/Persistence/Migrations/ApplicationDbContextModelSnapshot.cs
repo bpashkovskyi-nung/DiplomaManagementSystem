@@ -247,21 +247,6 @@ namespace DiplomaManagementSystem.Infrastructure.Persistence.Migrations
                         .HasMaxLength(256)
                         .HasColumnType("character varying(256)");
 
-                    b.Property<string>("SpecialtyCode")
-                        .IsRequired()
-                        .HasMaxLength(32)
-                        .HasColumnType("character varying(32)");
-
-                    b.Property<string>("SpecialtyName")
-                        .IsRequired()
-                        .HasMaxLength(256)
-                        .HasColumnType("character varying(256)");
-
-                    b.Property<string>("StudyForm")
-                        .IsRequired()
-                        .HasMaxLength(128)
-                        .HasColumnType("character varying(128)");
-
                     b.HasKey("Id");
 
                     b.HasIndex("FacultyId", "Name")
@@ -642,6 +627,39 @@ namespace DiplomaManagementSystem.Infrastructure.Persistence.Migrations
                     b.ToTable("faculties", (string)null);
                 });
 
+            modelBuilder.Entity("DiplomaManagementSystem.Domain.Entities.Specialty", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("Code")
+                        .IsRequired()
+                        .HasMaxLength(32)
+                        .HasColumnType("character varying(32)");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<Guid>("DepartmentId")
+                        .HasColumnType("uuid");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("boolean");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(256)
+                        .HasColumnType("character varying(256)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("DepartmentId", "Code")
+                        .IsUnique();
+
+                    b.ToTable("specialties", (string)null);
+                });
+
             modelBuilder.Entity("DiplomaManagementSystem.Domain.Entities.StudyGroup", b =>
                 {
                     b.Property<Guid>("Id")
@@ -662,9 +680,19 @@ namespace DiplomaManagementSystem.Infrastructure.Persistence.Migrations
                         .HasMaxLength(50)
                         .HasColumnType("character varying(50)");
 
+                    b.Property<Guid>("SpecialtyId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("StudyForm")
+                        .IsRequired()
+                        .HasMaxLength(128)
+                        .HasColumnType("character varying(128)");
+
                     b.HasKey("Id");
 
                     b.HasIndex("DefenceSessionId");
+
+                    b.HasIndex("SpecialtyId");
 
                     b.HasIndex("DefenceSessionId", "Name")
                         .IsUnique();
@@ -1031,6 +1059,17 @@ namespace DiplomaManagementSystem.Infrastructure.Persistence.Migrations
                     b.Navigation("DefenceSession");
                 });
 
+            modelBuilder.Entity("DiplomaManagementSystem.Domain.Entities.Specialty", b =>
+                {
+                    b.HasOne("DiplomaManagementSystem.Domain.Entities.Department", "Department")
+                        .WithMany("Specialties")
+                        .HasForeignKey("DepartmentId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Department");
+                });
+
             modelBuilder.Entity("DiplomaManagementSystem.Domain.Entities.StudyGroup", b =>
                 {
                     b.HasOne("DiplomaManagementSystem.Domain.Entities.DefenceSession", "DefenceSession")
@@ -1039,7 +1078,15 @@ namespace DiplomaManagementSystem.Infrastructure.Persistence.Migrations
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
+                    b.HasOne("DiplomaManagementSystem.Domain.Entities.Specialty", "Specialty")
+                        .WithMany("StudyGroups")
+                        .HasForeignKey("SpecialtyId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
                     b.Navigation("DefenceSession");
+
+                    b.Navigation("Specialty");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<System.Guid>", b =>
@@ -1109,6 +1156,8 @@ namespace DiplomaManagementSystem.Infrastructure.Persistence.Migrations
                     b.Navigation("DefenceSessions");
 
                     b.Navigation("Employees");
+
+                    b.Navigation("Specialties");
                 });
 
             modelBuilder.Entity("DiplomaManagementSystem.Domain.Entities.Diploma", b =>
@@ -1125,6 +1174,11 @@ namespace DiplomaManagementSystem.Infrastructure.Persistence.Migrations
             modelBuilder.Entity("DiplomaManagementSystem.Domain.Entities.Faculty", b =>
                 {
                     b.Navigation("Departments");
+                });
+
+            modelBuilder.Entity("DiplomaManagementSystem.Domain.Entities.Specialty", b =>
+                {
+                    b.Navigation("StudyGroups");
                 });
 #pragma warning restore 612, 618
         }

@@ -1,5 +1,6 @@
 using DiplomaManagementSystem.Application.AdminPreview.Contracts;
 using DiplomaManagementSystem.Application.Common;
+using DiplomaManagementSystem.Application.Departments;
 using DiplomaManagementSystem.Application.Identity;
 using DiplomaManagementSystem.Application.Persistence.Contracts;
 using DiplomaManagementSystem.Application.Secretary;
@@ -9,12 +10,16 @@ using Microsoft.EntityFrameworkCore;
 
 namespace DiplomaManagementSystem.Application.AdminPreview;
 
-internal sealed class AdminPreviewUserPickerService(IApplicationDbContext dbContext) : IAdminPreviewUserPickerService
+internal sealed class AdminPreviewUserPickerService(
+    IApplicationDbContext dbContext,
+    CurrentDepartmentResolver currentDepartmentResolver) : IAdminPreviewUserPickerService
 {
     public async Task<IReadOnlyList<AdminPreviewUserOption>> GetUsersAsync(
         UserKind userKind,
         CancellationToken cancellationToken = default)
     {
+        Guid? scopedDepartmentId = await currentDepartmentResolver.TryResolveScopedDepartmentIdAsync(cancellationToken);
+
         if (userKind == UserKind.Student)
         {
             List<ApplicationUser> students = await dbContext.Users
@@ -35,14 +40,27 @@ internal sealed class AdminPreviewUserPickerService(IApplicationDbContext dbCont
                 .ToList();
         }
 
-        List<EmployeeRow> employees = await dbContext.Users
+        IQueryable<ApplicationUser> employeeQuery = dbContext.Users
             .AsNoTracking()
-            .Where(user => user.UserKind == UserKind.Employee)
+            .Where(user => user.UserKind == UserKind.Employee);
+
+        if (scopedDepartmentId is Guid departmentId)
+        {
+            IQueryable<Guid> scopedEmployeeIds = dbContext.DepartmentEmployees
+                .AsNoTracking()
+                .Where(employee => employee.DepartmentId == departmentId && employee.IsActive)
+                .Select(employee => employee.UserId);
+
+            employeeQuery = employeeQuery.Where(user => scopedEmployeeIds.Contains(user.Id));
+        }
+
+        List<EmployeeRow> employees = await employeeQuery
             .OrderBy(user => user.FullName)
             .Select(user => new EmployeeRow(user.Id, user.FullName, user.Email ?? string.Empty))
             .ToListAsync(cancellationToken);
 
-        Dictionary<Guid, List<string>> roleLabelsByEmployee = await BuildEmployeeRoleLabelsAsync(cancellationToken);
+        Dictionary<Guid, List<string>> roleLabelsByEmployee =
+            await BuildEmployeeRoleLabelsAsync(scopedDepartmentId, cancellationToken);
 
         return employees
             .Select(employee => new AdminPreviewUserOption(
@@ -56,12 +74,19 @@ internal sealed class AdminPreviewUserPickerService(IApplicationDbContext dbCont
     }
 
     private async Task<Dictionary<Guid, List<string>>> BuildEmployeeRoleLabelsAsync(
+        Guid? scopedDepartmentId,
         CancellationToken cancellationToken)
     {
+        IQueryable<Domain.Entities.DefenceSession> sessionsQuery = dbContext.DefenceSessions.AsNoTracking();
+        if (scopedDepartmentId is Guid departmentId)
+        {
+            sessionsQuery = sessionsQuery.Where(session => session.DepartmentId == departmentId);
+        }
+
         List<RoleAssignmentRow> rows = await dbContext.AnnualRoleAssignments
             .AsNoTracking()
             .Join(
-                dbContext.DefenceSessions.AsNoTracking(),
+                sessionsQuery,
                 assignment => assignment.DefenceSessionId,
                 session => session.Id,
                 (assignment, session) => new RoleAssignmentRow(

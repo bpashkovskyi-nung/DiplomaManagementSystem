@@ -54,7 +54,12 @@ internal sealed class AdminPreviewClaimsTransformation(
         ReplaceClaim(clone, ClaimTypes.Name, impersonatedUser.FullName);
         ReplaceClaim(clone, ClaimTypes.Email, impersonatedUser.Email ?? string.Empty);
 
-        string previewRole = mode == AdminPreviewMode.Student ? RoleNames.Student : RoleNames.Employee;
+        string previewRole = mode switch
+        {
+            AdminPreviewMode.Student => RoleNames.Student,
+            AdminPreviewMode.Secretary or AdminPreviewMode.Employee => RoleNames.Employee,
+            _ => RoleNames.Employee,
+        };
         if (!clone.HasClaim(claim => claim.Type == ClaimTypes.Role && claim.Value == previewRole))
         {
             clone.AddClaim(new Claim(ClaimTypes.Role, previewRole));
@@ -70,11 +75,12 @@ internal sealed class AdminPreviewClaimsTransformation(
 
     private static ClaimsPrincipal TransformRoleOnly(ClaimsPrincipal principal, AdminPreviewMode mode)
     {
-        string? previewRole = AdminPreviewModeRules.IsEmployeePreviewMode(mode)
-            ? RoleNames.Employee
-            : mode == AdminPreviewMode.Student
-                ? RoleNames.Student
-                : null;
+        string? previewRole = mode switch
+        {
+            AdminPreviewMode.Employee or AdminPreviewMode.Secretary => RoleNames.Employee,
+            AdminPreviewMode.Student => RoleNames.Student,
+            _ => null,
+        };
 
         if (previewRole is null || principal.IsInRole(previewRole))
         {

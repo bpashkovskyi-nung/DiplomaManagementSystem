@@ -1,5 +1,4 @@
 using System.Text.Json;
-using System.Text.Json.Serialization;
 using DiplomaManagementSystem.Application.Persistence.Contracts;
 using DiplomaManagementSystem.Application.SuperAdmin.OrganizationImport.Contracts;
 using DiplomaManagementSystem.Application.SuperAdmin.OrganizationImport.Dtos;
@@ -111,9 +110,6 @@ internal sealed class OrganizationStructureImportService(IApplicationDbContext d
                         Id = Guid.NewGuid(),
                         FacultyId = faculty.Id,
                         Name = departmentName,
-                        SpecialtyCode = departmentDto.SpecialtyCode?.Trim() ?? string.Empty,
-                        SpecialtyName = departmentDto.SpecialtyName?.Trim() ?? string.Empty,
-                        StudyForm = departmentDto.StudyForm?.Trim() ?? string.Empty,
                         IsActive = true,
                         CreatedAt = DateTimeOffset.UtcNow,
                     });
@@ -121,9 +117,6 @@ internal sealed class OrganizationStructureImportService(IApplicationDbContext d
                 }
                 else if (mode == OrganizationStructureImportMode.Upsert)
                 {
-                    department.SpecialtyCode = departmentDto.SpecialtyCode?.Trim() ?? department.SpecialtyCode;
-                    department.SpecialtyName = departmentDto.SpecialtyName?.Trim() ?? department.SpecialtyName;
-                    department.StudyForm = departmentDto.StudyForm?.Trim() ?? department.StudyForm;
                     department.IsActive = true;
                     departmentsUpdated++;
                 }
@@ -156,14 +149,5 @@ internal sealed class OrganizationStructureImportService(IApplicationDbContext d
     private sealed class OrganizationStructureImportDepartmentDto
     {
         public string Name { get; set; } = string.Empty;
-
-        [JsonPropertyName("specialtyCode")]
-        public string? SpecialtyCode { get; set; }
-
-        [JsonPropertyName("specialtyName")]
-        public string? SpecialtyName { get; set; }
-
-        [JsonPropertyName("studyForm")]
-        public string? StudyForm { get; set; }
     }
 }

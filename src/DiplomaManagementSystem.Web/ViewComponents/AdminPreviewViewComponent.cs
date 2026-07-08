@@ -20,8 +20,9 @@ public sealed class AdminPreviewViewComponent(
         AdminPreviewMode currentMode = adminPreviewService.GetMode(HttpContext);
         AdminPreviewMode[] modes =
         [
+            AdminPreviewMode.SuperAdmin,
             AdminPreviewMode.Admin,
-            AdminPreviewMode.Student,
+            AdminPreviewMode.Secretary,
             AdminPreviewMode.Employee,
         ];
 

@@ -31,9 +31,7 @@ internal sealed class DepartmentAdminService(IApplicationDbContext dbContext) : 
                 department.FacultyId,
                 department.Faculty!.Name,
                 department.Name,
-                department.SpecialtyCode,
-                department.SpecialtyName,
-                department.StudyForm,
+                dbContext.Specialties.Count(specialty => specialty.DepartmentId == department.Id && specialty.IsActive),
                 department.IsActive,
                 department.CreatedAt))
             .ToListAsync(cancellationToken);
@@ -47,13 +45,7 @@ internal sealed class DepartmentAdminService(IApplicationDbContext dbContext) : 
 
         return department is null
             ? null
-            : new DepartmentFormDto(
-                department.Id,
-                department.FacultyId,
-                department.Name,
-                department.SpecialtyCode,
-                department.SpecialtyName,
-                department.StudyForm);
+            : new DepartmentFormDto(department.Id, department.FacultyId, department.Name);
     }
 
     public async Task<Guid> CreateAsync(DepartmentFormDto form, CancellationToken cancellationToken = default)
@@ -68,9 +60,6 @@ internal sealed class DepartmentAdminService(IApplicationDbContext dbContext) : 
             Id = Guid.NewGuid(),
             FacultyId = form.FacultyId,
             Name = name,
-            SpecialtyCode = form.SpecialtyCode.Trim(),
-            SpecialtyName = form.SpecialtyName.Trim(),
-            StudyForm = form.StudyForm.Trim(),
             IsActive = true,
             CreatedAt = DateTimeOffset.UtcNow,
         };
@@ -94,9 +83,6 @@ internal sealed class DepartmentAdminService(IApplicationDbContext dbContext) : 
 
         department.FacultyId = form.FacultyId;
         department.Name = name;
-        department.SpecialtyCode = form.SpecialtyCode.Trim();
-        department.SpecialtyName = form.SpecialtyName.Trim();
-        department.StudyForm = form.StudyForm.Trim();
         await dbContext.SaveChangesAsync(cancellationToken);
     }
 

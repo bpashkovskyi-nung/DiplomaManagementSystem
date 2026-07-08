@@ -80,10 +80,7 @@ public sealed class OrganizationStructureImportServiceTests : IDisposable
                 "name": "Факультет ІТ",
                 "departments": [
                   {
-                    "name": "Кафедра КСМ",
-                    "specialtyCode": "123",
-                    "specialtyName": "Комп'ютерна інженерія",
-                    "studyForm": "очної форми навчання"
+                    "name": "Кафедра КСМ"
                   }
                 ]
               }
@@ -98,6 +95,7 @@ public sealed class OrganizationStructureImportServiceTests : IDisposable
         Assert.Equal(1, result.DepartmentsCreated);
         Assert.Equal(1, await _dbContext.Faculties.CountAsync());
         Assert.Equal(1, await _dbContext.Departments.CountAsync());
+        Assert.Equal(0, await _dbContext.Specialties.CountAsync());
     }
 
     [Fact]
@@ -120,7 +118,7 @@ public sealed class OrganizationStructureImportServiceTests : IDisposable
               {
                 "name": "Факультет ІТ",
                 "departments": [
-                  { "name": "Кафедра КСМ", "specialtyCode": "123", "specialtyName": "Old", "studyForm": "очна" }
+                  { "name": "Кафедра КСМ" }
                 ]
               }
             ]
@@ -134,7 +132,7 @@ public sealed class OrganizationStructureImportServiceTests : IDisposable
               {
                 "name": "Факультет ІТ",
                 "departments": [
-                  { "name": "Кафедра КСМ", "specialtyCode": "456", "specialtyName": "New", "studyForm": "заочна" }
+                  { "name": "Кафедра КСМ" }
                 ]
               }
             ]
@@ -145,7 +143,8 @@ public sealed class OrganizationStructureImportServiceTests : IDisposable
             await _service.ImportAsync(secondStream, OrganizationStructureImportMode.Upsert);
 
         Assert.Equal(1, result.DepartmentsUpdated);
-        Assert.Equal("New", (await _dbContext.Departments.SingleAsync()).SpecialtyName);
+        Assert.True((await _dbContext.Departments.SingleAsync()).IsActive);
+        Assert.Equal(0, await _dbContext.Specialties.CountAsync());
     }
 
     public void Dispose() => _dbContext.Dispose();

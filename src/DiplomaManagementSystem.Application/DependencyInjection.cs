@@ -31,6 +31,8 @@ using DiplomaManagementSystem.Application.SuperAdmin.Faculties;
 using DiplomaManagementSystem.Application.SuperAdmin.Faculties.Contracts;
 using DiplomaManagementSystem.Application.SuperAdmin.OrganizationImport;
 using DiplomaManagementSystem.Application.SuperAdmin.OrganizationImport.Contracts;
+using DiplomaManagementSystem.Application.SuperAdmin.Specialties;
+using DiplomaManagementSystem.Application.SuperAdmin.Specialties.Contracts;
 using DiplomaManagementSystem.Application.Departments;
 using DiplomaManagementSystem.Application.Departments.Contracts;
 using DiplomaManagementSystem.Application.Identity;
@@ -63,6 +65,7 @@ public static class DependencyInjection
         services.AddScoped<IDepartmentAuthorizationService, DepartmentAuthorizationService>();
         services.AddScoped<IFacultyAdminService, FacultyAdminService>();
         services.AddScoped<IDepartmentAdminService, DepartmentAdminService>();
+        services.AddScoped<ISpecialtyAdminService, SpecialtyAdminService>();
         services.AddScoped<IDepartmentAdminAssignmentService, DepartmentAdminAssignmentService>();
         services.AddScoped<IOrganizationStructureImportService, OrganizationStructureImportService>();
         services.AddSingleton<DiplomaWorkflowInvariantValidator>();

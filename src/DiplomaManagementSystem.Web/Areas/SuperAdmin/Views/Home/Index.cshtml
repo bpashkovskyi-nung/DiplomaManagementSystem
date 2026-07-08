@@ -6,28 +6,18 @@
 <h1 class="mb-4">@ViewData["Title"]</h1>
 
 <partial name="_TempDataAlerts"/>
-<partial name="_SuperAdminNavLinks" model="SuperAdminNavigation.Global()"/>
 
-<div class="row g-3 mb-4">
-    <div class="col-md-4">
+<div class="row g-3">
+    <div class="col-md-6">
         <div class="card h-100">
             <div class="card-body">
                 <h5 class="card-title">@SuperAdminPageTitles.Faculties</h5>
-                <p class="card-text text-muted small">@Model.Faculties.Count факультетів</p>
+                <p class="card-text text-muted small">@Model.FacultyCount факультетів</p>
                 <a class="btn btn-primary btn-sm" asp-controller="Faculties" asp-action="Index">Керувати</a>
             </div>
         </div>
     </div>
-    <div class="col-md-4">
-        <div class="card h-100">
-            <div class="card-body">
-                <h5 class="card-title">@SuperAdminPageTitles.Departments</h5>
-                <p class="card-text text-muted small">@Model.Departments.Count кафедр</p>
-                <a class="btn btn-primary btn-sm" asp-controller="Departments" asp-action="Index">Керувати</a>
-            </div>
-        </div>
-    </div>
-    <div class="col-md-4">
+    <div class="col-md-6">
         <div class="card h-100">
             <div class="card-body">
                 <h5 class="card-title">@SuperAdminPageTitles.OrganizationImport</h5>
@@ -37,33 +27,3 @@
         </div>
     </div>
 </div>
-
-<h2 class="h5 mb-3">Кафедри</h2>
-<table class="table table-striped align-middle">
-    <thead>
-    <tr>
-        <th>Факультет</th>
-        <th>Кафедра</th>
-        <th>Спеціальність</th>
-        <th></th>
-    </tr>
-    </thead>
-    <tbody>
-    @foreach (DepartmentListItemViewModel department in Model.Departments)
-    {
-        <tr class="@(department.IsActive ? null : "table-secondary")">
-            <td>@department.FacultyName</td>
-            <td>@department.Name</td>
-            <td>@department.SpecialtyCode @department.SpecialtyName</td>
-            <td class="text-end text-nowrap">
-                <form asp-controller="Departments" asp-action="Enter" method="post" class="d-inline">
-                    @Html.AntiForgeryToken()
-                    <input type="hidden" name="id" value="@department.Id"/>
-                    <button type="submit" class="btn btn-sm btn-primary">@SuperAdminPageTitles.EnterDepartment</button>
-                </form>
-                <a class="btn btn-sm btn-outline-secondary" asp-controller="DepartmentAdmins" asp-action="Index" asp-route-departmentId="@department.Id">Адміни</a>
-            </td>
-        </tr>
-    }
-    </tbody>
-</table>

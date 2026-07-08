@@ -21,6 +21,11 @@ internal static class AdminPreviewRedirectRules
             return area == "Admin" || IsAppRoot(path);
         }
 
+        if (mode == AdminPreviewMode.SuperAdmin)
+        {
+            return area == "SuperAdmin" || IsAppRoot(path);
+        }
+
         return AdminPreviewModeRules.IsValidReturnUrlArea(area, mode);
     }
 
@@ -45,6 +50,7 @@ internal static class AdminPreviewRedirectRules
             "Student" => "Student",
             "Employee" => "Employee",
             "Secretary" => "Secretary",
+            "SuperAdmin" => "SuperAdmin",
             _ => null,
         };
     }

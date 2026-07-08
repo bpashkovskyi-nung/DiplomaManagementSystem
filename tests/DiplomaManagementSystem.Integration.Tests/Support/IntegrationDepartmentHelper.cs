@@ -39,9 +39,15 @@ internal static class IntegrationDepartmentHelper
             Id = Guid.NewGuid(),
             FacultyId = faculty.Id,
             Name = $"Кафедра {suffix}",
-            SpecialtyCode = "999",
-            SpecialtyName = $"Спеціальність {suffix}",
-            StudyForm = "очної форми навчання",
+            IsActive = true,
+            CreatedAt = now,
+        };
+        Specialty specialty = new()
+        {
+            Id = Guid.NewGuid(),
+            DepartmentId = department.Id,
+            Code = "999",
+            Name = $"Спеціальність {suffix}",
             IsActive = true,
             CreatedAt = now,
         };
@@ -58,6 +64,7 @@ internal static class IntegrationDepartmentHelper
 
         dbContext.Faculties.Add(faculty);
         dbContext.Departments.Add(department);
+        dbContext.Specialties.Add(specialty);
         dbContext.DefenceSessions.Add(session);
         await dbContext.SaveChangesAsync();
 
@@ -106,6 +113,21 @@ internal static class IntegrationDepartmentHelper
         return new SecondDepartmentSeed(department.Id, admin.Id, session.Id, year);
     }
 
+
+    public static async Task<Guid> GetDefaultSpecialtyIdAsync(IServiceProvider serviceProvider)
+    {
+        await using AsyncServiceScope scope = serviceProvider.CreateAsyncScope();
+        IApplicationDbContext dbContext = scope.ServiceProvider.GetRequiredService<IApplicationDbContext>();
+        Guid departmentId = await GetDefaultDepartmentIdAsync(scope.ServiceProvider);
+
+        return await dbContext.Specialties
+            .AsNoTracking()
+            .Where(specialty => specialty.DepartmentId == departmentId && specialty.IsActive)
+            .OrderBy(specialty => specialty.CreatedAt)
+            .ThenBy(specialty => specialty.Id)
+            .Select(specialty => specialty.Id)
+            .FirstAsync();
+    }
 
     public static async Task<Guid> GetDefaultDepartmentIdAsync(IServiceProvider serviceProvider)
     {

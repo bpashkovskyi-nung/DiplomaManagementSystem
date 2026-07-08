@@ -31,8 +31,10 @@ public class HomeController(
 
             return mode switch
             {
+                AdminPreviewMode.SuperAdmin => RedirectToAction("Index", "Home", new { area = "SuperAdmin" }),
                 AdminPreviewMode.Student => RedirectToAction("Index", "Diploma", new { area = "Student" }),
-                AdminPreviewMode.Employee => await RedirectEmployeePreviewAsync(cancellationToken),
+                AdminPreviewMode.Secretary => RedirectToAction("Index", "Dashboard", new { area = "Secretary" }),
+                AdminPreviewMode.Employee => await RedirectEmployeePreviewAsync(),
                 _ => RedirectToAction("Index", "Home", new { area = "Admin" }),
             };
         }
@@ -58,15 +60,9 @@ public class HomeController(
         return View();
     }
 
-    private async Task<IActionResult> RedirectEmployeePreviewAsync(CancellationToken cancellationToken)
+    private Task<IActionResult> RedirectEmployeePreviewAsync()
     {
-        if (adminPreviewService.GetImpersonatedUserId(HttpContext) is Guid employeeId
-            && await secretaryAccessService.IsSecretaryAsync(employeeId, cancellationToken))
-        {
-            return RedirectToAction("Index", "Dashboard", new { area = "Secretary" });
-        }
-
-        return RedirectToAction("Index", "Home", new { area = "Employee" });
+        return Task.FromResult<IActionResult>(RedirectToAction("Index", "Home", new { area = "Employee" }));
     }
 
     public IActionResult Privacy()

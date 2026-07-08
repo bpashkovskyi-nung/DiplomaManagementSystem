@@ -29,10 +29,12 @@ internal static class DefaultOrganizationSeeder
         }
 
         DateTimeOffset now = DateTimeOffset.UtcNow;
-        (Faculty faculty, Department department) = DefaultOrganizationSeedBuilder.FromOptions(organizationOptions, now);
+        (Faculty faculty, Department department, Specialty specialty) =
+            DefaultOrganizationSeedBuilder.FromOptions(organizationOptions, now);
 
         dbContext.Faculties.Add(faculty);
         dbContext.Departments.Add(department);
+        dbContext.Specialties.Add(specialty);
 
         List<DefenceSession> sessions = await dbContext.DefenceSessions.ToListAsync(cancellationToken);
         foreach (DefenceSession session in sessions)

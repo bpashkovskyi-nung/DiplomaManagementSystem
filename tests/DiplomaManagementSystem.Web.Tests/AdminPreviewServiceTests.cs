@@ -12,41 +12,41 @@ public sealed class AdminPreviewServiceTests
     private readonly AdminPreviewService _service = new();
 
     [Fact]
-    public void SetMode_StoresSelectedModeForAdmin()
+    public void SetMode_StoresSelectedModeForSuperAdmin()
     {
-        DefaultHttpContext httpContext = CreateAdminContext();
+        DefaultHttpContext httpContext = CreateSuperAdminContext();
 
-        _service.SetMode(httpContext, AdminPreviewMode.Student);
+        _service.SetMode(httpContext, AdminPreviewMode.Secretary);
 
-        Assert.Equal(AdminPreviewMode.Student, _service.GetMode(httpContext));
+        Assert.Equal(AdminPreviewMode.Secretary, _service.GetMode(httpContext));
         Assert.True(_service.IsActivePreview(httpContext));
     }
 
     [Fact]
-    public void SetMode_ThrowsForNonAdmin()
+    public void SetMode_ThrowsForNonSuperAdmin()
     {
         DefaultHttpContext httpContext = new();
         httpContext.User = new ClaimsPrincipal(new ClaimsIdentity(
-            [new Claim(ClaimTypes.Role, RoleNames.Student)],
+            [new Claim(ClaimTypes.Role, RoleNames.Admin)],
             authenticationType: "test"));
 
         Assert.Throws<UnauthorizedAccessException>(() =>
-            _service.SetMode(httpContext, AdminPreviewMode.Student));
+            _service.SetMode(httpContext, AdminPreviewMode.Secretary));
     }
 
     [Fact]
-    public void GetMode_ReturnsAdminWhenSessionMissing()
+    public void GetMode_ReturnsSuperAdminWhenSessionMissing()
     {
-        DefaultHttpContext httpContext = CreateAdminContext();
+        DefaultHttpContext httpContext = CreateSuperAdminContext();
 
-        Assert.Equal(AdminPreviewMode.Admin, _service.GetMode(httpContext));
+        Assert.Equal(AdminPreviewMode.SuperAdmin, _service.GetMode(httpContext));
         Assert.False(_service.IsActivePreview(httpContext));
     }
 
     [Fact]
-    public void SetImpersonatedUserId_StoresUserForAdmin()
+    public void SetImpersonatedUserId_StoresUserForSuperAdmin()
     {
-        DefaultHttpContext httpContext = CreateAdminContext();
+        DefaultHttpContext httpContext = CreateSuperAdminContext();
         Guid userId = Guid.NewGuid();
 
         _service.SetImpersonatedUserId(httpContext, userId);
@@ -56,10 +56,10 @@ public sealed class AdminPreviewServiceTests
     }
 
     [Fact]
-    public void SetMode_ToEmployee_ClearsImpersonationWhenSwitchingFromStudent()
+    public void SetMode_ToEmployee_ClearsImpersonationWhenSwitchingFromSecretary()
     {
-        DefaultHttpContext httpContext = CreateAdminContext();
-        _service.SetMode(httpContext, AdminPreviewMode.Student);
+        DefaultHttpContext httpContext = CreateSuperAdminContext();
+        _service.SetMode(httpContext, AdminPreviewMode.Secretary);
         _service.SetImpersonatedUserId(httpContext, Guid.NewGuid());
 
         _service.SetMode(httpContext, AdminPreviewMode.Employee);
@@ -68,59 +68,61 @@ public sealed class AdminPreviewServiceTests
     }
 
     [Fact]
-    public void GetMode_MapsLegacySecretaryToEmployee()
+    public void GetMode_MapsStoredSecretaryValue()
     {
-        DefaultHttpContext httpContext = CreateAdminContext();
-        httpContext.Session.SetInt32("AdminPreviewMode", AdminPreviewModeRules.LegacyEmployeeStoredValue);
+        DefaultHttpContext httpContext = CreateSuperAdminContext();
+        httpContext.Session.SetInt32("AdminPreviewMode", (int)AdminPreviewMode.Secretary);
 
-        Assert.Equal(AdminPreviewMode.Employee, _service.GetMode(httpContext));
+        Assert.Equal(AdminPreviewMode.Secretary, _service.GetMode(httpContext));
     }
 
     [Fact]
-    public void RequiresImpersonation_IsTrueForStudentEmployeeAndLegacyStoredValue()
+    public void RequiresImpersonation_IsTrueForSecretaryEmployeeAndStudent()
     {
         Assert.True(_service.RequiresImpersonation(AdminPreviewMode.Student));
+        Assert.True(_service.RequiresImpersonation(AdminPreviewMode.Secretary));
         Assert.True(_service.RequiresImpersonation(AdminPreviewMode.Employee));
-        Assert.True(_service.RequiresImpersonation((AdminPreviewMode)AdminPreviewModeRules.LegacyEmployeeStoredValue));
+        Assert.False(_service.RequiresImpersonation(AdminPreviewMode.SuperAdmin));
+        Assert.False(_service.RequiresImpersonation(AdminPreviewMode.Admin));
     }
 
     [Fact]
     public void GetMode_UsesPrincipal_WhenHttpContextUserIsAnonymous()
     {
-        DefaultHttpContext httpContext = CreateAdminContext();
-        _service.SetMode(httpContext, AdminPreviewMode.Student);
+        DefaultHttpContext httpContext = CreateSuperAdminContext();
+        _service.SetMode(httpContext, AdminPreviewMode.Secretary);
         httpContext.User = new ClaimsPrincipal(new ClaimsIdentity());
 
-        ClaimsPrincipal adminPrincipal = new(new ClaimsIdentity(
-            [new Claim(ClaimTypes.Role, RoleNames.Admin)],
+        ClaimsPrincipal superAdminPrincipal = new(new ClaimsIdentity(
+            [new Claim(ClaimTypes.Role, RoleNames.SuperAdmin)],
             authenticationType: "test"));
 
-        Assert.Equal(AdminPreviewMode.Student, _service.GetMode(httpContext, adminPrincipal));
+        Assert.Equal(AdminPreviewMode.Secretary, _service.GetMode(httpContext, superAdminPrincipal));
     }
 
     [Fact]
     public void GetImpersonatedUserId_UsesPrincipal_WhenHttpContextUserIsAnonymous()
     {
-        DefaultHttpContext httpContext = CreateAdminContext();
+        DefaultHttpContext httpContext = CreateSuperAdminContext();
         Guid userId = Guid.NewGuid();
         _service.SetImpersonatedUserId(httpContext, userId);
         httpContext.User = new ClaimsPrincipal(new ClaimsIdentity());
 
-        ClaimsPrincipal adminPrincipal = new(new ClaimsIdentity(
-            [new Claim(ClaimTypes.Role, RoleNames.Admin)],
+        ClaimsPrincipal superAdminPrincipal = new(new ClaimsIdentity(
+            [new Claim(ClaimTypes.Role, RoleNames.SuperAdmin)],
             authenticationType: "test"));
 
-        Assert.Equal(userId, _service.GetImpersonatedUserId(httpContext, adminPrincipal));
+        Assert.Equal(userId, _service.GetImpersonatedUserId(httpContext, superAdminPrincipal));
     }
 
     [Fact]
     public void IsAdmin_ReturnsTrue_WhenOriginalUserIdClaimPresent()
     {
-        DefaultHttpContext httpContext = CreateAdminContext();
+        DefaultHttpContext httpContext = CreateSuperAdminContext();
         ClaimsPrincipal impersonatedPrincipal = new(new ClaimsIdentity(
             [
                 new Claim(ClaimTypes.NameIdentifier, Guid.NewGuid().ToString()),
-                new Claim(ClaimTypes.Role, RoleNames.Student),
+                new Claim(ClaimTypes.Role, RoleNames.Employee),
                 new Claim(AdminPreviewClaimTypes.OriginalUserId, Guid.NewGuid().ToString()),
             ],
             authenticationType: "test"));
@@ -128,11 +130,11 @@ public sealed class AdminPreviewServiceTests
         Assert.True(_service.IsAdmin(impersonatedPrincipal, httpContext));
     }
 
-    private static DefaultHttpContext CreateAdminContext()
+    private static DefaultHttpContext CreateSuperAdminContext()
     {
         DefaultHttpContext httpContext = new();
         httpContext.User = new ClaimsPrincipal(new ClaimsIdentity(
-            [new Claim(ClaimTypes.Role, RoleNames.Admin)],
+            [new Claim(ClaimTypes.Role, RoleNames.SuperAdmin)],
             authenticationType: "test"));
         httpContext.Session = new TestSession();
         return httpContext;

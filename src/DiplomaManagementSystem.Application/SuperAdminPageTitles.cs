@@ -2,7 +2,7 @@ namespace DiplomaManagementSystem.Application;
 
 public static class SuperAdminPageTitles
 {
-    public const string Home = "Кабінет Super Admin";
+    public const string Home = "Кабінет Супер Адміністратора";
 
     public const string Faculties = "Факультети";
 

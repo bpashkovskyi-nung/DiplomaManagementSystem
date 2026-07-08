@@ -100,6 +100,18 @@ internal sealed class TopicOrderDocumentService(
             throw new DomainException("Помилка: обрані групи мають різний курс. Згенеруйте окремі накази.");
         }
 
+        HashSet<Guid> specialtyIds = selectedGroups.Select(group => group.SpecialtyId).ToHashSet();
+        if (specialtyIds.Count > 1)
+        {
+            throw new DomainException("Помилка: обрані групи мають різні спеціальності. Згенеруйте окремі накази.");
+        }
+
+        HashSet<string> studyForms = selectedGroups.Select(group => group.StudyForm).ToHashSet(StringComparer.Ordinal);
+        if (studyForms.Count > 1)
+        {
+            throw new DomainException("Помилка: обрані групи мають різну форму навчання. Згенеруйте окремі накази.");
+        }
+
         int? course = courses.FirstOrDefault();
         if (course is null)
         {
@@ -202,7 +214,8 @@ internal sealed class TopicOrderDocumentService(
             ? TopicOrderPhrases.FormatCoursePhrase(course.Value)
             : MissingLabel;
 
-        TopicOrderDepartmentInfoDto departmentInfo = await LoadDepartmentInfoAsync(request.SessionId, cancellationToken);
+        TopicOrderDepartmentInfoDto departmentInfo =
+            await LoadAcademicInfoFromGroupsAsync(selectedGroups, cancellationToken);
 
         return new TopicOrderDocumentDto(
             request.OrderNumber.Trim(),
@@ -218,37 +231,29 @@ internal sealed class TopicOrderDocumentService(
             warnings);
     }
 
-    private async Task<TopicOrderDepartmentInfoDto> LoadDepartmentInfoAsync(
-        Guid sessionId,
+    private async Task<TopicOrderDepartmentInfoDto> LoadAcademicInfoFromGroupsAsync(
+        IReadOnlyList<StudyGroup> selectedGroups,
         CancellationToken cancellationToken)
     {
-        Guid? departmentId = await dbContext.DefenceSessions
+        StudyGroup group = selectedGroups[0];
+
+        Specialty? specialty = await dbContext.Specialties
             .AsNoTracking()
-            .Where(session => session.Id == sessionId)
-            .Select(session => (Guid?)session.DepartmentId)
-            .FirstOrDefaultAsync(cancellationToken);
+            .Include(item => item.Department)
+            .ThenInclude(department => department.Faculty)
+            .FirstOrDefaultAsync(item => item.Id == group.SpecialtyId, cancellationToken);
 
-        if (departmentId is null)
+        if (specialty is null)
         {
-            throw new DomainException(DepartmentMessages.DepartmentNotFound);
-        }
-
-        Department? department = await dbContext.Departments
-            .AsNoTracking()
-            .Include(item => item.Faculty)
-            .FirstOrDefaultAsync(item => item.Id == departmentId, cancellationToken);
-
-        if (department is null)
-        {
-            throw new DomainException(DepartmentMessages.DepartmentNotFound);
+            throw new DomainException("Спеціальність групи не знайдена.");
         }
 
         return new TopicOrderDepartmentInfoDto(
-            department.SpecialtyCode,
-            department.SpecialtyName,
-            department.Faculty?.Name ?? string.Empty,
-            department.StudyForm,
-            department.Name);
+            specialty.Code,
+            specialty.Name,
+            specialty.Department.Faculty?.Name ?? string.Empty,
+            group.StudyForm,
+            specialty.Department.Name);
     }
 
     private async Task<List<Diploma>> ListEligibleDiplomasAsync(

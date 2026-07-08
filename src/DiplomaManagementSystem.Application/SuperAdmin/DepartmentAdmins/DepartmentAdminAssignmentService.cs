@@ -37,6 +37,33 @@ internal sealed class DepartmentAdminAssignmentService(
             .ToListAsync(cancellationToken);
     }
 
+    public async Task<IReadOnlyList<DepartmentEmployeeOptionDto>> GetAssignableEmployeesAsync(
+        Guid departmentId,
+        CancellationToken cancellationToken = default)
+    {
+        List<Guid> assignedUserIds = await dbContext.DepartmentAdminAssignments
+            .AsNoTracking()
+            .Where(assignment => assignment.DepartmentId == departmentId)
+            .Select(assignment => assignment.UserId)
+            .ToListAsync(cancellationToken);
+
+        return await dbContext.DepartmentEmployees
+            .AsNoTracking()
+            .Where(link => link.DepartmentId == departmentId)
+            .Join(
+                dbContext.Users.AsNoTracking(),
+                link => link.UserId,
+                user => user.Id,
+                (link, user) => user)
+            .Where(user => !assignedUserIds.Contains(user.Id))
+            .OrderBy(user => user.FullName)
+            .Select(user => new DepartmentEmployeeOptionDto(
+                user.Id,
+                user.FullName,
+                user.Email ?? string.Empty))
+            .ToListAsync(cancellationToken);
+    }
+
     public async Task AssignAsync(DepartmentAdminAssignDto dto, CancellationToken cancellationToken = default)
     {
         bool departmentExists = await dbContext.Departments
@@ -48,11 +75,20 @@ internal sealed class DepartmentAdminAssignmentService(
             throw new DomainException(DepartmentMessages.DepartmentNotFound);
         }
 
-        string email = dto.Email.Trim();
-        ApplicationUser? user = await userManager.FindByEmailAsync(email);
+        bool isDepartmentEmployee = await dbContext.DepartmentEmployees
+            .AnyAsync(
+                link => link.DepartmentId == dto.DepartmentId && link.UserId == dto.UserId,
+                cancellationToken);
+
+        if (!isDepartmentEmployee)
+        {
+            throw new DomainException("Обраного викладача не знайдено на цій кафедрі.");
+        }
+
+        ApplicationUser? user = await userManager.FindByIdAsync(dto.UserId.ToString());
         if (user is null)
         {
-            throw new DomainException("Користувача з такою електронною адресою не знайдено.");
+            throw new DomainException("Користувача не знайдено.");
         }
 
         bool alreadyAssigned = await dbContext.DepartmentAdminAssignments

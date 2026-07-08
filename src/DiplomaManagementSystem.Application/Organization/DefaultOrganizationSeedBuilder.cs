@@ -5,7 +5,9 @@ namespace DiplomaManagementSystem.Application.Organization;
 
 public static class DefaultOrganizationSeedBuilder
 {
-    public static (Faculty Faculty, Department Department) FromOptions(OrganizationOptions options, DateTimeOffset createdAt)
+    public static (Faculty Faculty, Department Department, Specialty Specialty) FromOptions(
+        OrganizationOptions options,
+        DateTimeOffset createdAt)
     {
         string facultyName = NormalizeRequired(options.FacultyName, "Факультет");
         string departmentName = NormalizeRequired(options.DepartmentName, "Кафедра");
@@ -24,18 +26,27 @@ public static class DefaultOrganizationSeedBuilder
             FacultyId = faculty.Id,
             Faculty = faculty,
             Name = departmentName,
-            SpecialtyCode = options.SpecialtyCode.Trim(),
-            SpecialtyName = options.SpecialtyName.Trim(),
-            StudyForm = string.IsNullOrWhiteSpace(options.StudyForm)
-                ? "очної форми навчання"
-                : options.StudyForm.Trim(),
+            IsActive = true,
+            CreatedAt = createdAt,
+        };
+
+        Specialty specialty = new()
+        {
+            Id = Guid.NewGuid(),
+            DepartmentId = department.Id,
+            Department = department,
+            Code = options.SpecialtyCode.Trim(),
+            Name = string.IsNullOrWhiteSpace(options.SpecialtyName.Trim())
+                ? departmentName
+                : options.SpecialtyName.Trim(),
             IsActive = true,
             CreatedAt = createdAt,
         };
 
         faculty.Departments.Add(department);
+        department.Specialties.Add(specialty);
 
-        return (faculty, department);
+        return (faculty, department, specialty);
     }
 
     private static string NormalizeRequired(string value, string fallbackLabel)

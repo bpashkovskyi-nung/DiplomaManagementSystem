@@ -131,9 +131,8 @@ def main() -> int:
                         cur.execute(
                             """
                             INSERT INTO departments (
-                                "Id", "FacultyId", "Name", "SpecialtyCode", "SpecialtyName",
-                                "StudyForm", "IsActive", "CreatedAt")
-                            VALUES (%s, %s, %s, '', '', '', TRUE, %s)
+                                "Id", "FacultyId", "Name", "IsActive", "CreatedAt")
+                            VALUES (%s, %s, %s, TRUE, %s)
                             """,
                             (str(department_id), str(faculty_id), dept_name, now),
                         )

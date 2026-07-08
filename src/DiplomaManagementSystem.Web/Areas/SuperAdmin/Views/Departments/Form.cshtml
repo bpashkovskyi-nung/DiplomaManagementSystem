@@ -1,45 +1,294 @@
 @model DepartmentFormViewModel
+
 @{
+
     ViewData["Title"] = Model.Id is null ? "Нова кафедра" : "Редагування кафедри";
+
 }
+
+
 
 <h1 class="mb-4">@ViewData["Title"]</h1>
 
-<partial name="_SuperAdminNavLinks" model="SuperAdminNavigation.DepartmentsBack()"/>
+
+
+<partial name="_TempDataAlerts"/>
+
+<partial name="_SuperAdminNavLinks" model="SuperAdminNavigation.DepartmentFormBack(Model.FacultyId, Model.FacultyName)"/>
+
+
 
 <form asp-action="@(Model.Id is null ? "Create" : "Edit")" method="post">
+
     @Html.AntiForgeryToken()
+
     @if (Model.Id is not null)
+
     {
+
         <input type="hidden" asp-for="Id"/>
+
     }
+
     <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
     <div class="mb-3">
+
         <label asp-for="FacultyId" class="form-label">Факультет</label>
+
         <select asp-for="FacultyId" class="form-select" asp-items="@(new SelectList(Model.FacultyOptions, nameof(FacultyOptionViewModel.Id), nameof(FacultyOptionViewModel.Name)))"></select>
+
         <span asp-validation-for="FacultyId" class="text-danger"></span>
+
     </div>
+
     <div class="mb-3">
+
         <label asp-for="Name" class="form-label">Назва кафедри</label>
+
         <input asp-for="Name" class="form-control" maxlength="256"/>
+
         <span asp-validation-for="Name" class="text-danger"></span>
+
     </div>
-    <div class="mb-3">
-        <label asp-for="SpecialtyCode" class="form-label">Код спеціальності</label>
-        <input asp-for="SpecialtyCode" class="form-control" maxlength="64"/>
-    </div>
-    <div class="mb-3">
-        <label asp-for="SpecialtyName" class="form-label">Назва спеціальності</label>
-        <input asp-for="SpecialtyName" class="form-control" maxlength="256"/>
-    </div>
-    <div class="mb-3">
-        <label asp-for="StudyForm" class="form-label">Форма навчання</label>
-        <input asp-for="StudyForm" class="form-control" maxlength="128"/>
-    </div>
+
     <button type="submit" class="btn btn-primary">Зберегти</button>
+
     <a class="btn btn-link" asp-action="Index" asp-route-facultyId="@Model.FacultyId">Скасувати</a>
+
 </form>
 
-@section Scripts {
-    <partial name="_ValidationScriptsPartial"/>
+
+
+@if (Model.Id is Guid departmentId)
+
+{
+
+    <hr class="my-4"/>
+
+    <h2 class="h5 mb-3">Спеціальності</h2>
+
+
+
+    <form asp-action="AddSpecialty" method="post" class="row g-2 align-items-end mb-4">
+
+        @Html.AntiForgeryToken()
+
+        <input type="hidden" name="departmentId" value="@departmentId"/>
+
+        <input type="hidden" name="facultyId" value="@Model.FacultyId"/>
+
+        <div class="col-md-3">
+
+            <label class="form-label" for="specialtyCode">Код</label>
+
+            <input class="form-control" id="specialtyCode" name="code" maxlength="64" required/>
+
+        </div>
+
+        <div class="col-md-5">
+
+            <label class="form-label" for="specialtyName">Назва</label>
+
+            <input class="form-control" id="specialtyName" name="name" maxlength="256" required/>
+
+        </div>
+
+        <div class="col-md-auto">
+
+            <button type="submit" class="btn btn-primary">Додати спеціальність</button>
+
+        </div>
+
+    </form>
+
+
+
+    <table class="table table-striped align-middle mb-4">
+
+        <thead>
+
+        <tr>
+
+            <th>Код</th>
+
+            <th>Назва</th>
+
+            <th>Груп</th>
+
+            <th></th>
+
+        </tr>
+
+        </thead>
+
+        <tbody>
+
+        @foreach (SpecialtyListItemViewModel specialty in Model.Specialties)
+
+        {
+
+            <tr class="@(specialty.IsActive ? null : "table-secondary")">
+
+                <td>@specialty.Code</td>
+
+                <td>@specialty.Name</td>
+
+                <td>@specialty.StudyGroupCount</td>
+
+                <td class="text-end">
+
+                    @if (specialty.IsActive)
+
+                    {
+
+                        <form asp-action="DeactivateSpecialty" method="post" class="d-inline">
+
+                            @Html.AntiForgeryToken()
+
+                            <input type="hidden" name="specialtyId" value="@specialty.Id"/>
+
+                            <input type="hidden" name="departmentId" value="@departmentId"/>
+
+                            <button type="submit" class="btn btn-sm btn-outline-danger">Деактивувати</button>
+
+                        </form>
+
+                    }
+
+                </td>
+
+            </tr>
+
+        }
+
+        </tbody>
+
+    </table>
+
+
+
+    <hr class="my-4"/>
+
+    <h2 class="h5 mb-3">Адміністратори кафедри</h2>
+
+
+
+    @if (Model.EmployeeOptions.Count > 0)
+
+    {
+
+        <form asp-action="AssignAdmin" method="post" class="row g-2 align-items-end mb-4">
+
+            @Html.AntiForgeryToken()
+
+            <input type="hidden" name="departmentId" value="@departmentId"/>
+
+            <input type="hidden" name="facultyId" value="@Model.FacultyId"/>
+
+            <div class="col-md-6">
+
+                <label class="form-label" for="assignUserId">Викладач кафедри</label>
+
+                <select class="form-select" id="assignUserId" name="assignUserId" required>
+
+                    <option value="">Оберіть викладача</option>
+
+                    @foreach (DepartmentEmployeeOptionViewModel employee in Model.EmployeeOptions)
+
+                    {
+
+                        <option value="@employee.Id">@employee.FullName (@employee.Email)</option>
+
+                    }
+
+                </select>
+
+            </div>
+
+            <div class="col-md-auto">
+
+                <button type="submit" class="btn btn-primary">Призначити адміністратором</button>
+
+            </div>
+
+        </form>
+
+    }
+
+    else
+
+    {
+
+        <p class="text-muted small mb-4">Немає доступних викладачів для призначення.</p>
+
+    }
+
+
+
+    <table class="table table-striped align-middle">
+
+        <thead>
+
+        <tr>
+
+            <th>ПІБ</th>
+
+            <th>Email</th>
+
+            <th>Призначено</th>
+
+            <th></th>
+
+        </tr>
+
+        </thead>
+
+        <tbody>
+
+        @foreach (DepartmentAdminListItemViewModel admin in Model.Admins)
+
+        {
+
+            <tr>
+
+                <td>@admin.FullName</td>
+
+                <td>@admin.Email</td>
+
+                <td>@admin.AssignedAt.ToLocalTime().ToString("g")</td>
+
+                <td class="text-end">
+
+                    <form asp-action="RemoveAdmin" method="post" class="d-inline">
+
+                        @Html.AntiForgeryToken()
+
+                        <input type="hidden" name="assignmentId" value="@admin.AssignmentId"/>
+
+                        <input type="hidden" name="departmentId" value="@departmentId"/>
+
+                        <button type="submit" class="btn btn-sm btn-outline-danger">Зняти</button>
+
+                    </form>
+
+                </td>
+
+            </tr>
+
+        }
+
+        </tbody>
+
+    </table>
+
 }
+
+
+
+@section Scripts {
+
+    <partial name="_ValidationScriptsPartial"/>
+
+}
+

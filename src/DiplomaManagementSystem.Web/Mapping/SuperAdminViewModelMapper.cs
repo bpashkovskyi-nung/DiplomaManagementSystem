@@ -2,6 +2,7 @@ using DiplomaManagementSystem.Application.SuperAdmin.DepartmentAdmins.Dtos;
 using DiplomaManagementSystem.Application.SuperAdmin.Departments.Dtos;
 using DiplomaManagementSystem.Application.SuperAdmin.Faculties.Dtos;
 using DiplomaManagementSystem.Application.SuperAdmin.OrganizationImport.Dtos;
+using DiplomaManagementSystem.Application.SuperAdmin.Specialties.Dtos;
 using DiplomaManagementSystem.Web.Areas.SuperAdmin.Models;
 
 namespace DiplomaManagementSystem.Web.Mapping;
@@ -18,15 +19,6 @@ internal static class SuperAdminViewModelMapper
             CreatedAt = dto.CreatedAt,
         };
 
-    public static FacultyOverviewViewModel MapOverview(FacultyListItemDto dto) =>
-        new()
-        {
-            Id = dto.Id,
-            Name = dto.Name,
-            IsActive = dto.IsActive,
-            DepartmentCount = dto.DepartmentCount,
-        };
-
     public static FacultyOptionViewModel MapOption(FacultyListItemDto dto) =>
         new()
         {
@@ -41,17 +33,18 @@ internal static class SuperAdminViewModelMapper
             FacultyId = dto.FacultyId,
             FacultyName = dto.FacultyName,
             Name = dto.Name,
-            SpecialtyCode = dto.SpecialtyCode,
-            SpecialtyName = dto.SpecialtyName,
-            StudyForm = dto.StudyForm,
+            SpecialtyCount = dto.SpecialtyCount,
             IsActive = dto.IsActive,
         };
 
-    public static DepartmentOptionViewModel MapDepartmentOption(DepartmentListItemDto dto) =>
+    public static SpecialtyListItemViewModel Map(SpecialtyListItemDto dto) =>
         new()
         {
             Id = dto.Id,
-            Label = $"{dto.FacultyName} — {dto.Name}",
+            Code = dto.Code,
+            Name = dto.Name,
+            IsActive = dto.IsActive,
+            StudyGroupCount = dto.StudyGroupCount,
         };
 
     public static DepartmentAdminListItemViewModel Map(DepartmentAdminListItemDto dto) =>
@@ -62,6 +55,14 @@ internal static class SuperAdminViewModelMapper
             FullName = dto.FullName,
             Email = dto.Email,
             AssignedAt = dto.AssignedAt,
+        };
+
+    public static DepartmentEmployeeOptionViewModel Map(DepartmentEmployeeOptionDto dto) =>
+        new()
+        {
+            Id = dto.Id,
+            FullName = dto.FullName,
+            Email = dto.Email,
         };
 
     public static OrganizationImportResultViewModel Map(OrganizationStructureImportResultDto dto) =>
