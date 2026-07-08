@@ -1,0 +1,45 @@
+@model DepartmentFormViewModel
+@{
+    ViewData["Title"] = Model.Id is null ? "Нова кафедра" : "Редагування кафедри";
+}
+
+<h1 class="mb-4">@ViewData["Title"]</h1>
+
+<partial name="_SuperAdminNavLinks" model="SuperAdminNavigation.DepartmentsBack()"/>
+
+<form asp-action="@(Model.Id is null ? "Create" : "Edit")" method="post">
+    @Html.AntiForgeryToken()
+    @if (Model.Id is not null)
+    {
+        <input type="hidden" asp-for="Id"/>
+    }
+    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+    <div class="mb-3">
+        <label asp-for="FacultyId" class="form-label">Факультет</label>
+        <select asp-for="FacultyId" class="form-select" asp-items="@(new SelectList(Model.FacultyOptions, nameof(FacultyOptionViewModel.Id), nameof(FacultyOptionViewModel.Name)))"></select>
+        <span asp-validation-for="FacultyId" class="text-danger"></span>
+    </div>
+    <div class="mb-3">
+        <label asp-for="Name" class="form-label">Назва кафедри</label>
+        <input asp-for="Name" class="form-control" maxlength="256"/>
+        <span asp-validation-for="Name" class="text-danger"></span>
+    </div>
+    <div class="mb-3">
+        <label asp-for="SpecialtyCode" class="form-label">Код спеціальності</label>
+        <input asp-for="SpecialtyCode" class="form-control" maxlength="64"/>
+    </div>
+    <div class="mb-3">
+        <label asp-for="SpecialtyName" class="form-label">Назва спеціальності</label>
+        <input asp-for="SpecialtyName" class="form-control" maxlength="256"/>
+    </div>
+    <div class="mb-3">
+        <label asp-for="StudyForm" class="form-label">Форма навчання</label>
+        <input asp-for="StudyForm" class="form-control" maxlength="128"/>
+    </div>
+    <button type="submit" class="btn btn-primary">Зберегти</button>
+    <a class="btn btn-link" asp-action="Index" asp-route-facultyId="@Model.FacultyId">Скасувати</a>
+</form>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial"/>
+}

@@ -1,4 +1,5 @@
 using DiplomaManagementSystem.Application.Authorization.Contracts;
+using DiplomaManagementSystem.Application.Departments.Contracts;
 using DiplomaManagementSystem.Application.Persistence.Contracts;
 using DiplomaManagementSystem.Domain.Entities;
 using DiplomaManagementSystem.Domain.Enums;
@@ -9,7 +10,8 @@ namespace DiplomaManagementSystem.Application.Authorization;
 internal sealed class DiplomaAuthorizationService(
     IDiplomaQueries diplomaQueries,
     ITopicVersionQueries topicVersionQueries,
-    IAnnualRoleQueries annualRoleQueries) : IDiplomaAuthorizationService
+    IAnnualRoleQueries annualRoleQueries,
+    IDepartmentAuthorizationService departmentAuthorization) : IDiplomaAuthorizationService
 {
     public async Task EnsureCanPerformAsync(
         Guid userId,
@@ -73,11 +75,11 @@ internal sealed class DiplomaAuthorizationService(
             case DiplomaAction.ApproveTopicAsSupervisor:
             case DiplomaAction.RejectTopicAsSupervisor:
             case DiplomaAction.CompleteSupervisorCheckpoint:
-                EnsureSupervisor(diploma, userId);
+                await EnsureSupervisorAsync(diploma, userId, cancellationToken);
                 break;
 
             case DiplomaAction.CompleteExternalReview:
-                EnsureReviewer(diploma, userId);
+                await EnsureReviewerAsync(diploma, userId, cancellationToken);
                 break;
 
             case DiplomaAction.CompleteAntiPlagiarism:
@@ -144,7 +146,7 @@ internal sealed class DiplomaAuthorizationService(
         {
             case DiplomaAction.ApproveTopicAsSupervisor:
             case DiplomaAction.RejectTopicAsSupervisor:
-                EnsureSupervisor(version.Diploma, userId);
+                await EnsureSupervisorAsync(version.Diploma, userId, cancellationToken);
                 break;
 
             case DiplomaAction.ApproveTopicAsDepartmentHead:
@@ -169,20 +171,37 @@ internal sealed class DiplomaAuthorizationService(
         }
     }
 
-    private static void EnsureSupervisor(Diploma diploma, Guid userId)
+    private async Task EnsureSupervisorAsync(Diploma diploma, Guid userId, CancellationToken cancellationToken)
     {
         if (diploma.SupervisorId != userId)
         {
             throw new DomainException(AuthorizationMessages.NotSupervisor);
         }
+
+        await EnsureEmployeeDepartmentMembershipAsync(diploma, userId, cancellationToken);
     }
 
-    private static void EnsureReviewer(Diploma diploma, Guid userId)
+    private async Task EnsureReviewerAsync(Diploma diploma, Guid userId, CancellationToken cancellationToken)
     {
         if (diploma.ReviewerId != userId)
         {
             throw new DomainException(AuthorizationMessages.NotReviewer);
         }
+
+        await EnsureEmployeeDepartmentMembershipAsync(diploma, userId, cancellationToken);
+    }
+
+    private async Task EnsureEmployeeDepartmentMembershipAsync(
+        Diploma diploma,
+        Guid userId,
+        CancellationToken cancellationToken)
+    {
+        if (diploma.DefenceSession?.DepartmentId is not Guid departmentId)
+        {
+            return;
+        }
+
+        await departmentAuthorization.EnsureDepartmentEmployeeAccessAsync(userId, departmentId, cancellationToken);
     }
 
     private async Task EnsureSessionRoleAsync(

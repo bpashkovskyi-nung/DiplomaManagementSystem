@@ -1,0 +1,72 @@
+@model DepartmentAdminListViewModel
+@{
+    ViewData["Title"] = SuperAdminPageTitles.DepartmentAdmins;
+}
+
+<h1 class="mb-4">@ViewData["Title"]</h1>
+
+<partial name="_TempDataAlerts"/>
+<partial name="_SuperAdminNavLinks" model="SuperAdminNavigation.Global()"/>
+
+<form method="get" class="row g-2 align-items-end mb-4">
+    <div class="col-md-8">
+        <label class="form-label" for="departmentId">Кафедра</label>
+        <select class="form-select" id="departmentId" name="departmentId" onchange="this.form.submit()">
+            @foreach (DepartmentOptionViewModel department in Model.DepartmentOptions)
+            {
+                <option value="@department.Id" selected="@(Model.SelectedDepartmentId == department.Id)">@department.Label</option>
+            }
+        </select>
+    </div>
+</form>
+
+@if (Model.SelectedDepartmentId is Guid departmentId)
+{
+    <h2 class="h5 mb-3">@Model.SelectedDepartmentName</h2>
+
+    <form asp-action="Assign" method="post" class="row g-2 align-items-end mb-4">
+        @Html.AntiForgeryToken()
+        <input type="hidden" asp-for="SelectedDepartmentId"/>
+        <div class="col-md-6">
+            <label asp-for="AssignEmail" class="form-label">Email адміністратора</label>
+            <input asp-for="AssignEmail" class="form-control" type="email" maxlength="256"/>
+            <span asp-validation-for="AssignEmail" class="text-danger"></span>
+        </div>
+        <div class="col-md-auto">
+            <button type="submit" class="btn btn-primary">Призначити</button>
+        </div>
+    </form>
+
+    <table class="table table-striped align-middle">
+        <thead>
+        <tr>
+            <th>ПІБ</th>
+            <th>Email</th>
+            <th>Призначено</th>
+            <th></th>
+        </tr>
+        </thead>
+        <tbody>
+        @foreach (DepartmentAdminListItemViewModel item in Model.Items)
+        {
+            <tr>
+                <td>@item.FullName</td>
+                <td>@item.Email</td>
+                <td>@item.AssignedAt.ToLocalTime().ToString("g")</td>
+                <td class="text-end">
+                    <form asp-action="Remove" method="post" class="d-inline">
+                        @Html.AntiForgeryToken()
+                        <input type="hidden" name="assignmentId" value="@item.AssignmentId"/>
+                        <input type="hidden" name="departmentId" value="@departmentId"/>
+                        <button type="submit" class="btn btn-sm btn-outline-danger">Зняти</button>
+                    </form>
+                </td>
+            </tr>
+        }
+        </tbody>
+    </table>
+}
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial"/>
+}

@@ -1,6 +1,7 @@
 using DiplomaManagementSystem.Application.Identity;
 using DiplomaManagementSystem.Application.Persistence.Contracts;
 using DiplomaManagementSystem.Infrastructure.Persistence;
+using DiplomaManagementSystem.Infrastructure.Persistence.Seeding;
 using DiplomaManagementSystem.Infrastructure.Persistence.Queries;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
@@ -38,6 +39,7 @@ public static class PersistenceServiceCollectionExtensions
             .AddDefaultTokenProviders();
 
         services.AddHostedService<BootstrapAdminSeeder>();
+        services.AddHostedService<DefaultOrganizationMigrator>();
 
         services.AddScoped<IDiplomaQueries, DiplomaQueries>();
         services.AddScoped<IUserDisplayQueries, UserDisplayQueries>();

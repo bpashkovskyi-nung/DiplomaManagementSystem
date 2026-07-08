@@ -63,7 +63,7 @@ public sealed class EmployeeHomeQueriesScenarioTests(PostgreSqlFixture fixture)
         await WorkflowScenarioRunner.RunTopicApprovalAsync(scope.ServiceProvider, scenario);
 
         IEmployeeHomeQueries queries = scope.ServiceProvider.GetRequiredService<IEmployeeHomeQueries>();
-        bool hasDiplomas = await queries.HasAnySupervisorDiplomasAsync(scenario.SupervisorId, CancellationToken.None);
+        bool hasDiplomas = await queries.HasAnySupervisorDiplomasAsync(scenario.SupervisorId, null, CancellationToken.None);
 
         Assert.True(hasDiplomas);
     }
@@ -217,7 +217,7 @@ public sealed class EmployeeHomeQueriesScenarioTests(PostgreSqlFixture fixture)
             CancellationToken.None);
 
         IEmployeeHomeQueries queries = services.GetRequiredService<IEmployeeHomeQueries>();
-        bool hasDiplomas = await queries.HasAnyReviewerDiplomasAsync(scenario.ReviewerId, CancellationToken.None);
+        bool hasDiplomas = await queries.HasAnyReviewerDiplomasAsync(scenario.ReviewerId, null, CancellationToken.None);
 
         Assert.True(hasDiplomas);
     }

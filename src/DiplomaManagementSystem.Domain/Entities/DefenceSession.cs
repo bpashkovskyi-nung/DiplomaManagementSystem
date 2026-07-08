@@ -14,6 +14,10 @@ public sealed class DefenceSession
 
     public DefenceSessionStatus Status { get; set; }
 
+    public Guid DepartmentId { get; set; }
+
+    public Department? Department { get; set; }
+
     public DateTimeOffset CreatedAt { get; set; }
 
     public DateTimeOffset? ArchivedAt { get; set; }

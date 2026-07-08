@@ -1,0 +1,66 @@
+@model DepartmentListViewModel
+@{
+    ViewData["Title"] = SuperAdminPageTitles.Departments;
+}
+
+<h1 class="mb-4">@ViewData["Title"]</h1>
+
+<partial name="_TempDataAlerts"/>
+<partial name="_SuperAdminNavLinks" model="SuperAdminNavigation.Global()"/>
+
+<form method="get" class="row g-2 align-items-end mb-3">
+    <div class="col-md-6">
+        <label class="form-label" for="facultyId">Факультет</label>
+        <select class="form-select" id="facultyId" name="facultyId" onchange="this.form.submit()">
+            <option value="">Усі факультети</option>
+            @foreach (FacultyOptionViewModel faculty in Model.FacultyOptions)
+            {
+                <option value="@faculty.Id" selected="@(Model.SelectedFacultyId == faculty.Id)">@faculty.Name</option>
+            }
+        </select>
+    </div>
+</form>
+
+<p>
+    <a class="btn btn-primary" asp-action="Create" asp-route-facultyId="@Model.SelectedFacultyId">Нова кафедра</a>
+</p>
+
+<table class="table table-striped align-middle">
+    <thead>
+    <tr>
+        <th>Факультет</th>
+        <th>Кафедра</th>
+        <th>Спеціальність</th>
+        <th>Форма</th>
+        <th></th>
+    </tr>
+    </thead>
+    <tbody>
+    @foreach (DepartmentListItemViewModel item in Model.Items)
+    {
+        <tr class="@(item.IsActive ? null : "table-secondary")">
+            <td>@item.FacultyName</td>
+            <td>@item.Name</td>
+            <td>@item.SpecialtyCode — @item.SpecialtyName</td>
+            <td>@item.StudyForm</td>
+            <td class="text-end text-nowrap">
+                <form asp-action="Enter" method="post" class="d-inline">
+                    @Html.AntiForgeryToken()
+                    <input type="hidden" name="id" value="@item.Id"/>
+                    <button type="submit" class="btn btn-sm btn-primary">@SuperAdminPageTitles.EnterDepartment</button>
+                </form>
+                <a class="btn btn-sm btn-outline-secondary" asp-action="Edit" asp-route-id="@item.Id">Редагувати</a>
+                @if (item.IsActive)
+                {
+                    <form asp-action="Deactivate" method="post" class="d-inline">
+                        @Html.AntiForgeryToken()
+                        <input type="hidden" name="id" value="@item.Id"/>
+                        <input type="hidden" name="facultyId" value="@item.FacultyId"/>
+                        <button type="submit" class="btn btn-sm btn-outline-danger">Деактивувати</button>
+                    </form>
+                }
+            </td>
+        </tr>
+    }
+    </tbody>
+</table>

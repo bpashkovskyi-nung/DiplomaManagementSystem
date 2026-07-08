@@ -62,13 +62,19 @@ internal sealed class BootstrapAdminSeeder(
             await userManager.AddToRoleAsync(admin, RoleNames.Admin);
             logger.LogInformation("Admin role assigned to {Email}.", adminEmail);
         }
+
+        if (!await userManager.IsInRoleAsync(admin, RoleNames.SuperAdmin))
+        {
+            await userManager.AddToRoleAsync(admin, RoleNames.SuperAdmin);
+            logger.LogInformation("SuperAdmin role assigned to {Email}.", adminEmail);
+        }
     }
 
     public Task StopAsync(CancellationToken cancellationToken) => Task.CompletedTask;
 
     private static async Task EnsureRolesAsync(RoleManager<IdentityRole<Guid>> roleManager)
     {
-        string[] roles = [RoleNames.Admin, RoleNames.Student, RoleNames.Employee];
+        string[] roles = [RoleNames.SuperAdmin, RoleNames.Admin, RoleNames.Student, RoleNames.Employee];
 
         foreach (string role in roles)
         {

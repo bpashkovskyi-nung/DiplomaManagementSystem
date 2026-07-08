@@ -21,5 +21,13 @@ internal sealed class DefenceSessionConfiguration : IEntityTypeConfiguration<Def
 
         builder.Property(e => e.Status)
             .HasConversion<short>();
+
+        builder.HasIndex(e => e.DepartmentId);
+
+        builder.HasOne(e => e.Department)
+            .WithMany(d => d.DefenceSessions)
+            .HasForeignKey(e => e.DepartmentId)
+            .OnDelete(DeleteBehavior.Restrict)
+            .IsRequired();
     }
 }

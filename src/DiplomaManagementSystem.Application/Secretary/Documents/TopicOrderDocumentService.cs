@@ -202,17 +202,53 @@ internal sealed class TopicOrderDocumentService(
             ? TopicOrderPhrases.FormatCoursePhrase(course.Value)
             : MissingLabel;
 
+        TopicOrderDepartmentInfoDto departmentInfo = await LoadDepartmentInfoAsync(request.SessionId, cancellationToken);
+
         return new TopicOrderDocumentDto(
             request.OrderNumber.Trim(),
             request.Year,
             TopicOrderPhrases.FormatSessionLevelPhrase(session.Type),
             TopicOrderPhrases.FormatGroupsPhrase(selectedGroups.Select(group => group.Name).ToList()),
             coursePhrase,
+            departmentInfo,
             students,
             reviewers,
             formattingReviewerLine,
             departmentHeadLine,
             warnings);
+    }
+
+    private async Task<TopicOrderDepartmentInfoDto> LoadDepartmentInfoAsync(
+        Guid sessionId,
+        CancellationToken cancellationToken)
+    {
+        Guid? departmentId = await dbContext.DefenceSessions
+            .AsNoTracking()
+            .Where(session => session.Id == sessionId)
+            .Select(session => (Guid?)session.DepartmentId)
+            .FirstOrDefaultAsync(cancellationToken);
+
+        if (departmentId is null)
+        {
+            throw new DomainException(DepartmentMessages.DepartmentNotFound);
+        }
+
+        Department? department = await dbContext.Departments
+            .AsNoTracking()
+            .Include(item => item.Faculty)
+            .FirstOrDefaultAsync(item => item.Id == departmentId, cancellationToken);
+
+        if (department is null)
+        {
+            throw new DomainException(DepartmentMessages.DepartmentNotFound);
+        }
+
+        return new TopicOrderDepartmentInfoDto(
+            department.SpecialtyCode,
+            department.SpecialtyName,
+            department.Faculty?.Name ?? string.Empty,
+            department.StudyForm,
+            department.Name);
     }
 
     private async Task<List<Diploma>> ListEligibleDiplomasAsync(

@@ -29,4 +29,9 @@ internal static class IntegrationTestWebClient
     {
         client.DefaultRequestHeaders.Add("Cookie", $"SelectedDefenceSessionId={sessionId}");
     }
+
+    public static void SetDepartmentCookie(HttpClient client, Guid departmentId)
+    {
+        client.DefaultRequestHeaders.Add("Cookie", $"dms.dept={departmentId}");
+    }
 }

@@ -1,6 +1,8 @@
 using DiplomaManagementSystem.Application.Admin.DefenceSessions.Contracts;
 using DiplomaManagementSystem.Application.Admin.DefenceSessions.Dtos;
 using DiplomaManagementSystem.Application.Audit.Contracts;
+using DiplomaManagementSystem.Application.Departments;
+using DiplomaManagementSystem.Application.Departments.Contracts;
 using DiplomaManagementSystem.Application.Persistence.Contracts;
 using DiplomaManagementSystem.Domain.Entities;
 using DiplomaManagementSystem.Domain.Enums;
@@ -13,12 +15,17 @@ namespace DiplomaManagementSystem.Application.Admin.DefenceSessions;
 internal sealed class DefenceSessionService(
     IApplicationDbContext dbContext,
     DefenceSessionArchiveService archiveService,
-    IAuditLogWriter auditLogWriter) : IDefenceSessionService
+    IAuditLogWriter auditLogWriter,
+    CurrentDepartmentResolver currentDepartmentResolver,
+    IDepartmentAuthorizationService departmentAuthorization) : IDefenceSessionService
 {
     public async Task<IReadOnlyList<DefenceSessionListItemDto>> GetAllAsync(CancellationToken cancellationToken = default)
     {
+        Guid departmentId = await currentDepartmentResolver.ResolveRequiredScopedDepartmentIdAsync(cancellationToken);
+
         return await dbContext.DefenceSessions
             .AsNoTracking()
+            .Where(session => session.DepartmentId == departmentId)
             .OrderByDescending(s => s.Year)
             .ThenBy(s => s.Type)
             .Select(s => new DefenceSessionListItemDto(
@@ -34,6 +41,8 @@ internal sealed class DefenceSessionService(
 
     public async Task<DefenceSessionFormDto?> GetForEditAsync(Guid id, CancellationToken cancellationToken = default)
     {
+        await EnsureSessionInScopeAsync(id, cancellationToken);
+
         DefenceSession? session = await dbContext.DefenceSessions
             .AsNoTracking()
             .FirstOrDefaultAsync(s => s.Id == id, cancellationToken);
@@ -45,6 +54,8 @@ internal sealed class DefenceSessionService(
 
     public async Task<DefenceSessionDetailsDto?> GetDetailsAsync(Guid id, CancellationToken cancellationToken = default)
     {
+        await EnsureSessionInScopeAsync(id, cancellationToken);
+
         DefenceSession? session = await dbContext.DefenceSessions
             .AsNoTracking()
             .Include(s => s.StudyGroups)
@@ -81,6 +92,8 @@ internal sealed class DefenceSessionService(
 
     public async Task<Guid> CreateAsync(DefenceSessionFormDto form, CancellationToken cancellationToken = default)
     {
+        Guid departmentId = await currentDepartmentResolver.ResolveRequiredScopedDepartmentIdAsync(cancellationToken);
+
         DefenceSession session = new()
         {
             Id = Guid.NewGuid(),
@@ -88,6 +101,7 @@ internal sealed class DefenceSessionService(
             Type = form.Type,
             Semester = form.Semester,
             Status = DefenceSessionStatus.Active,
+            DepartmentId = departmentId,
             CreatedAt = DateTimeOffset.UtcNow,
         };
 
@@ -99,6 +113,8 @@ internal sealed class DefenceSessionService(
 
     public async Task UpdateAsync(Guid id, DefenceSessionFormDto form, CancellationToken cancellationToken = default)
     {
+        await EnsureSessionInScopeAsync(id, cancellationToken);
+
         DefenceSession session = await dbContext.DefenceSessions.FirstOrDefaultAsync(s => s.Id == id, cancellationToken)
                                  ?? throw new DomainException($"Defence session {id} not found.");
 
@@ -115,6 +131,8 @@ internal sealed class DefenceSessionService(
 
     public async Task ArchiveAsync(Guid id, Guid performedById, CancellationToken cancellationToken = default)
     {
+        await EnsureSessionInScopeAsync(id, cancellationToken);
+
         DefenceSession session = await dbContext.DefenceSessions
                                      .FirstOrDefaultAsync(s => s.Id == id, cancellationToken)
                                  ?? throw new DomainException($"Defence session {id} not found.");
@@ -134,6 +152,12 @@ internal sealed class DefenceSessionService(
         await auditLogWriter.WriteAsync(auditEntry, cancellationToken);
 
         await dbContext.SaveChangesAsync(cancellationToken);
+    }
+
+    private async Task EnsureSessionInScopeAsync(Guid sessionId, CancellationToken cancellationToken)
+    {
+        Guid departmentId = await currentDepartmentResolver.ResolveRequiredScopedDepartmentIdAsync(cancellationToken);
+        await departmentAuthorization.EnsureSessionInDepartmentAsync(sessionId, departmentId, cancellationToken);
     }
 
     private async Task<Dictionary<Guid, int>> GetStudentCountsAsync(

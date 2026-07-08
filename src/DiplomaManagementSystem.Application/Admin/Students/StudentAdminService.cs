@@ -1,6 +1,7 @@
 using DiplomaManagementSystem.Application.Admin.Students.Contracts;
 using DiplomaManagementSystem.Application.Admin.Students.Dtos;
 using DiplomaManagementSystem.Application.Common;
+using DiplomaManagementSystem.Application.Departments;
 using DiplomaManagementSystem.Application.Identity;
 using DiplomaManagementSystem.Application.Identity.Contracts;
 using DiplomaManagementSystem.Application.Persistence.Contracts;
@@ -18,15 +19,22 @@ internal sealed class StudentAdminService(
     IApplicationDbContext dbContext,
     UserManager<ApplicationUser> userManager,
     IUserProvisioningService userProvisioningService,
-    DiplomaCreationService diplomaCreationService) : IStudentAdminService
+    DiplomaCreationService diplomaCreationService,
+    CurrentDepartmentResolver currentDepartmentResolver) : IStudentAdminService
 {
     public async Task<IReadOnlyList<StudentListItemDto>> GetAllAsync(
         Guid? defenceSessionId = null,
         CancellationToken cancellationToken = default)
     {
+        Guid departmentId = await currentDepartmentResolver.ResolveRequiredScopedDepartmentIdAsync(cancellationToken);
+
         IQueryable<ApplicationUser> query = dbContext.Users
             .AsNoTracking()
-            .Where(user => user.UserKind == UserKind.Student);
+            .Where(user => user.UserKind == UserKind.Student
+                           && user.DefenceSessionId != null
+                           && dbContext.DefenceSessions.Any(session =>
+                               session.Id == user.DefenceSessionId
+                               && session.DepartmentId == departmentId));
 
         if (defenceSessionId.HasValue)
         {
@@ -119,9 +127,12 @@ internal sealed class StudentAdminService(
     public async Task<IReadOnlyList<StudentSessionOptionDto>> GetSessionOptionsAsync(
         CancellationToken cancellationToken = default)
     {
+        Guid departmentId = await currentDepartmentResolver.ResolveRequiredScopedDepartmentIdAsync(cancellationToken);
+
         return await dbContext.DefenceSessions
             .AsNoTracking()
-            .Where(session => session.Status == DefenceSessionStatus.Active)
+            .Where(session => session.Status == DefenceSessionStatus.Active
+                              && session.DepartmentId == departmentId)
             .OrderByDescending(session => session.Year)
             .ThenBy(session => session.Type)
             .Select(session => new StudentSessionOptionDto(
@@ -262,6 +273,8 @@ internal sealed class StudentAdminService(
         Guid studyGroupId,
         CancellationToken cancellationToken)
     {
+        Guid departmentId = await currentDepartmentResolver.ResolveRequiredScopedDepartmentIdAsync(cancellationToken);
+
         DefenceSession? session = await dbContext.DefenceSessions
             .AsNoTracking()
             .FirstOrDefaultAsync(defenceSession => defenceSession.Id == defenceSessionId, cancellationToken);
@@ -269,6 +282,11 @@ internal sealed class StudentAdminService(
         if (session is null)
         {
             throw new DomainException("Defence session not found.");
+        }
+
+        if (session.DepartmentId != departmentId)
+        {
+            throw new DomainException(DepartmentMessages.SessionNotInDepartment);
         }
 
         if (session.Status == DefenceSessionStatus.Archived)

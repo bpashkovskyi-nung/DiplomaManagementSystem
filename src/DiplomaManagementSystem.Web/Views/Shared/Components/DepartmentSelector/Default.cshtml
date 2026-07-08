@@ -1,0 +1,19 @@
+@model DiplomaManagementSystem.Web.Departments.DepartmentSelectorViewModel
+
+@if (Model.Departments.Count > 1)
+{
+    <form asp-area="@Model.AreaName" asp-controller="Department" asp-action="Select" method="post" class="row g-2 align-items-end mb-3">
+        @Html.AntiForgeryToken()
+        <div class="col-auto">
+            <label class="form-label mb-0" for="departmentSelector">Кафедра:</label>
+        </div>
+        <div class="col-md-5">
+            <select class="form-select form-select-sm" id="departmentSelector" name="departmentId" onchange="this.form.submit()">
+                @foreach (var department in Model.Departments)
+                {
+                    <option value="@department.Value" selected="@department.Selected">@department.Text</option>
+                }
+            </select>
+        </div>
+    </form>
+}

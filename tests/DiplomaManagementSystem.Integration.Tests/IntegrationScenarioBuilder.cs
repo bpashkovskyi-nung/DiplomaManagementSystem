@@ -10,6 +10,7 @@ using DiplomaManagementSystem.Application.Persistence.Contracts;
 using DiplomaManagementSystem.Domain.Entities;
 using DiplomaManagementSystem.Domain.Enums;
 using DiplomaManagementSystem.Domain.Services;
+using DiplomaManagementSystem.Integration.Tests.Support;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace DiplomaManagementSystem.Integration.Tests;
@@ -26,6 +27,7 @@ internal sealed class IntegrationScenarioBuilder
     public async Task<Guid> SeedSessionOnlyAsync()
     {
         await using AsyncServiceScope scope = _serviceProvider.CreateAsyncScope();
+        await IntegrationDepartmentHelper.EnsureDefaultDepartmentContextAsync(scope.ServiceProvider);
         IDefenceSessionService defenceSessionService = scope.ServiceProvider.GetRequiredService<IDefenceSessionService>();
         return await defenceSessionService.CreateAsync(
             new DefenceSessionFormDto(null, 2026, DefenceSessionType.Bachelor, 1));
@@ -35,6 +37,7 @@ internal sealed class IntegrationScenarioBuilder
     {
         await using AsyncServiceScope scope = _serviceProvider.CreateAsyncScope();
         IServiceProvider services = scope.ServiceProvider;
+        await IntegrationDepartmentHelper.EnsureDefaultDepartmentContextAsync(services);
 
         string suffix = Guid.NewGuid().ToString("N")[..8];
 
@@ -75,6 +78,13 @@ internal sealed class IntegrationScenarioBuilder
             "Formatting Reviewer",
             $"formatting.{suffix}@test.local");
 
+        await IntegrationDepartmentHelper.AssignEmployeeAsync(services, supervisor.Id, supervisor.FullName);
+        await IntegrationDepartmentHelper.AssignEmployeeAsync(services, head.Id, head.FullName);
+        await IntegrationDepartmentHelper.AssignEmployeeAsync(services, secretary.Id, secretary.FullName);
+        await IntegrationDepartmentHelper.AssignEmployeeAsync(services, reviewer.Id, reviewer.FullName);
+        await IntegrationDepartmentHelper.AssignEmployeeAsync(services, antiPlagiarism.Id, antiPlagiarism.FullName);
+        await IntegrationDepartmentHelper.AssignEmployeeAsync(services, formatting.Id, formatting.FullName);
+
         await annualRoleService.AssignAsync(new AssignAnnualRoleDto(sessionId, AnnualRoleType.DepartmentHead, head.Id));
         await annualRoleService.AssignAsync(
             new AssignAnnualRoleDto(sessionId, AnnualRoleType.ExamCommissionSecretary, secretary.Id));
@@ -112,6 +122,7 @@ internal sealed class IntegrationScenarioBuilder
     {
         await using AsyncServiceScope scope = _serviceProvider.CreateAsyncScope();
         IServiceProvider services = scope.ServiceProvider;
+        await IntegrationDepartmentHelper.EnsureDefaultDepartmentContextAsync(services);
 
         string suffix = Guid.NewGuid().ToString("N")[..8];
 

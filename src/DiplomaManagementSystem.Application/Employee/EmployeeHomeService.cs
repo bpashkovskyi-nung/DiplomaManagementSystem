@@ -1,4 +1,5 @@
 using DiplomaManagementSystem.Application;
+using DiplomaManagementSystem.Application.Departments;
 using DiplomaManagementSystem.Application.Employee.Contracts;
 using DiplomaManagementSystem.Application.Employee.Dtos;
 using DiplomaManagementSystem.Application.Persistence.Contracts;
@@ -14,24 +15,35 @@ internal sealed class EmployeeHomeService(
     ISupervisorDiplomaListService supervisorDiplomaListService,
     IReviewerDiplomaListService reviewerDiplomaListService,
     IDepartmentHeadWorkflowService departmentHeadWorkflowService,
-    IAdmissionReviewService admissionReviewService) : IEmployeeHomeService
+    IAdmissionReviewService admissionReviewService,
+    CurrentDepartmentResolver currentDepartmentResolver) : IEmployeeHomeService
 {
     public async Task<EmployeeHomeDto> GetHomeAsync(Guid employeeId, CancellationToken cancellationToken = default)
     {
+        Guid departmentId = await currentDepartmentResolver.ResolveRequiredEmployeeDepartmentIdAsync(
+            employeeId,
+            cancellationToken);
+
         List<EmployeeRoleCardDto> roles = [];
 
         int pendingStudents = (await supervisorWorkflowService.GetPendingStudentsAsync(employeeId, cancellationToken)).Count;
         int pendingSupervisorTopics = (await supervisorWorkflowService.GetTopicReviewsAsync(employeeId, cancellationToken)).Count;
         bool isSupervisor = pendingStudents > 0
                             || pendingSupervisorTopics > 0
-                            || await employeeHomeQueries.HasAnySupervisorDiplomasAsync(employeeId, cancellationToken);
+                            || await employeeHomeQueries.HasAnySupervisorDiplomasAsync(
+                                employeeId,
+                                departmentId,
+                                cancellationToken);
 
         int pendingReviewerAssignments = (await admissionReviewService.GetReviewerAssignmentsAsync(
             employeeId,
             cancellationToken)).Count;
 
         bool isReviewer = pendingReviewerAssignments > 0
-                          || await employeeHomeQueries.HasAnyReviewerDiplomasAsync(employeeId, cancellationToken);
+                          || await employeeHomeQueries.HasAnyReviewerDiplomasAsync(
+                              employeeId,
+                              departmentId,
+                              cancellationToken);
 
         if (isSupervisor)
         {

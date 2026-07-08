@@ -9,6 +9,14 @@ public interface IApplicationDbContext
 {
     DbSet<ApplicationUser> Users { get; }
 
+    DbSet<Faculty> Faculties { get; }
+
+    DbSet<Department> Departments { get; }
+
+    DbSet<DepartmentAdminAssignment> DepartmentAdminAssignments { get; }
+
+    DbSet<DepartmentEmployee> DepartmentEmployees { get; }
+
     DbSet<StudyGroup> StudyGroups { get; }
 
     DbSet<DefenceSession> DefenceSessions { get; }

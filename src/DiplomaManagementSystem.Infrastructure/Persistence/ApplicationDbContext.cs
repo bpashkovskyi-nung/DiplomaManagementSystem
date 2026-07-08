@@ -11,6 +11,14 @@ namespace DiplomaManagementSystem.Infrastructure.Persistence;
 public sealed partial class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options)
     : IdentityDbContext<ApplicationUser, IdentityRole<Guid>, Guid>(options), IApplicationDbContext
 {
+    public DbSet<Faculty> Faculties => Set<Faculty>();
+
+    public DbSet<Department> Departments => Set<Department>();
+
+    public DbSet<DepartmentAdminAssignment> DepartmentAdminAssignments => Set<DepartmentAdminAssignment>();
+
+    public DbSet<DepartmentEmployee> DepartmentEmployees => Set<DepartmentEmployee>();
+
     public DbSet<StudyGroup> StudyGroups => Set<StudyGroup>();
 
     public DbSet<DefenceSession> DefenceSessions => Set<DefenceSession>();

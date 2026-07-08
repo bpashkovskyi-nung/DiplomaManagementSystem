@@ -1,7 +1,9 @@
 @using DiplomaManagementSystem.Application
 @using DiplomaManagementSystem.Application.Constants
+@using DiplomaManagementSystem.Application.Departments.Contracts
 @using DiplomaManagementSystem.Web.AdminPreview
 @inject IAdminPreviewService AdminPreviewService
+@inject IDepartmentContext DepartmentContext
 <!DOCTYPE html>
 <html lang="uk">
 <head>
@@ -27,7 +29,15 @@
                     @await Component.InvokeAsync("StudentNav")
                     @await Component.InvokeAsync("EmployeeNav")
                     @await Component.InvokeAsync("SecretaryNav")
-                    @if (User.IsInRole(RoleNames.Admin) && AdminPreviewService.GetMode(Context) == AdminPreviewMode.Admin)
+                    @if (User.IsInRole(RoleNames.SuperAdmin))
+                    {
+                        <li class="nav-item">
+                            <a class="nav-link text-dark" asp-area="SuperAdmin" asp-controller="Home" asp-action="Index">@SuperAdminPageTitles.Home</a>
+                        </li>
+                    }
+                    @if (AdminPreviewService.GetMode(Context) == AdminPreviewMode.Admin
+                         && (User.IsInRole(RoleNames.Admin)
+                             || (User.IsInRole(RoleNames.SuperAdmin) && DepartmentContext.IsSuperAdminImpersonating)))
                     {
                         <li class="nav-item">
                             <a class="nav-link text-dark" asp-area="Admin" asp-controller="Home" asp-action="Index">@AdminPageTitles.Home</a>
@@ -64,6 +74,14 @@
     @if (ViewContext.RouteData.Values["area"]?.ToString() == "Secretary")
     {
         @await Component.InvokeAsync("SessionSelector")
+    }
+    else if (ViewContext.RouteData.Values["area"]?.ToString() == "Admin")
+    {
+        @await Component.InvokeAsync("DepartmentSelector", new { areaName = "Admin" })
+    }
+    else if (ViewContext.RouteData.Values["area"]?.ToString() == "Employee")
+    {
+        @await Component.InvokeAsync("DepartmentSelector", new { areaName = "Employee" })
     }
     <main role="main" class="pb-3">
         @RenderBody()

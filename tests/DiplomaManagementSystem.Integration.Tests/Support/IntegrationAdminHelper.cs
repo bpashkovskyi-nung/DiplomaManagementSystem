@@ -50,6 +50,7 @@ internal static class IntegrationAdminHelper
         }
 
         await userManager.AddToRoleAsync(admin, RoleNames.Admin);
+        await IntegrationDepartmentHelper.AssignAdminAsync(serviceProvider, admin.Id);
         return admin.Id;
     }
 }

@@ -6,6 +6,7 @@ using DiplomaManagementSystem.Application.Identity.Contracts;
 using DiplomaManagementSystem.Application.Options;
 using DiplomaManagementSystem.Application.Persistence.Contracts;
 using DiplomaManagementSystem.Application.Security;
+using DiplomaManagementSystem.Application.Tests.Departments;
 using DiplomaManagementSystem.Domain.Entities;
 using DiplomaManagementSystem.Domain.Enums;
 using DiplomaManagementSystem.Domain.Exceptions;
@@ -22,6 +23,7 @@ public sealed class StudentAdminServiceTests : IDisposable
     private readonly ServiceProvider _serviceProvider;
     private readonly ApplicationDbContext _dbContext;
     private readonly StudentAdminService _service;
+    private readonly Guid _departmentId;
 
     public StudentAdminServiceTests()
     {
@@ -35,6 +37,7 @@ public sealed class StudentAdminServiceTests : IDisposable
             .AddEntityFrameworkStores<ApplicationDbContext>()
             .AddDefaultTokenProviders();
 
+        AdminDepartmentTestSupport.RegisterDepartmentServices(services);
         services.AddSingleton(new EmailDomainValidator(Microsoft.Extensions.Options.Options.Create(new SecurityOptions())));
         services.AddSingleton<DiplomaCreationService>();
         services.AddScoped<IUserProvisioningService, UserProvisioningService>();
@@ -42,6 +45,7 @@ public sealed class StudentAdminServiceTests : IDisposable
 
         _serviceProvider = services.BuildServiceProvider();
         _dbContext = _serviceProvider.GetRequiredService<ApplicationDbContext>();
+        _departmentId = AdminDepartmentTestSupport.SeedDefaultDepartmentAsync(_dbContext).GetAwaiter().GetResult();
         _service = _serviceProvider.GetRequiredService<StudentAdminService>();
     }
 
@@ -105,6 +109,7 @@ public sealed class StudentAdminServiceTests : IDisposable
             Year = 2026,
             Type = type,
             Status = DefenceSessionStatus.Active,
+            DepartmentId = _departmentId,
             CreatedAt = DateTimeOffset.UtcNow,
         });
         await _dbContext.SaveChangesAsync();

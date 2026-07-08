@@ -32,7 +32,7 @@ internal sealed class TopicOrderDocxGenerator(IOptions<OrganizationOptions> orga
             FillStudentTable(body, document.Students);
             FillReviewers(body, document.Reviewers);
             FillFormattingReviewer(body, document.FormattingReviewerLine);
-            FillDepartmentHead(body, document.DepartmentHeadLine);
+            FillDepartmentHead(body, document.DepartmentHeadLine, document.DepartmentInfo.DepartmentName);
             FillRector(body);
             wordDocument.MainDocumentPart.Document.Save();
         }
@@ -75,22 +75,26 @@ internal sealed class TopicOrderDocxGenerator(IOptions<OrganizationOptions> orga
                 $"№ {document.OrderNumber}");
         }
 
+        TopicOrderDepartmentInfoDto departmentInfo = document.DepartmentInfo;
         ReplaceParagraph(
             paragraphs,
             "спеціальності",
-            $"спеціальності {_organization.SpecialtyCode} - \"{_organization.SpecialtyName}\"");
-        ReplaceParagraph(paragraphs, "факультету", FormatFacultyTitleLine(_organization.FacultyName));
-        ReplaceParagraph(paragraphs, "студентів", $"студентів {_organization.StudyForm}");
+            $"спеціальності {departmentInfo.SpecialtyCode} - \"{departmentInfo.SpecialtyName}\"");
+        ReplaceParagraph(paragraphs, "факультету", FormatFacultyTitleLine(departmentInfo.FacultyName));
+        ReplaceParagraph(paragraphs, "студентів", $"студентів {departmentInfo.StudyForm}");
         ReplaceParagraph(
             paragraphs,
             "Нижчезазначених",
             BuildPreamble(document));
     }
 
-    private string BuildPreamble(TopicOrderDocumentDto document) =>
-        $"Нижчезазначених студентів {document.SessionLevelPhrase} " +
-        $"спеціальності - \"{_organization.SpecialtyName}\" груп {document.GroupsPhrase} " +
-        $"{_organization.FacultyName} {_organization.StudyForm} {document.CoursePhrase},";
+    private string BuildPreamble(TopicOrderDocumentDto document)
+    {
+        TopicOrderDepartmentInfoDto departmentInfo = document.DepartmentInfo;
+        return $"Нижчезазначених студентів {document.SessionLevelPhrase} " +
+               $"спеціальності - \"{departmentInfo.SpecialtyName}\" груп {document.GroupsPhrase} " +
+               $"{departmentInfo.FacultyName} {departmentInfo.StudyForm} {document.CoursePhrase},";
+    }
 
     private static void FillStudentTable(Body body, IReadOnlyList<TopicOrderStudentRowDto> students)
     {
@@ -231,7 +235,7 @@ internal sealed class TopicOrderDocxGenerator(IOptions<OrganizationOptions> orga
         DocxTextHelper.SetParagraphText(detailParagraph, $"3.1. {formattingReviewerLine}");
     }
 
-    private void FillDepartmentHead(Body body, string? departmentHeadLine)
+    private void FillDepartmentHead(Body body, string? departmentHeadLine, string departmentName)
     {
         Paragraph? paragraph = DocxTextHelper.FindParagraphContaining(body, "4. Контроль за виконанням");
         if (paragraph is null)
@@ -243,13 +247,13 @@ internal sealed class TopicOrderDocxGenerator(IOptions<OrganizationOptions> orga
         {
             DocxTextHelper.SetParagraphText(
                 paragraph,
-                $"4. Контроль за виконанням наказу покласти на завідувача {_organization.DepartmentName}");
+                $"4. Контроль за виконанням наказу покласти на завідувача {departmentName}");
             return;
         }
 
         DocxTextHelper.SetParagraphText(
             paragraph,
-            $"4. Контроль за виконанням наказу покласти на завідувача {_organization.DepartmentName} {departmentHeadLine}");
+            $"4. Контроль за виконанням наказу покласти на завідувача {departmentName} {departmentHeadLine}");
     }
 
     private void FillRector(Body body)

@@ -377,11 +377,13 @@ public sealed class DiplomaAuthorizationServiceTests
     private DiplomaAuthorizationService CreateService(
         FakeDiplomaQueries diplomaQueries,
         FakeTopicVersionQueries? topicVersionQueries = null,
-        FakeAnnualRoleQueries? annualRoleQueries = null) =>
+        FakeAnnualRoleQueries? annualRoleQueries = null,
+        FakeDepartmentAuthorizationService? departmentAuthorization = null) =>
         new(
             diplomaQueries,
             topicVersionQueries ?? new FakeTopicVersionQueries(),
-            annualRoleQueries ?? new FakeAnnualRoleQueries());
+            annualRoleQueries ?? new FakeAnnualRoleQueries(),
+            departmentAuthorization ?? new FakeDepartmentAuthorizationService());
 
     private Diploma CreateActiveDiploma(Guid? supervisorId = null, Guid? reviewerId = null)
     {

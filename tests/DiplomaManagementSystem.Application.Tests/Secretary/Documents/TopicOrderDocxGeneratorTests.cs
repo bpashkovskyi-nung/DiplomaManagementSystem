@@ -27,6 +27,7 @@ public sealed class TopicOrderDocxGeneratorTests
             "першого бакалаврського рівня вищої освіти",
             "КІ-22-1",
             "четвертого курсу",
+            new TopicOrderDepartmentInfoDto("123", "Комп'ютерна інженерія", "ФІТ", "очної форми навчання", "кафедри КСМ"),
             [new TopicOrderStudentRowDto("Студент Тест Тестович", "Тема роботи", "доц. Керівник К.К.")],
             [new TopicOrderReviewerRowDto("доц. Рецензент Р.Р.", 1)],
             "асист. Нормоконтроль Н.Н.",

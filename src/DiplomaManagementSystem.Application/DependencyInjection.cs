@@ -23,6 +23,16 @@ using DiplomaManagementSystem.Application.Documents.Contracts;
 using DiplomaManagementSystem.Application.Employee;
 using DiplomaManagementSystem.Application.Employee.Contracts;
 using DiplomaManagementSystem.Application.Employee.Validation;
+using DiplomaManagementSystem.Application.SuperAdmin.DepartmentAdmins;
+using DiplomaManagementSystem.Application.SuperAdmin.DepartmentAdmins.Contracts;
+using DiplomaManagementSystem.Application.SuperAdmin.Departments;
+using DiplomaManagementSystem.Application.SuperAdmin.Departments.Contracts;
+using DiplomaManagementSystem.Application.SuperAdmin.Faculties;
+using DiplomaManagementSystem.Application.SuperAdmin.Faculties.Contracts;
+using DiplomaManagementSystem.Application.SuperAdmin.OrganizationImport;
+using DiplomaManagementSystem.Application.SuperAdmin.OrganizationImport.Contracts;
+using DiplomaManagementSystem.Application.Departments;
+using DiplomaManagementSystem.Application.Departments.Contracts;
 using DiplomaManagementSystem.Application.Identity;
 using DiplomaManagementSystem.Application.Identity.Contracts;
 using DiplomaManagementSystem.Application.Import;
@@ -48,7 +58,15 @@ public static class DependencyInjection
 {
     public static IServiceCollection AddApplication(this IServiceCollection services)
     {
+        services.AddScoped<DefaultDepartmentResolver>();
+        services.AddScoped<CurrentDepartmentResolver>();
+        services.AddScoped<IDepartmentAuthorizationService, DepartmentAuthorizationService>();
+        services.AddScoped<IFacultyAdminService, FacultyAdminService>();
+        services.AddScoped<IDepartmentAdminService, DepartmentAdminService>();
+        services.AddScoped<IDepartmentAdminAssignmentService, DepartmentAdminAssignmentService>();
+        services.AddScoped<IOrganizationStructureImportService, OrganizationStructureImportService>();
         services.AddSingleton<DiplomaWorkflowInvariantValidator>();
+        services.AddScoped<DefaultDepartmentResolver>();
         services.AddSingleton<DiplomaCreationService>();
         services.AddSingleton<DiplomaTopicService>();
         services.AddSingleton<AdmissionReadinessService>();
@@ -86,6 +104,8 @@ public static class DependencyInjection
             .BindConfiguration(AppLocalizationOptions.SectionName);
         services.AddOptions<FileStorageOptions>()
             .BindConfiguration(FileStorageOptions.SectionName);
+        services.AddOptions<DepartmentOptions>()
+            .BindConfiguration(DepartmentOptions.SectionName);
         services.AddOptions<OrganizationOptions>()
             .BindConfiguration(OrganizationOptions.SectionName);
 

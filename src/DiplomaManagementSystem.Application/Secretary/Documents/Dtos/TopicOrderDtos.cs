@@ -26,12 +26,20 @@ public sealed record TopicOrderReviewerRowDto(
     string ReviewerLine,
     int AssignmentCount);
 
+public sealed record TopicOrderDepartmentInfoDto(
+    string SpecialtyCode,
+    string SpecialtyName,
+    string FacultyName,
+    string StudyForm,
+    string DepartmentName);
+
 public sealed record TopicOrderDocumentDto(
     string OrderNumber,
     int Year,
     string SessionLevelPhrase,
     string GroupsPhrase,
     string CoursePhrase,
+    TopicOrderDepartmentInfoDto DepartmentInfo,
     IReadOnlyList<TopicOrderStudentRowDto> Students,
     IReadOnlyList<TopicOrderReviewerRowDto> Reviewers,
     string? FormattingReviewerLine,

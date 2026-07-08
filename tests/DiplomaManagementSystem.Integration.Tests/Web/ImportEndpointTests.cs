@@ -46,7 +46,8 @@ public sealed class ImportEndpointTests(PostgreSqlFixture fixture)
         string resultHtml = await postResponse.Content.ReadAsStringAsync();
         IntegrationTestHtmlAssertions.AssertContainsText(resultHtml, "імпортовано 1", ignoreCase: true);
 
-        await using AsyncServiceScope verifyScope = factory.Services.CreateAsyncScope();
+        await using AsyncServiceScope verifyScope = fixture.CreateProvider().CreateAsyncScope();
+        await IntegrationDepartmentHelper.EnsureDefaultDepartmentContextAsync(verifyScope.ServiceProvider);
         IStudentAdminService studentAdminService = verifyScope.ServiceProvider.GetRequiredService<IStudentAdminService>();
         Assert.Single(await studentAdminService.GetAllAsync(sessionId, CancellationToken.None));
     }

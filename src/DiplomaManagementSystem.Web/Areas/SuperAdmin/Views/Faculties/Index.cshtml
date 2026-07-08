@@ -1,0 +1,45 @@
+@model FacultyListViewModel
+@{
+    ViewData["Title"] = SuperAdminPageTitles.Faculties;
+}
+
+<h1 class="mb-4">@ViewData["Title"]</h1>
+
+<partial name="_TempDataAlerts"/>
+<partial name="_SuperAdminNavLinks" model="SuperAdminNavigation.Global()"/>
+
+<p>
+    <a class="btn btn-primary" asp-action="Create">Новий факультет</a>
+</p>
+
+<table class="table table-striped align-middle">
+    <thead>
+    <tr>
+        <th>Назва</th>
+        <th>Кафедр</th>
+        <th>Статус</th>
+        <th></th>
+    </tr>
+    </thead>
+    <tbody>
+    @foreach (FacultyListItemViewModel item in Model.Items)
+    {
+        <tr class="@(item.IsActive ? null : "table-secondary")">
+            <td>@item.Name</td>
+            <td>@item.DepartmentCount</td>
+            <td>@(item.IsActive ? "Активний" : "Неактивний")</td>
+            <td class="text-end text-nowrap">
+                <a class="btn btn-sm btn-outline-secondary" asp-action="Edit" asp-route-id="@item.Id">Редагувати</a>
+                @if (item.IsActive)
+                {
+                    <form asp-action="Deactivate" method="post" class="d-inline">
+                        @Html.AntiForgeryToken()
+                        <input type="hidden" name="id" value="@item.Id"/>
+                        <button type="submit" class="btn btn-sm btn-outline-danger">Деактивувати</button>
+                    </form>
+                }
+            </td>
+        </tr>
+    }
+    </tbody>
+</table>

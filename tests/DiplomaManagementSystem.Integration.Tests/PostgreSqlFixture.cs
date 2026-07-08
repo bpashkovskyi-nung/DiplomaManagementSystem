@@ -1,7 +1,10 @@
 using DiplomaManagementSystem.Application;
 using DiplomaManagementSystem.Application.Constants;
+using DiplomaManagementSystem.Application.Identity;
+using DiplomaManagementSystem.Application.Options;
 using DiplomaManagementSystem.Infrastructure;
 using DiplomaManagementSystem.Infrastructure.Persistence;
+using DiplomaManagementSystem.Infrastructure.Persistence.Seeding;
 using DiplomaManagementSystem.Integration.Tests.Support;
 using DiplomaManagementSystem.Integration.Tests.Web;
 using Microsoft.AspNetCore.Identity;
@@ -10,6 +13,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 using Testcontainers.PostgreSql;
 
 namespace DiplomaManagementSystem.Integration.Tests;
@@ -68,6 +72,7 @@ public sealed class PostgreSqlFixture : IAsyncLifetime
         ApplicationDbContext dbContext = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
         await dbContext.Database.MigrateAsync();
         await IdentitySeedHelper.EnsureRolesAsync(scope.ServiceProvider);
+        await OrganizationSeedHelper.EnsureDefaultOrganizationAsync(scope.ServiceProvider);
     }
 
     public async Task DisposeAsync()
@@ -90,6 +95,11 @@ public sealed class PostgreSqlFixture : IAsyncLifetime
                 ["Bootstrap:AdminEmail"] = string.Empty,
                 ["FileStorage:Provider"] = "Local",
                 ["FileStorage:Local:RootPath"] = "files",
+                ["Organization:FacultyName"] = "факультет інформаційних технологій",
+                ["Organization:DepartmentName"] = "кафедра комп'ютерних систем і мереж",
+                ["Organization:SpecialtyCode"] = "123",
+                ["Organization:SpecialtyName"] = "Комп'ютерна інженерія",
+                ["Organization:StudyForm"] = "очної форми навчання",
             })
             .Build();
 
@@ -99,6 +109,9 @@ public sealed class PostgreSqlFixture : IAsyncLifetime
         services.AddSingleton<IConfiguration>(configuration);
         services.AddApplication();
         services.AddInfrastructure(configuration);
+        services.AddSingleton<IntegrationTestDepartmentContext>();
+        services.AddScoped<DiplomaManagementSystem.Application.Departments.Contracts.IDepartmentContext>(
+            provider => provider.GetRequiredService<IntegrationTestDepartmentContext>());
 
         foreach (ServiceDescriptor descriptor in services
                      .Where(service => service.ServiceType == typeof(Microsoft.Extensions.Hosting.IHostedService))
@@ -111,6 +124,13 @@ public sealed class PostgreSqlFixture : IAsyncLifetime
     }
 }
 
+internal sealed class IntegrationTestDepartmentContext : DiplomaManagementSystem.Application.Departments.Contracts.IDepartmentContext
+{
+    public Guid? CurrentDepartmentId { get; set; }
+
+    public bool IsSuperAdminImpersonating { get; set; }
+}
+
 [CollectionDefinition(nameof(IntegrationCollection))]
 public sealed class IntegrationCollection : ICollectionFixture<PostgreSqlFixture>;
 
@@ -119,7 +139,7 @@ internal static class IdentitySeedHelper
     public static async Task EnsureRolesAsync(IServiceProvider serviceProvider)
     {
         RoleManager<IdentityRole<Guid>> roleManager = serviceProvider.GetRequiredService<RoleManager<IdentityRole<Guid>>>();
-        string[] roles = [RoleNames.Admin, RoleNames.Student, RoleNames.Employee];
+        string[] roles = [RoleNames.SuperAdmin, RoleNames.Admin, RoleNames.Student, RoleNames.Employee];
 
         foreach (string role in roles)
         {
@@ -133,6 +153,33 @@ internal static class IdentitySeedHelper
                 });
             }
         }
+    }
+}
+
+internal static class OrganizationSeedHelper
+{
+    public static async Task EnsureDefaultOrganizationAsync(IServiceProvider serviceProvider)
+    {
+        ApplicationDbContext dbContext = serviceProvider.GetRequiredService<ApplicationDbContext>();
+        if (await dbContext.Faculties.AnyAsync())
+        {
+            return;
+        }
+
+        IOptions<OrganizationOptions> organizationOptions =
+            serviceProvider.GetRequiredService<IOptions<OrganizationOptions>>();
+        IOptions<BootstrapOptions> bootstrapOptions =
+            serviceProvider.GetRequiredService<IOptions<BootstrapOptions>>();
+        ILogger<DefaultOrganizationMigrator> logger =
+            serviceProvider.GetRequiredService<ILogger<DefaultOrganizationMigrator>>();
+
+        await DefaultOrganizationSeeder.EnsureAsync(
+            dbContext,
+            serviceProvider.GetRequiredService<UserManager<ApplicationUser>>(),
+            serviceProvider.GetRequiredService<RoleManager<IdentityRole<Guid>>>(),
+            organizationOptions.Value,
+            bootstrapOptions.Value,
+            logger);
     }
 }
 

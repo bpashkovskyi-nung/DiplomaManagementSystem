@@ -1,0 +1,51 @@
+@model OrganizationImportViewModel
+@{
+    ViewData["Title"] = SuperAdminPageTitles.OrganizationImport;
+}
+
+<h1 class="mb-4">@ViewData["Title"]</h1>
+
+<partial name="_SuperAdminNavLinks" model="SuperAdminNavigation.OrganizationImportBack()"/>
+
+<p>Завантажте JSON-масив факультетів із вкладеними кафедрами.</p>
+
+<form asp-action="Index" method="post" enctype="multipart/form-data">
+    @Html.AntiForgeryToken()
+    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+    <div class="mb-3">
+        <label asp-for="File" class="form-label">JSON-файл</label>
+        <input asp-for="File" class="form-control" type="file" accept=".json,application/json"/>
+        <span asp-validation-for="File" class="text-danger"></span>
+    </div>
+    <div class="mb-3">
+        <label asp-for="Mode" class="form-label">Режим</label>
+        <select asp-for="Mode" class="form-select" asp-items="Html.GetEnumSelectList<OrganizationStructureImportMode>()"></select>
+    </div>
+    <button type="submit" class="btn btn-primary">Імпортувати</button>
+</form>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial"/>
+}
+
+@if (Model.Result is not null)
+{
+    <div class="alert alert-info mt-4">
+        <strong>Результат:</strong>
+        факультетів створено @Model.Result.FacultiesCreated,
+        оновлено @Model.Result.FacultiesUpdated,
+        пропущено @Model.Result.FacultiesSkipped;
+        кафедр створено @Model.Result.DepartmentsCreated,
+        оновлено @Model.Result.DepartmentsUpdated,
+        пропущено @Model.Result.DepartmentsSkipped.
+    </div>
+    @if (Model.Result.Errors.Count > 0)
+    {
+        <ul class="text-warning">
+            @foreach (string error in Model.Result.Errors)
+            {
+                <li>@error</li>
+            }
+        </ul>
+    }
+}
