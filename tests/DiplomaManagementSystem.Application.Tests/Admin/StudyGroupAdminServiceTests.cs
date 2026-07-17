@@ -125,6 +125,43 @@ public sealed class StudyGroupAdminServiceTests : IDisposable
         Assert.Equal("123 — Тестова спеціальність", item.SpecialtyLabel);
     }
 
+    [Fact]
+    public async Task UpdateAsync_WhenSessionChanges_Throws()
+    {
+        (Guid sessionId, Guid specialtyId) = await SeedSessionAsync();
+        Guid groupId = await _service.CreateAsync(new StudyGroupFormDto(null, sessionId, "КН-41", specialtyId, DefaultStudyForm));
+
+        await Assert.ThrowsAsync<DomainException>(() =>
+            _service.UpdateAsync(
+                groupId,
+                new StudyGroupFormDto(groupId, Guid.NewGuid(), "КН-41", specialtyId, DefaultStudyForm)));
+    }
+
+    [Fact]
+    public async Task GetForEditAsync_WhenExists_ReturnsForm()
+    {
+        (Guid sessionId, Guid specialtyId) = await SeedSessionAsync();
+        Guid groupId = await _service.CreateAsync(new StudyGroupFormDto(null, sessionId, "КН-41", specialtyId, DefaultStudyForm));
+
+        StudyGroupFormDto? form = await _service.GetForEditAsync(groupId);
+
+        Assert.NotNull(form);
+        Assert.Equal(groupId, form.Id);
+        Assert.Equal("КН-41", form.Name);
+    }
+
+    [Fact]
+    public async Task CreateAsync_WhenSessionArchived_Throws()
+    {
+        (Guid sessionId, Guid specialtyId) = await SeedSessionAsync();
+        DefenceSession session = (await _dbContext.DefenceSessions.FindAsync(sessionId))!;
+        session.Status = DefenceSessionStatus.Archived;
+        await _dbContext.SaveChangesAsync();
+
+        await Assert.ThrowsAsync<DomainException>(() =>
+            _service.CreateAsync(new StudyGroupFormDto(null, sessionId, "КН-41", specialtyId, DefaultStudyForm)));
+    }
+
     private async Task<(Guid SessionId, Guid SpecialtyId)> SeedSessionAsync(
         DefenceSessionType type = DefenceSessionType.Bachelor)
     {

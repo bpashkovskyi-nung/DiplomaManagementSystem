@@ -79,7 +79,9 @@ internal sealed class StudentDiplomaService(
         }
 
         List<PersonOptionDto> supervisorOptions = PersonOptionMapping.From(
-            await userDisplayQueries.LoadEmployeeOptionsAsync(cancellationToken));
+            await userDisplayQueries.LoadEmployeeOptionsForDepartmentAsync(
+                diploma.DefenceSession.DepartmentId,
+                cancellationToken));
 
         DiplomaTopicVersion? latestTopic = diploma.TopicVersions
             .OrderByDescending(version => version.VersionNumber)
@@ -211,7 +213,10 @@ internal sealed class StudentDiplomaService(
     {
         Diploma diploma = await GetWritableDiplomaAsync(studentId, request.DiplomaId, cancellationToken);
 
-        bool employeeExists = await userDisplayQueries.IsEmployeeAsync(request.SupervisorId, cancellationToken);
+        bool employeeExists = await userDisplayQueries.IsActiveDepartmentEmployeeAsync(
+            request.SupervisorId,
+            diploma.DefenceSession.DepartmentId,
+            cancellationToken);
 
         if (!employeeExists)
         {

@@ -56,7 +56,7 @@ internal sealed class DiplomaDetailsAssembler(
             authorIds,
             cancellationToken);
 
-        List<PersonOptionDto> employeePool = await LoadEmployeePoolAsync(cancellationToken);
+        List<PersonOptionDto> employeePool = await LoadEmployeePoolAsync(diploma.DefenceSession.DepartmentId, cancellationToken);
         DiplomaDocumentsBundleDto documents = await diplomaDocumentService.GetDocumentsAsync(
             diploma.Id,
             cancellationToken);
@@ -254,9 +254,13 @@ internal sealed class DiplomaDetailsAssembler(
         return userIds;
     }
 
-    private async Task<List<PersonOptionDto>> LoadEmployeePoolAsync(CancellationToken cancellationToken)
+    private async Task<List<PersonOptionDto>> LoadEmployeePoolAsync(
+        Guid departmentId,
+        CancellationToken cancellationToken)
     {
-        List<UserOption> employees = await userDisplayQueries.LoadEmployeeOptionsAsync(cancellationToken);
+        List<UserOption> employees = await userDisplayQueries.LoadEmployeeOptionsForDepartmentAsync(
+            departmentId,
+            cancellationToken);
         return PersonOptionMapping.From(employees);
     }
 

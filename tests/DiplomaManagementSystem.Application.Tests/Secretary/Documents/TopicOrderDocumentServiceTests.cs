@@ -1,3 +1,4 @@
+using DiplomaManagementSystem.Application.Common;
 using DiplomaManagementSystem.Application.Identity;
 using DiplomaManagementSystem.Application.Options;
 using DiplomaManagementSystem.Application.Persistence;
@@ -29,11 +30,82 @@ public sealed class TopicOrderDocumentServiceTests : IDisposable
         _service = new TopicOrderDocumentService(
             _dbContext,
             new StubDefenceSessionQueries(_dbContext),
-            new StubStudyGroupQueries(),
-            new StubUserDisplayQueries(),
-            new StubTopicVersionQueries(),
-            new StubAnnualRoleQueries(),
+            new StubStudyGroupQueries(_dbContext),
+            new StubUserDisplayQueries(_dbContext),
+            new StubTopicVersionQueries(_dbContext),
+            new StubAnnualRoleQueries(_dbContext),
             new TopicOrderDocxGenerator(Microsoft.Extensions.Options.Options.Create(new OrganizationOptions())));
+    }
+
+    [Fact]
+    public async Task GetFormAsync_WhenSessionExists_ReturnsGroups()
+    {
+        TopicOrderSeed seed = await SeedSessionWithTwoGroupsAsync(
+            specialtyCodeB: "123",
+            studyFormA: "очної форми навчання",
+            studyFormB: "очної форми навчання");
+
+        TopicOrderFormDto? form = await _service.GetFormAsync(seed.SessionId);
+
+        Assert.NotNull(form);
+        Assert.Equal(seed.SessionId, form.SessionId);
+        Assert.Equal(2, form.StudyGroups.Count);
+    }
+
+    [Fact]
+    public async Task BuildPreviewAsync_WhenGroupsMatch_ReturnsPreviewWithWarnings()
+    {
+        TopicOrderSeed seed = await SeedSessionWithTwoGroupsAsync(
+            specialtyCodeB: "123",
+            studyFormA: "очної форми навчання",
+            studyFormB: "очної форми навчання");
+
+        TopicOrderGenerateRequestDto request = new(
+            seed.SessionId,
+            "1",
+            2026,
+            [seed.GroupAId, seed.GroupBId]);
+
+        TopicOrderPreviewDto? preview = await _service.BuildPreviewAsync(request);
+
+        Assert.NotNull(preview);
+        Assert.False(preview.CanGenerate);
+        Assert.Contains(
+            preview.Document.Warnings,
+            warning => warning.Contains("затвердженою темою", StringComparison.OrdinalIgnoreCase));
+        Assert.Equal("1", preview.Document.OrderNumber);
+        Assert.NotEmpty(preview.Document.DepartmentInfo.SpecialtyCode);
+    }
+
+    [Fact]
+    public async Task BuildPreviewAsync_WhenEligibleDiplomaExists_CanGenerateAndExportDocx()
+    {
+        TopicOrderSeed seed = await SeedSessionWithTwoGroupsAsync(
+            specialtyCodeB: "123",
+            studyFormA: "очної форми навчання",
+            studyFormB: "очної форми навчання");
+        await SeedEligibleDiplomaAsync(seed);
+
+        TopicOrderGenerateRequestDto request = new(
+            seed.SessionId,
+            "12-A",
+            2026,
+            [seed.GroupAId]);
+
+        TopicOrderPreviewDto? preview = await _service.BuildPreviewAsync(request);
+
+        Assert.NotNull(preview);
+        Assert.True(preview.CanGenerate);
+        Assert.Single(preview.Document.Students);
+        Assert.Equal("Тестова тема диплома", preview.Document.Students[0].TopicTitle);
+        Assert.Contains("Студент", preview.Document.Students[0].StudentFullName, StringComparison.Ordinal);
+        Assert.NotNull(preview.Document.FormattingReviewerLine);
+        Assert.NotNull(preview.Document.DepartmentHeadLine);
+        Assert.Single(preview.Document.Reviewers);
+
+        byte[]? docx = await _service.ExportDocxAsync(request);
+        Assert.NotNull(docx);
+        Assert.True(docx.Length > 0);
     }
 
     [Fact]
@@ -137,6 +209,89 @@ public sealed class TopicOrderDocumentServiceTests : IDisposable
         return new TopicOrderSeed(sessionId, groupAId, groupBId);
     }
 
+    private async Task SeedEligibleDiplomaAsync(TopicOrderSeed seed)
+    {
+        DateTimeOffset now = DateTimeOffset.UtcNow;
+        ApplicationUser student = CreateUser("Студент Тестовий", "student.topic@test.local", UserKind.Student, seed.GroupAId, seed.SessionId);
+        ApplicationUser supervisor = CreateUser("Керівник Тестовий", "supervisor.topic@test.local", UserKind.Employee);
+        ApplicationUser reviewer = CreateUser("Рецензент Тестовий", "reviewer.topic@test.local", UserKind.Employee);
+        ApplicationUser formatting = CreateUser("Нормоконтролер Тестовий", "formatting.topic@test.local", UserKind.Employee);
+        ApplicationUser head = CreateUser("Завідувач Тестовий", "head.topic@test.local", UserKind.Employee);
+
+        Guid diplomaId = Guid.NewGuid();
+        _dbContext.Users.AddRange(student, supervisor, reviewer, formatting, head);
+        _dbContext.Diplomas.Add(new Diploma
+        {
+            Id = diplomaId,
+            DefenceSessionId = seed.SessionId,
+            StudentId = student.Id,
+            SupervisorId = supervisor.Id,
+            ReviewerId = reviewer.Id,
+            SupervisorAssignmentStatus = SupervisorAssignmentStatus.Confirmed,
+            ReviewAssignmentStatus = ReviewAssignmentStatus.Assigned,
+            LifecycleStatus = DiplomaLifecycleStatus.TopicApproved,
+            AdmissionStatus = DiplomaAdmissionStatus.NotAdmitted,
+            CreatedAt = now,
+            UpdatedAt = now,
+            TopicVersions =
+            [
+                new DiplomaTopicVersion
+                {
+                    Id = Guid.NewGuid(),
+                    DiplomaId = diplomaId,
+                    VersionNumber = 1,
+                    Title = "Тестова тема диплома",
+                    Status = TopicVersionStatus.Approved,
+                    SubmittedAt = now,
+                    ReviewedAt = now,
+                    SupervisorReviewedAt = now,
+                    SupervisorReviewedById = supervisor.Id,
+                },
+            ],
+        });
+        _dbContext.AnnualRoleAssignments.AddRange(
+            new AnnualRoleAssignment
+            {
+                Id = Guid.NewGuid(),
+                DefenceSessionId = seed.SessionId,
+                EmployeeId = formatting.Id,
+                RoleType = AnnualRoleType.FormattingReviewer,
+                AssignedAt = now,
+            },
+            new AnnualRoleAssignment
+            {
+                Id = Guid.NewGuid(),
+                DefenceSessionId = seed.SessionId,
+                EmployeeId = head.Id,
+                RoleType = AnnualRoleType.DepartmentHead,
+                AssignedAt = now,
+            });
+        await _dbContext.SaveChangesAsync();
+    }
+
+    private static ApplicationUser CreateUser(
+        string fullName,
+        string email,
+        UserKind userKind,
+        Guid? studyGroupId = null,
+        Guid? defenceSessionId = null) =>
+        new()
+        {
+            Id = Guid.NewGuid(),
+            UserName = email,
+            Email = email,
+            NormalizedEmail = email.ToUpperInvariant(),
+            NormalizedUserName = email.ToUpperInvariant(),
+            FullName = fullName,
+            UserKind = userKind,
+            StudyGroupId = studyGroupId,
+            DefenceSessionId = defenceSessionId,
+            CreatedAt = DateTimeOffset.UtcNow,
+            EmailConfirmed = true,
+            AcademicRank = EmployeeAcademicRank.AssociateProfessor,
+            ShortDisplayName = AcademicNameFormatter.ToShortDisplayName(fullName),
+        };
+
     public void Dispose() => _dbContext.Dispose();
 
     private sealed record TopicOrderSeed(Guid SessionId, Guid GroupAId, Guid GroupBId);
@@ -170,23 +325,40 @@ public sealed class TopicOrderDocumentServiceTests : IDisposable
             Task.FromResult<DefenceSessionSummary?>(null);
     }
 
-    private sealed class StubStudyGroupQueries : IStudyGroupQueries
+    private sealed class StubStudyGroupQueries(ApplicationDbContext dbContext) : IStudyGroupQueries
     {
-        public Task<List<StudyGroupOption>> ListOptionsForSessionAsync(
+        public async Task<List<StudyGroupOption>> ListOptionsForSessionAsync(
             Guid sessionId,
-            CancellationToken cancellationToken = default) =>
-            Task.FromResult(new List<StudyGroupOption>());
+            CancellationToken cancellationToken = default)
+        {
+            return await dbContext.StudyGroups
+                .AsNoTracking()
+                .Where(group => group.DefenceSessionId == sessionId)
+                .OrderBy(group => group.Name)
+                .Select(group => new StudyGroupOption(group.Id, group.Name, group.Course))
+                .ToListAsync(cancellationToken);
+        }
 
         public Task<string?> GetNameAsync(Guid studyGroupId, CancellationToken cancellationToken = default) =>
             Task.FromResult<string?>(null);
     }
 
-    private sealed class StubUserDisplayQueries : IUserDisplayQueries
+    private sealed class StubUserDisplayQueries(ApplicationDbContext dbContext) : IUserDisplayQueries
     {
-        public Task<Dictionary<Guid, ApplicationUser>> LoadUsersAsync(
+        public async Task<Dictionary<Guid, ApplicationUser>> LoadUsersAsync(
             IReadOnlyCollection<Guid> userIds,
-            CancellationToken cancellationToken = default) =>
-            Task.FromResult(new Dictionary<Guid, ApplicationUser>());
+            CancellationToken cancellationToken = default)
+        {
+            if (userIds.Count == 0)
+            {
+                return [];
+            }
+
+            return await dbContext.Users
+                .AsNoTracking()
+                .Where(user => userIds.Contains(user.Id))
+                .ToDictionaryAsync(user => user.Id, cancellationToken);
+        }
 
         public Task<Dictionary<Guid, string>> LoadFullNamesAsync(
             IReadOnlyCollection<Guid> userIds,
@@ -203,10 +375,15 @@ public sealed class TopicOrderDocumentServiceTests : IDisposable
             CancellationToken cancellationToken = default) =>
             Task.FromResult(new Dictionary<Guid, StudentDisplayInfo>());
 
-        public Task<List<UserOption>> LoadEmployeeOptionsAsync(CancellationToken cancellationToken = default) =>
+        public Task<List<UserOption>> LoadEmployeeOptionsForDepartmentAsync(
+            Guid departmentId,
+            CancellationToken cancellationToken = default) =>
             Task.FromResult(new List<UserOption>());
 
-        public Task<bool> IsEmployeeAsync(Guid userId, CancellationToken cancellationToken = default) =>
+        public Task<bool> IsActiveDepartmentEmployeeAsync(
+            Guid userId,
+            Guid departmentId,
+            CancellationToken cancellationToken = default) =>
             Task.FromResult(false);
 
         public Task<StudentStorageContext?> GetStudentStorageContextAsync(
@@ -215,15 +392,32 @@ public sealed class TopicOrderDocumentServiceTests : IDisposable
             Task.FromResult<StudentStorageContext?>(null);
     }
 
-    private sealed class StubTopicVersionQueries : ITopicVersionQueries
+    private sealed class StubTopicVersionQueries(ApplicationDbContext dbContext) : ITopicVersionQueries
     {
         public Task<DiplomaTopicVersion?> GetLatestAsync(Guid diplomaId, CancellationToken cancellationToken = default) =>
             Task.FromResult<DiplomaTopicVersion?>(null);
 
-        public Task<Dictionary<Guid, string>> GetApprovedTitlesAsync(
+        public async Task<Dictionary<Guid, string>> GetApprovedTitlesAsync(
             IReadOnlyCollection<Guid> diplomaIds,
-            CancellationToken cancellationToken = default) =>
-            Task.FromResult(new Dictionary<Guid, string>());
+            CancellationToken cancellationToken = default)
+        {
+            if (diplomaIds.Count == 0)
+            {
+                return [];
+            }
+
+            List<DiplomaTopicVersion> versions = await dbContext.DiplomaTopicVersions
+                .AsNoTracking()
+                .Where(version => diplomaIds.Contains(version.DiplomaId)
+                                  && version.Status == TopicVersionStatus.Approved)
+                .ToListAsync(cancellationToken);
+
+            return versions
+                .GroupBy(version => version.DiplomaId)
+                .ToDictionary(
+                    group => group.Key,
+                    group => group.OrderByDescending(version => version.VersionNumber).First().Title);
+        }
 
         public Task<List<DiplomaTopicVersion>> ListPendingHeadReviewAsync(
             IReadOnlyCollection<Guid> sessionIds,
@@ -246,7 +440,7 @@ public sealed class TopicOrderDocumentServiceTests : IDisposable
             Task.FromResult(new List<DiplomaTopicVersion>());
     }
 
-    private sealed class StubAnnualRoleQueries : IAnnualRoleQueries
+    private sealed class StubAnnualRoleQueries(ApplicationDbContext dbContext) : IAnnualRoleQueries
     {
         public Task<List<Guid>> GetSessionIdsAsync(
             Guid employeeId,
@@ -275,10 +469,16 @@ public sealed class TopicOrderDocumentServiceTests : IDisposable
             CancellationToken cancellationToken = default) =>
             Task.FromResult(new List<SecretarySessionRow>());
 
-        public Task<Guid?> GetEmployeeIdForSessionRoleAsync(
+        public async Task<Guid?> GetEmployeeIdForSessionRoleAsync(
             Guid sessionId,
             AnnualRoleType roleType,
-            CancellationToken cancellationToken = default) =>
-            Task.FromResult<Guid?>(null);
+            CancellationToken cancellationToken = default)
+        {
+            return await dbContext.AnnualRoleAssignments
+                .AsNoTracking()
+                .Where(assignment => assignment.DefenceSessionId == sessionId && assignment.RoleType == roleType)
+                .Select(assignment => (Guid?)assignment.EmployeeId)
+                .FirstOrDefaultAsync(cancellationToken);
+        }
     }
 }

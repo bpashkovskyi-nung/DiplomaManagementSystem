@@ -15,6 +15,7 @@ public sealed class EmployeeAdminScenarioTests(PostgreSqlFixture fixture)
         await new IntegrationScenarioBuilder(fixture.CreateProvider()).SeedFullScenarioAsync();
 
         await using AsyncServiceScope scope = fixture.CreateProvider().CreateAsyncScope();
+        await IntegrationDepartmentHelper.EnsureDefaultDepartmentContextAsync(scope.ServiceProvider);
         IEmployeeAdminService employeeAdminService = scope.ServiceProvider.GetRequiredService<IEmployeeAdminService>();
 
         string suffix = Guid.NewGuid().ToString("N")[..8];

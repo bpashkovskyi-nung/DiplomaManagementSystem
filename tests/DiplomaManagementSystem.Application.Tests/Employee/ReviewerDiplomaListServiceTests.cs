@@ -161,10 +161,15 @@ public sealed class ReviewerDiplomaListServiceTests
             CancellationToken cancellationToken = default) =>
             throw new NotImplementedException();
 
-        public Task<List<UserOption>> LoadEmployeeOptionsAsync(CancellationToken cancellationToken = default) =>
+        public Task<List<UserOption>> LoadEmployeeOptionsForDepartmentAsync(
+            Guid departmentId,
+            CancellationToken cancellationToken = default) =>
             throw new NotImplementedException();
 
-        public Task<bool> IsEmployeeAsync(Guid userId, CancellationToken cancellationToken = default) =>
+        public Task<bool> IsActiveDepartmentEmployeeAsync(
+            Guid userId,
+            Guid departmentId,
+            CancellationToken cancellationToken = default) =>
             throw new NotImplementedException();
 
         public Task<StudentStorageContext?> GetStudentStorageContextAsync(

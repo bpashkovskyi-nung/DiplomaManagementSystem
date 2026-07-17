@@ -47,7 +47,10 @@ internal sealed class SecretaryDiplomaActionService(
             sessionId,
             cancellationToken);
 
-        bool employeeExists = await userDisplayQueries.IsEmployeeAsync(request.ReviewerId, cancellationToken);
+        bool employeeExists = await userDisplayQueries.IsActiveDepartmentEmployeeAsync(
+            request.ReviewerId,
+            diploma.DefenceSession.DepartmentId,
+            cancellationToken);
 
         if (!employeeExists)
         {
@@ -141,7 +144,10 @@ internal sealed class SecretaryDiplomaActionService(
             sessionId,
             cancellationToken);
 
-        bool employeeExists = await userDisplayQueries.IsEmployeeAsync(request.SupervisorId, cancellationToken);
+        bool employeeExists = await userDisplayQueries.IsActiveDepartmentEmployeeAsync(
+            request.SupervisorId,
+            diploma.DefenceSession.DepartmentId,
+            cancellationToken);
 
         if (!employeeExists)
         {

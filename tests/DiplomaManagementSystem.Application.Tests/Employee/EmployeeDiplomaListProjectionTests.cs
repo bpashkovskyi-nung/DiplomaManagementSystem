@@ -307,10 +307,15 @@ public sealed class EmployeeDiplomaListProjectionTests
             return Task.FromResult(result);
         }
 
-        public Task<List<UserOption>> LoadEmployeeOptionsAsync(CancellationToken cancellationToken = default) =>
+        public Task<List<UserOption>> LoadEmployeeOptionsForDepartmentAsync(
+            Guid departmentId,
+            CancellationToken cancellationToken = default) =>
             Task.FromResult(new List<UserOption>());
 
-        public Task<bool> IsEmployeeAsync(Guid userId, CancellationToken cancellationToken = default) =>
+        public Task<bool> IsActiveDepartmentEmployeeAsync(
+            Guid userId,
+            Guid departmentId,
+            CancellationToken cancellationToken = default) =>
             Task.FromResult(false);
 
         public Task<StudentStorageContext?> GetStudentStorageContextAsync(

@@ -20,9 +20,14 @@ public interface IUserDisplayQueries
         IReadOnlyCollection<Guid> studentIds,
         CancellationToken cancellationToken = default);
 
-    Task<List<UserOption>> LoadEmployeeOptionsAsync(CancellationToken cancellationToken = default);
+    Task<List<UserOption>> LoadEmployeeOptionsForDepartmentAsync(
+        Guid departmentId,
+        CancellationToken cancellationToken = default);
 
-    Task<bool> IsEmployeeAsync(Guid userId, CancellationToken cancellationToken = default);
+    Task<bool> IsActiveDepartmentEmployeeAsync(
+        Guid userId,
+        Guid departmentId,
+        CancellationToken cancellationToken = default);
 
     Task<StudentStorageContext?> GetStudentStorageContextAsync(
         Guid studentId,

@@ -1,6 +1,7 @@
 using DiplomaManagementSystem.Application.Admin.StudyGroups.Contracts;
 using DiplomaManagementSystem.Application.Admin.StudyGroups.Dtos;
 using DiplomaManagementSystem.Domain.Exceptions;
+using DiplomaManagementSystem.Integration.Tests.Support;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace DiplomaManagementSystem.Integration.Tests.Admin;
@@ -16,6 +17,7 @@ public sealed class StudyGroupAdminScenarioTests(PostgreSqlFixture fixture)
             .SeedFullScenarioAsync();
 
         await using AsyncServiceScope scope = fixture.CreateProvider().CreateAsyncScope();
+        await IntegrationDepartmentHelper.EnsureDefaultDepartmentContextAsync(scope.ServiceProvider);
         IStudyGroupAdminService studyGroupAdminService = scope.ServiceProvider.GetRequiredService<IStudyGroupAdminService>();
 
         DomainException exception = await Assert.ThrowsAsync<DomainException>(() =>
@@ -38,6 +40,7 @@ public sealed class StudyGroupAdminScenarioTests(PostgreSqlFixture fixture)
             .SeedFullScenarioAsync();
 
         await using AsyncServiceScope scope = fixture.CreateProvider().CreateAsyncScope();
+        await IntegrationDepartmentHelper.EnsureDefaultDepartmentContextAsync(scope.ServiceProvider);
         IStudyGroupAdminService studyGroupAdminService = scope.ServiceProvider.GetRequiredService<IStudyGroupAdminService>();
 
         string suffix = Guid.NewGuid().ToString("N")[..6];
@@ -67,6 +70,7 @@ public sealed class StudyGroupAdminScenarioTests(PostgreSqlFixture fixture)
             .SeedFullScenarioAsync();
 
         await using AsyncServiceScope scope = fixture.CreateProvider().CreateAsyncScope();
+        await IntegrationDepartmentHelper.EnsureDefaultDepartmentContextAsync(scope.ServiceProvider);
         IStudyGroupAdminService studyGroupAdminService = scope.ServiceProvider.GetRequiredService<IStudyGroupAdminService>();
 
         string suffix = Guid.NewGuid().ToString("N")[..6];

@@ -88,21 +88,38 @@ internal sealed class UserDisplayQueries(ApplicationDbContext dbContext) : IUser
             });
     }
 
-    public Task<List<UserOption>> LoadEmployeeOptionsAsync(CancellationToken cancellationToken = default)
+    public Task<List<UserOption>> LoadEmployeeOptionsForDepartmentAsync(
+        Guid departmentId,
+        CancellationToken cancellationToken = default)
     {
-        return dbContext.Users
+        return dbContext.DepartmentEmployees
             .AsNoTracking()
-            .Where(user => user.UserKind == UserKind.Employee)
-            .OrderBy(user => user.FullName)
-            .Select(user => new UserOption(user.Id, user.FullName, user.Email ?? string.Empty))
+            .Where(employee => employee.DepartmentId == departmentId && employee.IsActive)
+            .Join(
+                dbContext.Users.AsNoTracking().Where(user => user.UserKind == UserKind.Employee),
+                employee => employee.UserId,
+                user => user.Id,
+                (employee, user) => new { employee, user })
+            .OrderBy(pair => pair.employee.FullName)
+            .Select(pair => new UserOption(
+                pair.user.Id,
+                pair.employee.FullName,
+                pair.user.Email ?? string.Empty))
             .ToListAsync(cancellationToken);
     }
 
-    public Task<bool> IsEmployeeAsync(Guid userId, CancellationToken cancellationToken = default)
+    public Task<bool> IsActiveDepartmentEmployeeAsync(
+        Guid userId,
+        Guid departmentId,
+        CancellationToken cancellationToken = default)
     {
-        return dbContext.Users.AnyAsync(
-            user => user.Id == userId && user.UserKind == UserKind.Employee,
-            cancellationToken);
+        return dbContext.DepartmentEmployees
+            .AsNoTracking()
+            .AnyAsync(
+                employee => employee.UserId == userId
+                            && employee.DepartmentId == departmentId
+                            && employee.IsActive,
+                cancellationToken);
     }
 
     public async Task<StudentStorageContext?> GetStudentStorageContextAsync(

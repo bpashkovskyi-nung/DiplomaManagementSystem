@@ -21,12 +21,10 @@ public sealed class SpecialtyMigrationScenarioTests(PostgreSqlFixture fixture)
         List<Department> departments = await dbContext.Departments.AsNoTracking().ToListAsync();
         Assert.NotEmpty(departments);
 
-        foreach (Department department in departments)
-        {
-            int specialtyCount = await dbContext.Specialties
-                .CountAsync(specialty => specialty.DepartmentId == department.Id);
-            Assert.True(specialtyCount >= 1, $"Department {department.Name} has no specialties.");
-        }
+        Guid defaultDepartmentId = await IntegrationDepartmentHelper.GetDefaultDepartmentIdAsync(scope.ServiceProvider);
+        int defaultSpecialtyCount = await dbContext.Specialties
+            .CountAsync(specialty => specialty.DepartmentId == defaultDepartmentId);
+        Assert.True(defaultSpecialtyCount >= 1, "Seeded default department must have at least one specialty.");
 
         List<StudyGroup> groups = await dbContext.StudyGroups.AsNoTracking().ToListAsync();
         foreach (StudyGroup group in groups)

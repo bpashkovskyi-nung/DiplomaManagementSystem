@@ -1,9 +1,11 @@
+using DiplomaManagementSystem.Application.Options;
 using DiplomaManagementSystem.Domain.Entities;
 using DiplomaManagementSystem.Infrastructure.Persistence;
 using DiplomaManagementSystem.Integration.Tests.Support;
 
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Options;
 
 namespace DiplomaManagementSystem.Integration.Tests.Scenarios;
 
@@ -16,20 +18,32 @@ public sealed class DefaultOrganizationSeedScenarioTests(PostgreSqlFixture fixtu
         IntegrationTestGuards.RequireDatabase(fixture);
 
         await using AsyncServiceScope scope = fixture.CreateProvider().CreateAsyncScope();
-        ApplicationDbContext dbContext = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+        IServiceProvider services = scope.ServiceProvider;
+        await OrganizationSeedHelper.EnsureDefaultOrganizationAsync(services);
 
-        Faculty faculty = await dbContext.Faculties.SingleAsync();
-        Department department = await dbContext.Departments.SingleAsync();
-        Specialty specialty = await dbContext.Specialties.SingleAsync();
+        ApplicationDbContext dbContext = services.GetRequiredService<ApplicationDbContext>();
+        OrganizationOptions options = services.GetRequiredService<IOptions<OrganizationOptions>>().Value;
 
-        Assert.Equal("факультет інформаційних технологій", faculty.Name);
-        Assert.Equal("кафедра комп'ютерних систем і мереж", department.Name);
-        Assert.Equal(faculty.Id, department.FacultyId);
-        Assert.Equal("123", specialty.Code);
+        Guid defaultDepartmentId = await IntegrationDepartmentHelper.GetDefaultDepartmentIdAsync(services);
+
+        Department department = await dbContext.Departments
+            .AsNoTracking()
+            .SingleAsync(item => item.Id == defaultDepartmentId);
+
+        Faculty faculty = await dbContext.Faculties
+            .AsNoTracking()
+            .SingleAsync(item => item.Id == department.FacultyId);
+
+        Specialty specialty = await dbContext.Specialties
+            .AsNoTracking()
+            .Where(item => item.DepartmentId == department.Id && item.Code == options.SpecialtyCode)
+            .OrderBy(item => item.CreatedAt)
+            .ThenBy(item => item.Id)
+            .FirstAsync();
+
+        Assert.Equal(options.FacultyName, faculty.Name);
+        Assert.Equal(options.DepartmentName, department.Name);
         Assert.Equal(department.Id, specialty.DepartmentId);
-
-        bool allSessionsAssigned = await dbContext.DefenceSessions
-            .AllAsync(session => session.DepartmentId == department.Id);
-        Assert.True(allSessionsAssigned);
+        Assert.Equal(options.SpecialtyName, specialty.Name);
     }
 }

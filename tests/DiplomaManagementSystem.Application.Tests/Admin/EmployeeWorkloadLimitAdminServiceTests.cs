@@ -1,6 +1,9 @@
 using DiplomaManagementSystem.Application.Admin.EmployeeWorkloadLimits;
 using DiplomaManagementSystem.Application.Admin.EmployeeWorkloadLimits.Dtos;
+using DiplomaManagementSystem.Application.Departments;
+using DiplomaManagementSystem.Application.Departments.Contracts;
 using DiplomaManagementSystem.Application.Identity;
+using DiplomaManagementSystem.Application.Tests.Departments;
 using DiplomaManagementSystem.Domain.Entities;
 using DiplomaManagementSystem.Domain.Enums;
 using DiplomaManagementSystem.Domain.Exceptions;
@@ -13,7 +16,9 @@ namespace DiplomaManagementSystem.Application.Tests.Admin;
 public sealed class EmployeeWorkloadLimitAdminServiceTests : IDisposable
 {
     private readonly ApplicationDbContext _dbContext;
+    private readonly TestDepartmentContext _departmentContext;
     private readonly EmployeeWorkloadLimitAdminService _service;
+    private readonly Guid _departmentId;
 
     public EmployeeWorkloadLimitAdminServiceTests()
     {
@@ -22,7 +27,19 @@ public sealed class EmployeeWorkloadLimitAdminServiceTests : IDisposable
             .Options;
 
         _dbContext = new ApplicationDbContext(options);
-        _service = new EmployeeWorkloadLimitAdminService(_dbContext, new EmployeeWorkloadLimitQueries(_dbContext));
+        _departmentContext = new TestDepartmentContext();
+        _departmentId = OrganizationTestData.SeedDepartmentAsync(_dbContext).GetAwaiter().GetResult();
+        _departmentContext.CurrentDepartmentId = _departmentId;
+
+        UserDisplayQueries userDisplayQueries = new(_dbContext);
+        TestDepartmentAuthorizationService departmentAuthorization = new(_dbContext);
+        CurrentDepartmentResolver resolver = new(_departmentContext, departmentAuthorization, _dbContext);
+        _service = new EmployeeWorkloadLimitAdminService(
+            _dbContext,
+            new EmployeeWorkloadLimitQueries(_dbContext),
+            userDisplayQueries,
+            resolver,
+            departmentAuthorization);
     }
 
     [Fact]
@@ -50,6 +67,21 @@ public sealed class EmployeeWorkloadLimitAdminServiceTests : IDisposable
         Assert.Equal(3, row.MaxReviewerStudents);
         Assert.Equal(1, row.ConfirmedSupervisorCount);
         Assert.Equal(1, row.ReviewerAssignmentCount);
+    }
+
+    [Fact]
+    public async Task GetPageAsync_ExcludesEmployeesFromOtherDepartment()
+    {
+        Guid sessionId = await SeedSessionAsync();
+        Guid localEmployeeId = await SeedEmployeeAsync("Локальний");
+        Guid otherDepartmentId = await OrganizationTestData.SeedDepartmentAsync(_dbContext, "Ф2", "К2");
+        await SeedEmployeeAsync("Чужий", otherDepartmentId);
+
+        EmployeeWorkloadLimitsPageDto? page = await _service.GetPageAsync(sessionId);
+
+        Assert.NotNull(page);
+        Assert.Contains(page.Rows, row => row.EmployeeId == localEmployeeId);
+        Assert.DoesNotContain(page.Rows, row => row.FullName == "Чужий");
     }
 
     [Fact]
@@ -92,6 +124,17 @@ public sealed class EmployeeWorkloadLimitAdminServiceTests : IDisposable
     }
 
     [Fact]
+    public async Task SetLimitAsync_WhenEmployeeFromOtherDepartment_Throws()
+    {
+        Guid sessionId = await SeedSessionAsync();
+        Guid otherDepartmentId = await OrganizationTestData.SeedDepartmentAsync(_dbContext, "Ф2", "К2");
+        Guid otherEmployeeId = await SeedEmployeeAsync("Чужий", otherDepartmentId);
+
+        await Assert.ThrowsAsync<DomainException>(() =>
+            _service.SetLimitAsync(new SetEmployeeWorkloadLimitDto(sessionId, otherEmployeeId, 1, null)));
+    }
+
+    [Fact]
     public async Task SetLimitAsync_WhenEmployeeMissing_Throws()
     {
         Guid sessionId = await SeedSessionAsync();
@@ -110,16 +153,18 @@ public sealed class EmployeeWorkloadLimitAdminServiceTests : IDisposable
             Type = DefenceSessionType.Bachelor,
             Semester = 1,
             Status = DefenceSessionStatus.Active,
+            DepartmentId = _departmentId,
             CreatedAt = DateTimeOffset.UtcNow,
         });
         await _dbContext.SaveChangesAsync();
         return sessionId;
     }
 
-    private async Task<Guid> SeedEmployeeAsync(string fullName)
+    private async Task<Guid> SeedEmployeeAsync(string fullName, Guid? departmentId = null)
     {
         Guid employeeId = Guid.NewGuid();
         string email = $"{employeeId:N}@test.local";
+        Guid targetDepartmentId = departmentId ?? _departmentId;
         _dbContext.Users.Add(new ApplicationUser
         {
             Id = employeeId,
@@ -127,6 +172,15 @@ public sealed class EmployeeWorkloadLimitAdminServiceTests : IDisposable
             UserName = email,
             FullName = fullName,
             UserKind = UserKind.Employee,
+            CreatedAt = DateTimeOffset.UtcNow,
+        });
+        _dbContext.DepartmentEmployees.Add(new DepartmentEmployee
+        {
+            Id = Guid.NewGuid(),
+            DepartmentId = targetDepartmentId,
+            UserId = employeeId,
+            FullName = fullName,
+            IsActive = true,
             CreatedAt = DateTimeOffset.UtcNow,
         });
         await _dbContext.SaveChangesAsync();
@@ -175,8 +229,51 @@ public sealed class EmployeeWorkloadLimitAdminServiceTests : IDisposable
         return diplomaId;
     }
 
-    public void Dispose()
+    public void Dispose() => _dbContext.Dispose();
+
+    private sealed class TestDepartmentAuthorizationService(ApplicationDbContext dbContext)
+        : IDepartmentAuthorizationService
     {
-        _dbContext.Dispose();
+        public Task<bool> IsSuperAdminAsync(Guid userId, CancellationToken cancellationToken = default) =>
+            Task.FromResult(false);
+
+        public Task<IReadOnlyList<Guid>> GetAdminDepartmentIdsAsync(
+            Guid userId,
+            CancellationToken cancellationToken = default) =>
+            Task.FromResult<IReadOnlyList<Guid>>([]);
+
+        public Task<IReadOnlyList<Guid>> GetEmployeeDepartmentIdsAsync(
+            Guid userId,
+            CancellationToken cancellationToken = default) =>
+            Task.FromResult<IReadOnlyList<Guid>>([]);
+
+        public Task EnsureDepartmentAdminAccessAsync(
+            Guid userId,
+            Guid departmentId,
+            CancellationToken cancellationToken = default) =>
+            Task.CompletedTask;
+
+        public Task EnsureDepartmentEmployeeAccessAsync(
+            Guid userId,
+            Guid departmentId,
+            CancellationToken cancellationToken = default) =>
+            Task.CompletedTask;
+
+        public async Task EnsureSessionInDepartmentAsync(
+            Guid sessionId,
+            Guid departmentId,
+            CancellationToken cancellationToken = default)
+        {
+            bool belongs = await dbContext.DefenceSessions
+                .AsNoTracking()
+                .AnyAsync(
+                    session => session.Id == sessionId && session.DepartmentId == departmentId,
+                    cancellationToken);
+
+            if (!belongs)
+            {
+                throw new DomainException(DepartmentMessages.SessionNotInDepartment);
+            }
+        }
     }
 }

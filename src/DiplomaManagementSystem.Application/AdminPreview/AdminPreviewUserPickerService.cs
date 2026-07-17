@@ -12,6 +12,7 @@ namespace DiplomaManagementSystem.Application.AdminPreview;
 
 internal sealed class AdminPreviewUserPickerService(
     IApplicationDbContext dbContext,
+    IUserDisplayQueries userDisplayQueries,
     CurrentDepartmentResolver currentDepartmentResolver) : IAdminPreviewUserPickerService
 {
     public async Task<IReadOnlyList<AdminPreviewUserOption>> GetUsersAsync(
@@ -22,12 +23,23 @@ internal sealed class AdminPreviewUserPickerService(
 
         if (userKind == UserKind.Student)
         {
-            List<ApplicationUser> students = await dbContext.Users
+            IQueryable<ApplicationUser> studentsQuery = dbContext.Users
                 .AsNoTracking()
                 .Include(user => user.StudyGroup)
                 .Include(user => user.DefenceSession)
-                .Where(user => user.UserKind == UserKind.Student)
-                .ToListAsync(cancellationToken);
+                .Where(user => user.UserKind == UserKind.Student);
+
+            if (scopedDepartmentId is Guid studentDepartmentId)
+            {
+                studentsQuery = studentsQuery.Where(user =>
+                    user.DefenceSession != null && user.DefenceSession.DepartmentId == studentDepartmentId);
+            }
+            else
+            {
+                return [];
+            }
+
+            List<ApplicationUser> students = await studentsQuery.ToListAsync(cancellationToken);
 
             return students
                 .OrderBy(student => PersonNameSort.SurnameKey(student.FullName), StringComparer.CurrentCultureIgnoreCase)
@@ -40,27 +52,17 @@ internal sealed class AdminPreviewUserPickerService(
                 .ToList();
         }
 
-        IQueryable<ApplicationUser> employeeQuery = dbContext.Users
-            .AsNoTracking()
-            .Where(user => user.UserKind == UserKind.Employee);
-
-        if (scopedDepartmentId is Guid departmentId)
+        if (scopedDepartmentId is not Guid departmentId)
         {
-            IQueryable<Guid> scopedEmployeeIds = dbContext.DepartmentEmployees
-                .AsNoTracking()
-                .Where(employee => employee.DepartmentId == departmentId && employee.IsActive)
-                .Select(employee => employee.UserId);
-
-            employeeQuery = employeeQuery.Where(user => scopedEmployeeIds.Contains(user.Id));
+            return [];
         }
 
-        List<EmployeeRow> employees = await employeeQuery
-            .OrderBy(user => user.FullName)
-            .Select(user => new EmployeeRow(user.Id, user.FullName, user.Email ?? string.Empty))
-            .ToListAsync(cancellationToken);
+        List<Persistence.UserOption> employees = await userDisplayQueries.LoadEmployeeOptionsForDepartmentAsync(
+            departmentId,
+            cancellationToken);
 
         Dictionary<Guid, List<string>> roleLabelsByEmployee =
-            await BuildEmployeeRoleLabelsAsync(scopedDepartmentId, cancellationToken);
+            await BuildEmployeeRoleLabelsAsync(departmentId, cancellationToken);
 
         return employees
             .Select(employee => new AdminPreviewUserOption(
@@ -74,19 +76,13 @@ internal sealed class AdminPreviewUserPickerService(
     }
 
     private async Task<Dictionary<Guid, List<string>>> BuildEmployeeRoleLabelsAsync(
-        Guid? scopedDepartmentId,
+        Guid departmentId,
         CancellationToken cancellationToken)
     {
-        IQueryable<Domain.Entities.DefenceSession> sessionsQuery = dbContext.DefenceSessions.AsNoTracking();
-        if (scopedDepartmentId is Guid departmentId)
-        {
-            sessionsQuery = sessionsQuery.Where(session => session.DepartmentId == departmentId);
-        }
-
         List<RoleAssignmentRow> rows = await dbContext.AnnualRoleAssignments
             .AsNoTracking()
             .Join(
-                sessionsQuery,
+                dbContext.DefenceSessions.AsNoTracking().Where(session => session.DepartmentId == departmentId),
                 assignment => assignment.DefenceSessionId,
                 session => session.Id,
                 (assignment, session) => new RoleAssignmentRow(
@@ -124,8 +120,6 @@ internal sealed class AdminPreviewUserPickerService(
             ? sessionLabel
             : $"{sessionLabel} · {student.StudyGroup.Name}";
     }
-
-    private sealed record EmployeeRow(Guid Id, string FullName, string Email);
 
     private sealed record RoleAssignmentRow(
         Guid EmployeeId,

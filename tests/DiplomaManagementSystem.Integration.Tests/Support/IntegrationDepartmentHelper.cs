@@ -114,6 +114,19 @@ internal static class IntegrationDepartmentHelper
     }
 
 
+    public static async Task<Guid> GetDefaultFacultyIdAsync(IServiceProvider serviceProvider)
+    {
+        await using AsyncServiceScope scope = serviceProvider.CreateAsyncScope();
+        IApplicationDbContext dbContext = scope.ServiceProvider.GetRequiredService<IApplicationDbContext>();
+        Guid departmentId = await GetDefaultDepartmentIdAsync(scope.ServiceProvider);
+
+        return await dbContext.Departments
+            .AsNoTracking()
+            .Where(department => department.Id == departmentId)
+            .Select(department => department.FacultyId)
+            .FirstAsync();
+    }
+
     public static async Task<Guid> GetDefaultSpecialtyIdAsync(IServiceProvider serviceProvider)
     {
         await using AsyncServiceScope scope = serviceProvider.CreateAsyncScope();

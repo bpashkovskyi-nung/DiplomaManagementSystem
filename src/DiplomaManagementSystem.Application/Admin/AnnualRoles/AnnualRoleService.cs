@@ -1,5 +1,7 @@
 using DiplomaManagementSystem.Application.Admin.AnnualRoles.Contracts;
 using DiplomaManagementSystem.Application.Admin.AnnualRoles.Dtos;
+using DiplomaManagementSystem.Application.Departments;
+using DiplomaManagementSystem.Application.Departments.Contracts;
 using DiplomaManagementSystem.Application.Persistence.Contracts;
 using DiplomaManagementSystem.Application.ReadModels;
 using DiplomaManagementSystem.Application.Secretary;
@@ -10,7 +12,11 @@ using Microsoft.EntityFrameworkCore;
 
 namespace DiplomaManagementSystem.Application.Admin.AnnualRoles;
 
-internal sealed class AnnualRoleService(IApplicationDbContext dbContext) : IAnnualRoleService
+internal sealed class AnnualRoleService(
+    IApplicationDbContext dbContext,
+    IUserDisplayQueries userDisplayQueries,
+    CurrentDepartmentResolver currentDepartmentResolver,
+    IDepartmentAuthorizationService departmentAuthorization) : IAnnualRoleService
 {
     private static readonly AnnualRoleType[] AllRoleTypes =
     [
@@ -22,10 +28,7 @@ internal sealed class AnnualRoleService(IApplicationDbContext dbContext) : IAnnu
 
     public async Task<AnnualRolesPageDto?> GetPageAsync(Guid defenceSessionId, CancellationToken cancellationToken = default)
     {
-        DefenceSession? session = await dbContext.DefenceSessions
-            .AsNoTracking()
-            .FirstOrDefaultAsync(s => s.Id == defenceSessionId, cancellationToken);
-
+        DefenceSession? session = await GetScopedSessionAsync(defenceSessionId, cancellationToken);
         if (session is null)
         {
             return null;
@@ -38,12 +41,15 @@ internal sealed class AnnualRoleService(IApplicationDbContext dbContext) : IAnnu
 
         Dictionary<AnnualRoleType, AnnualRoleAssignment> byRole = assignments.ToDictionary(a => a.RoleType);
 
-        List<PersonOptionDto> employees = await dbContext.Users
-            .AsNoTracking()
-            .Where(user => user.UserKind == UserKind.Employee)
-            .OrderBy(user => user.FullName)
-            .Select(user => new PersonOptionDto(user.Id, user.FullName, user.Email ?? string.Empty))
-            .ToListAsync(cancellationToken);
+        List<PersonOptionDto> employees = PersonOptionMapping.From(
+            await userDisplayQueries.LoadEmployeeOptionsForDepartmentAsync(session.DepartmentId, cancellationToken));
+
+        HashSet<Guid> assignedEmployeeIds = assignments
+            .Select(assignment => assignment.EmployeeId)
+            .ToHashSet();
+        Dictionary<Guid, string> assignedNames = await userDisplayQueries.LoadFullNamesAsync(
+            assignedEmployeeIds,
+            cancellationToken);
 
         List<AnnualRoleSlotDto> slots = AllRoleTypes
             .Select(roleType =>
@@ -53,7 +59,8 @@ internal sealed class AnnualRoleService(IApplicationDbContext dbContext) : IAnnu
                     return new AnnualRoleSlotDto(roleType, null, null);
                 }
 
-                string? name = employees.FirstOrDefault(e => e.Id == assignment.EmployeeId)?.FullName;
+                string? name = employees.FirstOrDefault(e => e.Id == assignment.EmployeeId)?.FullName
+                               ?? assignedNames.GetValueOrDefault(assignment.EmployeeId);
                 return new AnnualRoleSlotDto(roleType, assignment.EmployeeId, name);
             })
             .ToList();
@@ -65,17 +72,12 @@ internal sealed class AnnualRoleService(IApplicationDbContext dbContext) : IAnnu
 
     public async Task AssignAsync(AssignAnnualRoleDto request, CancellationToken cancellationToken = default)
     {
-        bool sessionExists = await dbContext.DefenceSessions.AnyAsync(
-            session => session.Id == request.DefenceSessionId,
-            cancellationToken);
+        DefenceSession session = await GetScopedSessionAsync(request.DefenceSessionId, cancellationToken)
+                                 ?? throw new DomainException($"Defence session {request.DefenceSessionId} not found.");
 
-        if (!sessionExists)
-        {
-            throw new DomainException($"Defence session {request.DefenceSessionId} not found.");
-        }
-
-        bool employeeExists = await dbContext.Users.AnyAsync(
-            user => user.Id == request.EmployeeId && user.UserKind == UserKind.Employee,
+        bool employeeExists = await userDisplayQueries.IsActiveDepartmentEmployeeAsync(
+            request.EmployeeId,
+            session.DepartmentId,
             cancellationToken);
 
         if (!employeeExists)
@@ -107,5 +109,21 @@ internal sealed class AnnualRoleService(IApplicationDbContext dbContext) : IAnnu
         }
 
         await dbContext.SaveChangesAsync(cancellationToken);
+    }
+
+    private async Task<DefenceSession?> GetScopedSessionAsync(Guid defenceSessionId, CancellationToken cancellationToken)
+    {
+        DefenceSession? session = await dbContext.DefenceSessions
+            .AsNoTracking()
+            .FirstOrDefaultAsync(item => item.Id == defenceSessionId, cancellationToken);
+
+        if (session is null)
+        {
+            return null;
+        }
+
+        Guid departmentId = await currentDepartmentResolver.ResolveRequiredScopedDepartmentIdAsync(cancellationToken);
+        await departmentAuthorization.EnsureSessionInDepartmentAsync(defenceSessionId, departmentId, cancellationToken);
+        return session;
     }
 }

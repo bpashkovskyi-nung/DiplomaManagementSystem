@@ -2,6 +2,8 @@ using System.ComponentModel.DataAnnotations;
 using DiplomaManagementSystem.Application;
 using DiplomaManagementSystem.Application.SuperAdmin.OrganizationImport;
 
+using Microsoft.AspNetCore.Mvc.ModelBinding.Validation;
+
 namespace DiplomaManagementSystem.Web.Areas.SuperAdmin.Models;
 
 public sealed class FacultyListViewModel
@@ -77,6 +79,7 @@ public sealed class DepartmentFormViewModel
 
     public IReadOnlyList<SpecialtyListItemViewModel> Specialties { get; set; } = [];
 
+    [ValidateNever]
     public SpecialtyFormViewModel NewSpecialty { get; set; } = new();
 
     public IReadOnlyList<DepartmentAdminListItemViewModel> Admins { get; set; } = [];

@@ -1,5 +1,7 @@
 using DiplomaManagementSystem.Application.AdminPreview.Contracts;
 using DiplomaManagementSystem.Application.Constants;
+using DiplomaManagementSystem.Application.Departments.Contracts;
+using DiplomaManagementSystem.Application.Persistence.Contracts;
 using DiplomaManagementSystem.Application.Secretary.Contracts;
 using DiplomaManagementSystem.Domain.Enums;
 using DiplomaManagementSystem.Web.AdminPreview;
@@ -7,6 +9,7 @@ using DiplomaManagementSystem.Web.Models;
 
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 
 namespace DiplomaManagementSystem.Web.Controllers;
 
@@ -15,7 +18,10 @@ public sealed class AdminPreviewController(
     IAdminPreviewService adminPreviewService,
     IAdminPreviewUserPickerService userPickerService,
     IAdminPreviewUserLookup adminPreviewUserLookup,
-    ISecretaryAccessService secretaryAccessService) : Controller
+    ISecretaryAccessService secretaryAccessService,
+    IUserDisplayQueries userDisplayQueries,
+    IDepartmentContext departmentContext,
+    IApplicationDbContext dbContext) : Controller
 {
     [HttpPost]
     [ValidateAntiForgeryToken]
@@ -110,6 +116,32 @@ public sealed class AdminPreviewController(
         if (user is null || user.UserKind != expectedKind)
         {
             TempData["Error"] = "Обрано недійсного користувача для цього режиму перегляду.";
+            return RedirectToAction(nameof(SelectUser), new { mode, returnUrl });
+        }
+
+        Guid? scopedDepartmentId = departmentContext.CurrentDepartmentId;
+        if (scopedDepartmentId is not Guid departmentId)
+        {
+            TempData["Error"] = "Оберіть кафедру перед impersonation.";
+            return RedirectToAction(nameof(SelectUser), new { mode, returnUrl });
+        }
+
+        if (expectedKind == UserKind.Employee
+            && !await userDisplayQueries.IsActiveDepartmentEmployeeAsync(userId, departmentId, cancellationToken))
+        {
+            TempData["Error"] = "Обрано викладача з іншої кафедри.";
+            return RedirectToAction(nameof(SelectUser), new { mode, returnUrl });
+        }
+
+        if (expectedKind == UserKind.Student
+            && !await dbContext.Users.AsNoTracking().AnyAsync(
+                item => item.Id == userId
+                        && item.UserKind == UserKind.Student
+                        && item.DefenceSession != null
+                        && item.DefenceSession.DepartmentId == departmentId,
+                cancellationToken))
+        {
+            TempData["Error"] = "Обрано студента з іншої кафедри.";
             return RedirectToAction(nameof(SelectUser), new { mode, returnUrl });
         }
 

@@ -26,6 +26,8 @@ public sealed class PostgreSqlFixture : IAsyncLifetime
 
     private string? _connectionString;
 
+    private readonly IntegrationTestDepartmentContext _departmentContext = new();
+
     public bool IsAvailable { get; private set; }
 
     public string SkipReason { get; private set; } = "PostgreSQL test database is not available.";
@@ -33,6 +35,8 @@ public sealed class PostgreSqlFixture : IAsyncLifetime
     public string ConnectionString =>
         _connectionString
         ?? throw new InvalidOperationException("PostgreSQL test database is not initialized.");
+
+    internal IntegrationTestDepartmentContext DepartmentContext => _departmentContext;
 
     public async Task InitializeAsync()
     {
@@ -73,6 +77,7 @@ public sealed class PostgreSqlFixture : IAsyncLifetime
         await dbContext.Database.MigrateAsync();
         await IdentitySeedHelper.EnsureRolesAsync(scope.ServiceProvider);
         await OrganizationSeedHelper.EnsureDefaultOrganizationAsync(scope.ServiceProvider);
+        await IntegrationDepartmentHelper.EnsureDefaultDepartmentContextAsync(scope.ServiceProvider);
     }
 
     public async Task DisposeAsync()
@@ -109,9 +114,9 @@ public sealed class PostgreSqlFixture : IAsyncLifetime
         services.AddSingleton<IConfiguration>(configuration);
         services.AddApplication();
         services.AddInfrastructure(configuration);
-        services.AddSingleton<IntegrationTestDepartmentContext>();
+        services.AddSingleton(_departmentContext);
         services.AddScoped<DiplomaManagementSystem.Application.Departments.Contracts.IDepartmentContext>(
-            provider => provider.GetRequiredService<IntegrationTestDepartmentContext>());
+            _ => _departmentContext);
 
         foreach (ServiceDescriptor descriptor in services
                      .Where(service => service.ServiceType == typeof(Microsoft.Extensions.Hosting.IHostedService))

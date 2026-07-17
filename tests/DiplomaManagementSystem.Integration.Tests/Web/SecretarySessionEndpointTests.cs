@@ -21,6 +21,7 @@ public sealed class SecretarySessionEndpointTests(PostgreSqlFixture fixture)
 
         await using AsyncServiceScope setupScope = fixture.CreateProvider().CreateAsyncScope();
         IServiceProvider services = setupScope.ServiceProvider;
+        await IntegrationDepartmentHelper.EnsureDefaultDepartmentContextAsync(services);
 
         IDefenceSessionService defenceSessionService = services.GetRequiredService<IDefenceSessionService>();
         IAnnualRoleService annualRoleService = services.GetRequiredService<IAnnualRoleService>();

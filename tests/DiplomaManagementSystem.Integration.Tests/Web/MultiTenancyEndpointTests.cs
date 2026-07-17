@@ -23,17 +23,20 @@ public sealed class MultiTenancyEndpointTests(PostgreSqlFixture fixture)
 
         await using DiplomaManagementSystemWebApplicationFactory factory = fixture.CreateWebFactory();
 
+        string otherSessionMarker = second.SessionId.ToString("D");
+
         HttpClient secondAdminClient = IntegrationTestWebClient.CreateClient(factory, second.AdminId);
         HttpResponseMessage secondResponse = await secondAdminClient.GetAsync("/Admin/DefenceSessions");
         secondResponse.EnsureSuccessStatusCode();
         string secondHtml = await secondResponse.Content.ReadAsStringAsync();
+        Assert.Contains(otherSessionMarker, secondHtml, StringComparison.Ordinal);
         Assert.Contains(otherYear.ToString(), secondHtml, StringComparison.Ordinal);
 
         HttpClient defaultAdminClient = IntegrationTestWebClient.CreateClient(factory, defaultAdminId);
         HttpResponseMessage defaultResponse = await defaultAdminClient.GetAsync("/Admin/DefenceSessions");
         defaultResponse.EnsureSuccessStatusCode();
         string defaultHtml = await defaultResponse.Content.ReadAsStringAsync();
-        Assert.DoesNotContain(otherYear.ToString(), defaultHtml, StringComparison.Ordinal);
+        Assert.DoesNotContain(otherSessionMarker, defaultHtml, StringComparison.Ordinal);
     }
 
     [SkippableFact]
@@ -43,11 +46,12 @@ public sealed class MultiTenancyEndpointTests(PostgreSqlFixture fixture)
 
         Guid superAdminId = await IntegrationSuperAdminHelper.CreateSuperAdminUserAsync(fixture.CreateProvider());
         Guid departmentId = await IntegrationDepartmentHelper.GetDefaultDepartmentIdAsync(fixture.CreateProvider());
+        Guid facultyId = await IntegrationDepartmentHelper.GetDefaultFacultyIdAsync(fixture.CreateProvider());
 
         await using DiplomaManagementSystemWebApplicationFactory factory = fixture.CreateWebFactory();
         HttpClient client = IntegrationTestWebClient.CreateClient(factory, superAdminId);
 
-        HttpResponseMessage listPage = await client.GetAsync("/SuperAdmin/Departments");
+        HttpResponseMessage listPage = await client.GetAsync($"/SuperAdmin/Departments?facultyId={facultyId}");
         listPage.EnsureSuccessStatusCode();
         string listHtml = await listPage.Content.ReadAsStringAsync();
         string token = AntiforgeryTokenParser.Parse(listHtml);

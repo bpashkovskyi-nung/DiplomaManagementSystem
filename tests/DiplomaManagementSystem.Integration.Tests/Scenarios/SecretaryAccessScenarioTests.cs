@@ -38,6 +38,7 @@ public sealed class SecretaryAccessScenarioTests(PostgreSqlFixture fixture)
 
         await using AsyncServiceScope scope = fixture.CreateProvider().CreateAsyncScope();
         IServiceProvider services = scope.ServiceProvider;
+        await IntegrationDepartmentHelper.EnsureDefaultDepartmentContextAsync(services);
 
         IDefenceSessionService defenceSessionService = services.GetRequiredService<IDefenceSessionService>();
         Guid otherSessionId = await defenceSessionService.CreateAsync(
