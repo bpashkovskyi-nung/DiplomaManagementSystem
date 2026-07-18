@@ -52,6 +52,6 @@ public sealed class AntiPlagiarismCheckpointEndpointTests(PostgreSqlFixture fixt
             .GetDetailsAsync(scenario.SessionId, scenario.DiplomaId, CancellationToken.None);
 
         Assert.NotNull(details);
-        Assert.Equal(AdmissionStep.ReviewerAssignment, details.State.CurrentAdmissionStep);
+        Assert.Equal(AdmissionStep.ExternalReview, details.State.CurrentAdmissionStep);
     }
 }

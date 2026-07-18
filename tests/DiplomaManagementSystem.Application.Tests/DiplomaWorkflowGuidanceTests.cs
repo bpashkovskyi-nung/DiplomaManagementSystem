@@ -190,7 +190,7 @@ public sealed class DiplomaWorkflowGuidanceTests
         string? reason = DiplomaWorkflowGuidance.BuildDeclareWorkReadyBlockedReason(
             showSection: true,
             sessionActive: false,
-            lifecycleStatus: DiplomaLifecycleStatus.WorkInProgressByStudent,
+            lifecycleStatus: DiplomaLifecycleStatus.ReviewerAssigned,
             hasStudentWork: true);
 
         Assert.Contains("архів", reason, StringComparison.OrdinalIgnoreCase);
@@ -216,7 +216,7 @@ public sealed class DiplomaWorkflowGuidanceTests
         string? reason = DiplomaWorkflowGuidance.BuildDeclareWorkReadyBlockedReason(
             showSection: true,
             sessionActive: true,
-            lifecycleStatus: DiplomaLifecycleStatus.WorkInProgressByStudent,
+            lifecycleStatus: DiplomaLifecycleStatus.ReviewerAssigned,
             hasStudentWork: false);
 
         Assert.Contains("завантажте", reason, StringComparison.OrdinalIgnoreCase);
@@ -229,7 +229,7 @@ public sealed class DiplomaWorkflowGuidanceTests
         string? reason = DiplomaWorkflowGuidance.BuildDeclareWorkReadyBlockedReason(
             showSection: true,
             sessionActive: true,
-            lifecycleStatus: DiplomaLifecycleStatus.WorkInProgressByStudent,
+            lifecycleStatus: DiplomaLifecycleStatus.ReviewerAssigned,
             hasStudentWork: true);
 
         Assert.Null(reason);
@@ -243,7 +243,7 @@ public sealed class DiplomaWorkflowGuidanceTests
             showSection: true,
             sessionActive: false,
             hasApprovedTopic: true,
-            lifecycleStatus: DiplomaLifecycleStatus.WorkInProgressByStudent);
+            lifecycleStatus: DiplomaLifecycleStatus.ReviewerAssigned);
 
         Assert.Contains("архів", reason, StringComparison.OrdinalIgnoreCase);
     }
@@ -256,7 +256,7 @@ public sealed class DiplomaWorkflowGuidanceTests
             showSection: true,
             sessionActive: true,
             hasApprovedTopic: false,
-            lifecycleStatus: DiplomaLifecycleStatus.WorkInProgressByStudent);
+            lifecycleStatus: DiplomaLifecycleStatus.ReviewerAssigned);
 
         Assert.Contains("тем", reason, StringComparison.OrdinalIgnoreCase);
     }
@@ -295,9 +295,33 @@ public sealed class DiplomaWorkflowGuidanceTests
             showSection: true,
             sessionActive: true,
             hasApprovedTopic: true,
-            lifecycleStatus: DiplomaLifecycleStatus.WorkInProgressByStudent);
+            lifecycleStatus: DiplomaLifecycleStatus.ReviewerAssigned);
 
         Assert.Null(reason);
+    }
+
+    [Fact]
+    public void UploadWork_TopicApproved_ReturnsAwaitReviewerMessage()
+    {
+        string? reason = DiplomaWorkflowGuidance.BuildUploadWorkBlockedReason(
+            showSection: true,
+            sessionActive: true,
+            hasApprovedTopic: true,
+            lifecycleStatus: DiplomaLifecycleStatus.TopicApproved);
+
+        Assert.Contains("рецензента", reason, StringComparison.OrdinalIgnoreCase);
+    }
+
+    [Fact]
+    public void DeclareWorkReady_TopicApproved_ReturnsAwaitReviewerMessage()
+    {
+        string? reason = DiplomaWorkflowGuidance.BuildDeclareWorkReadyBlockedReason(
+            showSection: true,
+            sessionActive: true,
+            lifecycleStatus: DiplomaLifecycleStatus.TopicApproved,
+            hasStudentWork: false);
+
+        Assert.Contains("рецензента", reason, StringComparison.OrdinalIgnoreCase);
     }
 
     // TC-APP-GUI-016
@@ -321,7 +345,7 @@ public sealed class DiplomaWorkflowGuidanceTests
             showSection: true,
             sessionActive: true,
             hasEmployees: true,
-            lifecycleStatus: DiplomaLifecycleStatus.WorkInProgressByStudent);
+            lifecycleStatus: DiplomaLifecycleStatus.ReviewerAssigned);
 
         Assert.Contains("тем", reason, StringComparison.OrdinalIgnoreCase);
     }
@@ -758,7 +782,7 @@ public sealed class DiplomaWorkflowGuidanceTests
         string? reason = DiplomaWorkflowGuidance.BuildDeclareWorkReadyBlockedReason(
             showSection: false,
             sessionActive: true,
-            DiplomaLifecycleStatus.WorkInProgressByStudent,
+            DiplomaLifecycleStatus.ReviewerAssigned,
             hasStudentWork: true);
 
         Assert.Null(reason);

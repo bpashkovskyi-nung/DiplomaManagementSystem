@@ -21,7 +21,7 @@ public sealed class StudentDiplomaEndpointTests(PostgreSqlFixture fixture)
             .SeedFullScenarioAsync();
 
         await using AsyncServiceScope setupScope = fixture.CreateProvider().CreateAsyncScope();
-        await WorkflowScenarioRunner.RunTopicApprovalAsync(setupScope.ServiceProvider, scenario);
+        await WorkflowScenarioRunner.RunUpToReviewerAssignedAsync(setupScope.ServiceProvider, scenario);
 
         await using DiplomaManagementSystemWebApplicationFactory factory = fixture.CreateWebFactory();
         HttpClient client = IntegrationTestWebClient.CreateClient(factory, scenario.StudentId);
@@ -51,8 +51,8 @@ public sealed class StudentDiplomaEndpointTests(PostgreSqlFixture fixture)
         MyDiplomaDto diploma = await studentService.GetMyDiplomaAsync(scenario.StudentId, CancellationToken.None);
 
         Assert.Single(bundle.StudentWorkVersions);
-        Assert.Equal(DiplomaLifecycleStatus.DocumentsInProgress, diploma.State!.LifecycleStatus);
-        Assert.Equal(AdmissionStep.SupervisorFeedback, diploma.State.CurrentAdmissionStep);
+        Assert.Equal(DiplomaLifecycleStatus.ReviewerAssigned, diploma.State!.LifecycleStatus);
+        Assert.Null(diploma.State.CurrentAdmissionStep);
     }
 
     [SkippableFact]
@@ -63,7 +63,7 @@ public sealed class StudentDiplomaEndpointTests(PostgreSqlFixture fixture)
             .SeedFullScenarioAsync();
 
         await using AsyncServiceScope setupScope = fixture.CreateProvider().CreateAsyncScope();
-        await WorkflowScenarioRunner.RunTopicApprovalAsync(setupScope.ServiceProvider, scenario);
+        await WorkflowScenarioRunner.RunUpToReviewerAssignedAsync(setupScope.ServiceProvider, scenario);
         await WorkflowScenarioRunner.UploadStudentWorkAsync(setupScope.ServiceProvider, scenario);
 
         await using DiplomaManagementSystemWebApplicationFactory factory = fixture.CreateWebFactory();

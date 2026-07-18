@@ -18,7 +18,7 @@ public sealed class DocumentUploadScenarioTests(PostgreSqlFixture fixture)
         await using AsyncServiceScope scope = fixture.CreateProvider().CreateAsyncScope();
         IServiceProvider services = scope.ServiceProvider;
 
-        await WorkflowScenarioRunner.RunTopicApprovalAsync(services, scenario);
+        await WorkflowScenarioRunner.RunUpToReviewerAssignedAsync(services, scenario);
 
         IStudentDiplomaService studentService = services.GetRequiredService<IStudentDiplomaService>();
         DomainException exception = await Assert.ThrowsAsync<DomainException>(() =>

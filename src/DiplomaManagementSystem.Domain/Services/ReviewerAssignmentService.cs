@@ -29,20 +29,26 @@ public sealed class ReviewerAssignmentService
             throw new DomainException("Reviewer can be assigned only after the topic is approved.");
         }
 
-        if (diploma.ReviewAssignmentStatus == ReviewAssignmentStatus.Completed)
+        if (diploma.LifecycleStatus != DiplomaLifecycleStatus.TopicApproved)
         {
-            throw new DomainException("Review is already completed.");
+            throw new DomainException("Reviewer can be assigned only when the topic is approved and work has not started.");
+        }
+
+        if (diploma.CurrentAdmissionStep is not null || attempts.Any())
+        {
+            throw new DomainException("Reviewer can be assigned only before admission checks start.");
+        }
+
+        if (diploma.ReviewAssignmentStatus != ReviewAssignmentStatus.NotAssigned)
+        {
+            throw new DomainException(
+                diploma.ReviewAssignmentStatus == ReviewAssignmentStatus.Completed
+                    ? "Review is already completed."
+                    : "Reviewer is already assigned.");
         }
 
         diploma.ReviewerId = reviewerId;
-
         diploma.ReviewAssignmentStatus = ReviewAssignmentStatus.Assigned;
-
-        if (AdmissionStepSequence.IsReadyForReviewerAssignment(attempts))
-        {
-            diploma.CurrentAdmissionStep = AdmissionStep.ExternalReview;
-        }
-
         diploma.UpdatedAt = DateTimeOffset.UtcNow;
     }
 

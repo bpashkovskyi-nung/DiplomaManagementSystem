@@ -140,7 +140,7 @@ public sealed record DiplomaWorkflowState(
         bool showWorkReadinessSection = hasApprovedTopic && !admissionReviewStarted;
         bool canDeclareWorkReady = sessionActive
                                    && showWorkReadinessSection
-                                   && diploma.LifecycleStatus == DiplomaLifecycleStatus.WorkInProgressByStudent
+                                   && diploma.LifecycleStatus == DiplomaLifecycleStatus.ReviewerAssigned
                                    && options.HasStudentWork;
         string? declareWorkReadyBlockedReason = canDeclareWorkReady
             ? null

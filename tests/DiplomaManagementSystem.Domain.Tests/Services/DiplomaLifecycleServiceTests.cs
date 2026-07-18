@@ -77,30 +77,44 @@ public sealed class DiplomaLifecycleServiceTests
 
     // TC-DOM-DLS-004
     [Fact]
-    public void Recalculate_ApprovedTopic_ReturnsWorkInProgress()
+    public void Recalculate_ApprovedTopicWithoutReviewer_ReturnsTopicApproved()
     {
         Guid diplomaId = Guid.NewGuid();
         Guid supervisorId = Guid.NewGuid();
-        DiplomaTopicVersion topic = new()
-        {
-            DiplomaId = diplomaId,
-            Status = TopicVersionStatus.Approved,
-            VersionNumber = 1,
-            SubmittedAt = DateTimeOffset.UtcNow,
-            SupervisorReviewedById = supervisorId,
-            SupervisorReviewedAt = DateTimeOffset.UtcNow,
-        };
+        DiplomaTopicVersion topic = CreateApprovedTopic(diplomaId, supervisorId);
 
         Diploma diploma = new()
         {
             Id = diplomaId,
             SupervisorId = supervisorId,
             SupervisorAssignmentStatus = SupervisorAssignmentStatus.Confirmed,
+            ReviewAssignmentStatus = ReviewAssignmentStatus.NotAssigned,
         };
 
         DiplomaLifecycleStatus status = _service.Recalculate(diploma, topic, attempts: []);
 
-        Assert.Equal(DiplomaLifecycleStatus.WorkInProgressByStudent, status);
+        Assert.Equal(DiplomaLifecycleStatus.TopicApproved, status);
+    }
+
+    [Fact]
+    public void Recalculate_ApprovedTopicWithReviewer_ReturnsReviewerAssigned()
+    {
+        Guid diplomaId = Guid.NewGuid();
+        Guid supervisorId = Guid.NewGuid();
+        DiplomaTopicVersion topic = CreateApprovedTopic(diplomaId, supervisorId);
+
+        Diploma diploma = new()
+        {
+            Id = diplomaId,
+            SupervisorId = supervisorId,
+            SupervisorAssignmentStatus = SupervisorAssignmentStatus.Confirmed,
+            ReviewerId = Guid.NewGuid(),
+            ReviewAssignmentStatus = ReviewAssignmentStatus.Assigned,
+        };
+
+        DiplomaLifecycleStatus status = _service.Recalculate(diploma, topic, attempts: []);
+
+        Assert.Equal(DiplomaLifecycleStatus.ReviewerAssigned, status);
     }
 
     // TC-DOM-DLS-005
@@ -156,7 +170,7 @@ public sealed class DiplomaLifecycleServiceTests
     public void CanStartAdmissionReview_Valid_ReturnsTrue()
     {
         bool canStart = _service.CanStartAdmissionReview(
-            DiplomaLifecycleStatus.WorkInProgressByStudent,
+            DiplomaLifecycleStatus.ReviewerAssigned,
             latestTopicVersion: new DiplomaTopicVersion { Status = TopicVersionStatus.Approved },
             attemptCount: 0,
             currentAdmissionStep: null);
@@ -169,13 +183,36 @@ public sealed class DiplomaLifecycleServiceTests
     public void CanStartAdmissionReview_WithAttempts_ReturnsFalse()
     {
         bool canStart = _service.CanStartAdmissionReview(
-            DiplomaLifecycleStatus.WorkInProgressByStudent,
+            DiplomaLifecycleStatus.ReviewerAssigned,
             latestTopicVersion: new DiplomaTopicVersion { Status = TopicVersionStatus.Approved },
             attemptCount: 1,
             currentAdmissionStep: AdmissionStep.SupervisorFeedback);
 
         Assert.False(canStart);
     }
+
+    [Fact]
+    public void CanStartAdmissionReview_TopicApproved_ReturnsFalse()
+    {
+        bool canStart = _service.CanStartAdmissionReview(
+            DiplomaLifecycleStatus.TopicApproved,
+            latestTopicVersion: new DiplomaTopicVersion { Status = TopicVersionStatus.Approved },
+            attemptCount: 0,
+            currentAdmissionStep: null);
+
+        Assert.False(canStart);
+    }
+
+    private static DiplomaTopicVersion CreateApprovedTopic(Guid diplomaId, Guid supervisorId) =>
+        new()
+        {
+            DiplomaId = diplomaId,
+            Status = TopicVersionStatus.Approved,
+            VersionNumber = 1,
+            SubmittedAt = DateTimeOffset.UtcNow,
+            SupervisorReviewedById = supervisorId,
+            SupervisorReviewedAt = DateTimeOffset.UtcNow,
+        };
 
     private static DiplomaAdmissionStepAttempt CreatePassingAttempt(Guid diplomaId, AdmissionStep step) =>
         new()

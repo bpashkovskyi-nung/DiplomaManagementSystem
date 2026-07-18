@@ -260,6 +260,8 @@ public sealed class EmployeeWorkloadLimitScenarioTests(PostgreSqlFixture fixture
     {
         IUserProvisioningService userProvisioningService = services.GetRequiredService<IUserProvisioningService>();
         string suffix = Guid.NewGuid().ToString("N")[..8];
-        return await userProvisioningService.CreateEmployeeAsync(fullName, $"{suffix}@test.local");
+        ApplicationUser employee = await userProvisioningService.CreateEmployeeAsync(fullName, $"{suffix}@test.local");
+        await IntegrationDepartmentHelper.AssignEmployeeAsync(services, employee.Id, employee.FullName);
+        return employee;
     }
 }

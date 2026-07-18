@@ -70,7 +70,7 @@
   <data name="DiplomaLifecycleStatus_SupervisorConfirmed" xml:space="preserve"><value>Керівник підтверджено</value></data>
   <data name="DiplomaLifecycleStatus_TopicInReview" xml:space="preserve"><value>Тема на розгляді</value></data>
   <data name="DiplomaLifecycleStatus_TopicApproved" xml:space="preserve"><value>Тема затверджена</value></data>
-  <data name="DiplomaLifecycleStatus_WorkInProgressByStudent" xml:space="preserve"><value>Робота виконується</value></data>
+  <data name="DiplomaLifecycleStatus_ReviewerAssigned" xml:space="preserve"><value>Рецензента призначено</value></data>
   <data name="DiplomaLifecycleStatus_DocumentsInProgress" xml:space="preserve"><value>Документи в роботі</value></data>
   <data name="DiplomaLifecycleStatus_ReadyForAdmission" xml:space="preserve"><value>Готово до допуску</value></data>
   <data name="DiplomaLifecycleStatus_Admitted" xml:space="preserve"><value>Допущено</value></data>

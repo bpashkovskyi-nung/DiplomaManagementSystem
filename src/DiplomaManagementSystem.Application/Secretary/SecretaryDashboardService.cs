@@ -33,7 +33,8 @@ internal sealed class SecretaryDashboardService(
         AddLifecycleBucket(buckets, countsByLifecycle, DiplomaLifecycleStatus.AwaitingSupervisor);
         AddLifecycleBucket(buckets, countsByLifecycle, DiplomaLifecycleStatus.SupervisorConfirmed);
         AddLifecycleBucket(buckets, countsByLifecycle, DiplomaLifecycleStatus.TopicInReview);
-        AddLifecycleBucket(buckets, countsByLifecycle, DiplomaLifecycleStatus.WorkInProgressByStudent);
+        AddLifecycleBucket(buckets, countsByLifecycle, DiplomaLifecycleStatus.TopicApproved);
+        AddLifecycleBucket(buckets, countsByLifecycle, DiplomaLifecycleStatus.ReviewerAssigned);
 
         foreach (AdmissionStep step in Enum.GetValues<AdmissionStep>().OrderBy(step => step))
         {
@@ -60,11 +61,6 @@ internal sealed class SecretaryDashboardService(
         DiplomaLifecycleStatus status)
     {
         int count = countsByLifecycle.GetValueOrDefault(status, 0);
-        if (status == DiplomaLifecycleStatus.WorkInProgressByStudent)
-        {
-            count += countsByLifecycle.GetValueOrDefault(DiplomaLifecycleStatus.TopicApproved, 0);
-        }
-
         buckets.Add(new SecretaryDashboardBucketDto(status, null, count));
     }
 }

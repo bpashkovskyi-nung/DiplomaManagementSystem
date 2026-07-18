@@ -306,7 +306,9 @@ public static class StudentWorkflowProgressBuilder
                 TopicVersionStatus.Rejected => "Останню тему відхилено — подайте нову версію.",
                 _ => "Подайте тему роботи (форма нижче).",
             },
-            2 => "Виконуйте роботу. Коли будете готові до перевірок — натисніть кнопку нижче.",
+            2 => diploma.ReviewAssignmentStatus == ReviewAssignmentStatus.NotAssigned
+                ? "Очікуйте призначення рецензента секретарем ДЕК."
+                : "Виконуйте роботу. Коли будете готові до перевірок — натисніть кнопку нижче.",
             3 => "Керівник має зафіксувати готовність роботи.",
             4 => "Нормоконтролер перевіряє оформлення роботи.",
             5 => "Відповідальний за антиплагіат проводить перевірку.",
@@ -314,7 +316,7 @@ public static class StudentWorkflowProgressBuilder
             {
                 ReviewAssignmentStatus.Assigned => "Рецензент готує відгук.",
                 ReviewAssignmentStatus.Completed => null,
-                _ => "Секретар ДЕК призначить рецензента.",
+                _ => "Секретар ДЕК призначить рецензента після затвердження теми.",
             },
             7 => diploma.LifecycleStatus == DiplomaLifecycleStatus.ReadyForAdmission
                 ? "Усі умови виконано — секретар ДЕК оформить допуск до захисту."
@@ -350,7 +352,11 @@ public static class StudentWorkflowProgressBuilder
                 TopicVersionStatus.Rejected => "Студент має подати нову версію теми.",
                 _ => "Студент має подати тему роботи.",
             },
-            2 => "Студент виконує роботу. Очікується повідомлення про готовність до перевірок.",
+            2 => diploma.ReviewAssignmentStatus == ReviewAssignmentStatus.NotAssigned
+                ? sessionActive
+                    ? "Призначте рецензента (форма нижче)."
+                    : "Призначте рецензента після затвердження теми."
+                : "Студент виконує роботу. Очікується повідомлення про готовність до перевірок.",
             3 => "Керівник має зафіксувати готовність роботи.",
             4 => "Нормоконтролер перевіряє оформлення роботи.",
             5 => "Відповідальний за антиплагіат проводить перевірку.",
@@ -358,7 +364,7 @@ public static class StudentWorkflowProgressBuilder
             {
                 ReviewAssignmentStatus.Assigned => "Рецензент готує відгук.",
                 ReviewAssignmentStatus.Completed => null,
-                _ when sessionActive => "Призначте рецензента (форма нижче).",
+                _ when sessionActive => "Призначте рецензента після затвердження теми.",
                 _ => "Призначте рецензента після затвердження теми.",
             },
             7 => diploma.LifecycleStatus == DiplomaLifecycleStatus.ReadyForAdmission

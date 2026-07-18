@@ -18,7 +18,7 @@ public sealed class SupervisorOverridePolicyTests
     [Fact]
     public void AllowsLifecycle_AfterTopicApproved_ReturnsFalse()
     {
-        Assert.False(SupervisorOverridePolicy.AllowsLifecycleOverride(DiplomaLifecycleStatus.WorkInProgressByStudent));
+        Assert.False(SupervisorOverridePolicy.AllowsLifecycleOverride(DiplomaLifecycleStatus.ReviewerAssigned));
     }
 
     // TC-DOM-SOP-003
@@ -67,7 +67,7 @@ public sealed class SupervisorOverridePolicyTests
     public void EnsureCanOverride_TopicApprovedLifecycle_Throws()
     {
         Diploma diploma = CreateDiploma();
-        diploma.LifecycleStatus = DiplomaLifecycleStatus.WorkInProgressByStudent;
+        diploma.LifecycleStatus = DiplomaLifecycleStatus.ReviewerAssigned;
         DefenceSession session = CreateSession(DefenceSessionStatus.Active);
 
         DomainException exception = Assert.Throws<DomainException>(() =>

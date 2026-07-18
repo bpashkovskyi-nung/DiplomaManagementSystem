@@ -14,7 +14,7 @@ public sealed class AdmissionWorkflowServiceTests
     {
         Diploma diploma = new()
         {
-            LifecycleStatus = DiplomaLifecycleStatus.WorkInProgressByStudent,
+            LifecycleStatus = DiplomaLifecycleStatus.ReviewerAssigned,
         };
 
         Assert.Throws<DomainException>(() =>
@@ -46,7 +46,7 @@ public sealed class AdmissionWorkflowServiceTests
     {
         Diploma diploma = new()
         {
-            LifecycleStatus = DiplomaLifecycleStatus.WorkInProgressByStudent,
+            LifecycleStatus = DiplomaLifecycleStatus.ReviewerAssigned,
         };
 
         DiplomaTopicVersion topic = new() { Status = TopicVersionStatus.Approved };
@@ -61,7 +61,7 @@ public sealed class AdmissionWorkflowServiceTests
     {
         Diploma diploma = new()
         {
-            LifecycleStatus = DiplomaLifecycleStatus.WorkInProgressByStudent,
+            LifecycleStatus = DiplomaLifecycleStatus.ReviewerAssigned,
         };
 
         Assert.Throws<DomainException>(() =>
@@ -77,7 +77,7 @@ public sealed class AdmissionWorkflowServiceTests
     {
         Diploma diploma = new()
         {
-            LifecycleStatus = DiplomaLifecycleStatus.WorkInProgressByStudent,
+            LifecycleStatus = DiplomaLifecycleStatus.ReviewerAssigned,
         };
 
         DefenceSession session = CreateSession();

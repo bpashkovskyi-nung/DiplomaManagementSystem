@@ -48,9 +48,24 @@ public sealed class AdminPreviewEndpointTests(PostgreSqlFixture fixture)
         IntegrationScenario scenario = await new IntegrationScenarioBuilder(fixture.CreateProvider())
             .SeedFullScenarioAsync();
         Guid superAdminId = await IntegrationSuperAdminHelper.CreateSuperAdminUserAsync(fixture.CreateProvider());
+        Guid departmentId = await IntegrationDepartmentHelper.GetDefaultDepartmentIdAsync(fixture.CreateProvider());
+        Guid facultyId = await IntegrationDepartmentHelper.GetDefaultFacultyIdAsync(fixture.CreateProvider());
 
         await using DiplomaManagementSystemWebApplicationFactory factory = fixture.CreateWebFactory();
         HttpClient client = IntegrationTestWebClient.CreateClient(factory, superAdminId);
+
+        HttpResponseMessage departmentsPage = await client.GetAsync($"/SuperAdmin/Departments?facultyId={facultyId}");
+        departmentsPage.EnsureSuccessStatusCode();
+        string departmentsHtml = await departmentsPage.Content.ReadAsStringAsync();
+        string enterToken = AntiforgeryTokenParser.Parse(departmentsHtml);
+
+        FormUrlEncodedContent enterForm = new(new Dictionary<string, string>
+        {
+            ["__RequestVerificationToken"] = enterToken,
+            ["id"] = departmentId.ToString(),
+        });
+        HttpResponseMessage enterResponse = await client.PostAsync("/SuperAdmin/Departments/Enter", enterForm);
+        Assert.Equal(HttpStatusCode.Redirect, enterResponse.StatusCode);
 
         HttpResponseMessage superAdminHome = await client.GetAsync("/SuperAdmin/Home/Index");
         superAdminHome.EnsureSuccessStatusCode();

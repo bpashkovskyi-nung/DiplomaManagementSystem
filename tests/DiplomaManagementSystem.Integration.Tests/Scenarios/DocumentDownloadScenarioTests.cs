@@ -19,7 +19,7 @@ public sealed class DocumentDownloadScenarioTests(PostgreSqlFixture fixture)
         await using AsyncServiceScope scope = fixture.CreateProvider().CreateAsyncScope();
         IServiceProvider services = scope.ServiceProvider;
 
-        await WorkflowScenarioRunner.RunTopicApprovalAsync(services, scenario);
+        await WorkflowScenarioRunner.RunUpToReviewerAssignedAsync(services, scenario);
         await WorkflowScenarioRunner.UploadStudentWorkAsync(services, scenario);
 
         IDiplomaDocumentService documentService = services.GetRequiredService<IDiplomaDocumentService>();

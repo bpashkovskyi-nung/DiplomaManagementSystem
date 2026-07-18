@@ -110,7 +110,7 @@ internal static class MapperTestFixtures
             "Тема роботи",
             TopicVersionStatus.Approved),
         State: new DiplomaLifecycleSnapshotDto(
-            DiplomaLifecycleStatus.WorkInProgressByStudent,
+            DiplomaLifecycleStatus.ReviewerAssigned,
             DiplomaAdmissionStatus.NotAdmitted,
             null,
             null),

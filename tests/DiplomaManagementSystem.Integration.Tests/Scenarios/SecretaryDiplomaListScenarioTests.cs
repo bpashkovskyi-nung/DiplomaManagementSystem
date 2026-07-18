@@ -23,7 +23,7 @@ public sealed class SecretaryDiplomaListScenarioTests(PostgreSqlFixture fixture)
         DiplomaListPageDto? page = await listService.GetListAsync(
             scenario.SessionId,
             new DiplomaListFilterDto(
-                LifecycleStatus: DiplomaLifecycleStatus.WorkInProgressByStudent,
+                LifecycleStatus: DiplomaLifecycleStatus.TopicApproved,
                 CurrentAdmissionStep: null,
                 SupervisorAssignmentStatus: null,
                 AdmissionStatus: null,

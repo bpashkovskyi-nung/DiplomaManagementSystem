@@ -68,9 +68,10 @@ internal static class IntegrationScenarioAssertions
 
     public static void AssertTopicApproved(DiplomaDetailsDto details)
     {
-        Assert.Equal(DiplomaLifecycleStatus.WorkInProgressByStudent, details.State.LifecycleStatus);
+        Assert.Equal(DiplomaLifecycleStatus.TopicApproved, details.State.LifecycleStatus);
         Assert.Contains(details.History.TopicVersions, version => version.Status == TopicVersionStatus.Approved);
         Assert.Empty(details.History.AttemptHistory);
+        Assert.Equal(ReviewAssignmentStatus.NotAssigned, details.Assignments.ReviewAssignmentStatus);
     }
 
     public static void AssertTopicRejectedBySupervisor(DiplomaDetailsDto details)

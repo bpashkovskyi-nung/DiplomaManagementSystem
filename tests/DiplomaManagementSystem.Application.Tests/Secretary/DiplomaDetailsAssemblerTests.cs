@@ -198,7 +198,7 @@ public sealed class DiplomaDetailsAssemblerTests
                 Type = DefenceSessionType.Bachelor,
                 Status = DefenceSessionStatus.Active,
             },
-            LifecycleStatus = DiplomaLifecycleStatus.WorkInProgressByStudent,
+            LifecycleStatus = DiplomaLifecycleStatus.ReviewerAssigned,
             TopicVersions = [topic],
             AdmissionStepAttempts = [],
         };

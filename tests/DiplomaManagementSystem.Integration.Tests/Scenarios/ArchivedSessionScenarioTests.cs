@@ -42,7 +42,7 @@ public sealed class ArchivedSessionScenarioTests(PostgreSqlFixture fixture)
         await using AsyncServiceScope scope = fixture.CreateProvider().CreateAsyncScope();
         IServiceProvider services = scope.ServiceProvider;
 
-        await WorkflowScenarioRunner.RunTopicApprovalAsync(services, scenario);
+        await WorkflowScenarioRunner.RunUpToReviewerAssignedAsync(services, scenario);
 
         IDefenceSessionService defenceSessionService = services.GetRequiredService<IDefenceSessionService>();
         await defenceSessionService.ArchiveAsync(scenario.SessionId, scenario.SecretaryId);
@@ -68,7 +68,7 @@ public sealed class ArchivedSessionScenarioTests(PostgreSqlFixture fixture)
         await using AsyncServiceScope scope = fixture.CreateProvider().CreateAsyncScope();
         IServiceProvider services = scope.ServiceProvider;
 
-        await WorkflowScenarioRunner.RunTopicApprovalAsync(services, scenario);
+        await WorkflowScenarioRunner.RunUpToReviewerAssignedAsync(services, scenario);
         await WorkflowScenarioRunner.UploadStudentWorkAsync(services, scenario);
 
         IDefenceSessionService defenceSessionService = services.GetRequiredService<IDefenceSessionService>();

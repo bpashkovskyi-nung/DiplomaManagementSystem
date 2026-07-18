@@ -28,7 +28,11 @@ internal static class WorkflowGuidanceMessages
 
     public const string UploadAfterTopicApproved = "Завантаження доступне після затвердження теми.";
 
+    public const string UploadAfterReviewerAssigned = "Завантаження доступне після призначення рецензента.";
+
     public const string UploadAfterAdmitted = "Роботу вже допущено до захисту — нові версії недоступні.";
+
+    public const string DeclareWorkReadyAwaitReviewer = "Спочатку секретар ДЕК має призначити рецензента.";
 
     public const string UploadWrongLifecycle = "Завантаження недоступне на поточному етапі.";
 

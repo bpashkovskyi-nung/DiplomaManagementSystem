@@ -58,7 +58,12 @@ public static class DiplomaWorkflowGuidance
             return WorkflowGuidanceMessages.SessionArchivedActions;
         }
 
-        if (lifecycleStatus != DiplomaLifecycleStatus.WorkInProgressByStudent)
+        if (lifecycleStatus == DiplomaLifecycleStatus.TopicApproved)
+        {
+            return WorkflowGuidanceMessages.DeclareWorkReadyAwaitReviewer;
+        }
+
+        if (lifecycleStatus != DiplomaLifecycleStatus.ReviewerAssigned)
         {
             return WorkflowGuidanceMessages.ChecksAlreadyStarted;
         }
@@ -92,16 +97,20 @@ public static class DiplomaWorkflowGuidance
             return WorkflowGuidanceMessages.UploadAfterTopicApproved;
         }
 
+        if (lifecycleStatus == DiplomaLifecycleStatus.TopicApproved)
+        {
+            return WorkflowGuidanceMessages.UploadAfterReviewerAssigned;
+        }
+
         if (lifecycleStatus == DiplomaLifecycleStatus.Admitted)
         {
             return WorkflowGuidanceMessages.UploadAfterAdmitted;
         }
 
         if (lifecycleStatus is not (
-            DiplomaLifecycleStatus.WorkInProgressByStudent
+            DiplomaLifecycleStatus.ReviewerAssigned
             or DiplomaLifecycleStatus.DocumentsInProgress
-            or DiplomaLifecycleStatus.ReadyForAdmission
-            or DiplomaLifecycleStatus.TopicApproved))
+            or DiplomaLifecycleStatus.ReadyForAdmission))
         {
             return WorkflowGuidanceMessages.UploadWrongLifecycle;
         }

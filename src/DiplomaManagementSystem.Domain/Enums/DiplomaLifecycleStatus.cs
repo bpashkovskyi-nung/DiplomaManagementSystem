@@ -6,7 +6,7 @@ public enum DiplomaLifecycleStatus
     SupervisorConfirmed = 1,
     TopicInReview = 2,
     TopicApproved = 3,
-    WorkInProgressByStudent = 4,
+    ReviewerAssigned = 4,
     DocumentsInProgress = 5,
     ReadyForAdmission = 6,
     Admitted = 7,

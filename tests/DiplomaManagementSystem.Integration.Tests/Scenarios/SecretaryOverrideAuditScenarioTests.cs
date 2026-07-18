@@ -27,6 +27,10 @@ public sealed class SecretaryOverrideAuditScenarioTests(PostgreSqlFixture fixtur
         ApplicationUser replacementSupervisor = await userProvisioningService.CreateEmployeeAsync(
             "Supervisor Two",
             $"supervisor2.{suffix}@test.local");
+        await IntegrationDepartmentHelper.AssignEmployeeAsync(
+            services,
+            replacementSupervisor.Id,
+            replacementSupervisor.FullName);
 
         ISecretaryDiplomaActionService secretaryActions = services.GetRequiredService<ISecretaryDiplomaActionService>();
         await secretaryActions.OverrideSupervisorAsync(

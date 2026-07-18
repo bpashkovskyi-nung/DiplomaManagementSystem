@@ -89,7 +89,7 @@ public static class UkrainianDisplay
         DiplomaLifecycleStatus.SupervisorConfirmed => "bg-info",
         DiplomaLifecycleStatus.TopicInReview => "bg-warning text-dark",
         DiplomaLifecycleStatus.TopicApproved => "bg-primary",
-        DiplomaLifecycleStatus.WorkInProgressByStudent => "bg-primary",
+        DiplomaLifecycleStatus.ReviewerAssigned => "bg-primary",
         DiplomaLifecycleStatus.DocumentsInProgress => "bg-info",
         DiplomaLifecycleStatus.ReadyForAdmission => "bg-success",
         DiplomaLifecycleStatus.Admitted => "bg-dark",

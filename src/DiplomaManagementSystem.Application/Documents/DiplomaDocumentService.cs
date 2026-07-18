@@ -22,7 +22,6 @@ internal sealed class DiplomaDocumentService(
     IUserDisplayQueries userDisplayQueries,
     IAdmissionStepQueries admissionStepQueries,
     IArchiveGuard archiveGuard,
-    AdmissionWorkflowService admissionWorkflowService,
     DiplomaLifecycleService diplomaLifecycleService,
     IFileStorageService fileStorageService,
     IOptions<FileStorageOptions> storageOptions) : IDiplomaDocumentService
@@ -118,20 +117,6 @@ internal sealed class DiplomaDocumentService(
         DiplomaTopicVersion? latestTopic = diploma.TopicVersions
             .OrderByDescending(version => version.VersionNumber)
             .FirstOrDefault();
-
-        bool shouldStartAdmissionReview = diploma.CurrentAdmissionStep is null
-                                          && attempts.Count == 0
-                                          && diploma.LifecycleStatus == DiplomaLifecycleStatus.WorkInProgressByStudent
-                                          && latestTopic?.Status == TopicVersionStatus.Approved;
-
-        if (shouldStartAdmissionReview && latestTopic is not null)
-        {
-            admissionWorkflowService.StartAdmissionReview(
-                diploma,
-                diploma.DefenceSession,
-                latestTopic,
-                attempts);
-        }
 
         diploma.LifecycleStatus = diplomaLifecycleService.Recalculate(diploma, latestTopic, attempts);
         diploma.UpdatedAt = DateTimeOffset.UtcNow;
@@ -306,10 +291,9 @@ internal sealed class DiplomaDocumentService(
         }
 
         if (diploma.LifecycleStatus is not (
-            DiplomaLifecycleStatus.WorkInProgressByStudent
+            DiplomaLifecycleStatus.ReviewerAssigned
             or DiplomaLifecycleStatus.DocumentsInProgress
-            or DiplomaLifecycleStatus.ReadyForAdmission
-            or DiplomaLifecycleStatus.TopicApproved))
+            or DiplomaLifecycleStatus.ReadyForAdmission))
         {
             throw new DomainException("Work upload is not available at the current lifecycle stage.");
         }

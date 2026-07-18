@@ -28,7 +28,7 @@ public sealed class MyDiplomaReadScenarioTests(PostgreSqlFixture fixture)
         IntegrationScenarioAssertions.AssertMyDiplomaCompositeShape(dto);
         Assert.Equal(scenario.DiplomaId, dto.Header.DiplomaId);
         Assert.Equal(TopicVersionStatus.Approved, dto.Assignments.TopicStatus);
-        Assert.Equal(DiplomaLifecycleStatus.WorkInProgressByStudent, dto.State!.LifecycleStatus);
+        Assert.Equal(DiplomaLifecycleStatus.TopicApproved, dto.State!.LifecycleStatus);
 
         StudentWorkflowStepDto approvedTopicStep = dto.WorkflowProgress!.Steps[1];
         Assert.Equal(StudentWorkflowStepState.Completed, approvedTopicStep.State);

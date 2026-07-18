@@ -18,7 +18,7 @@ public sealed class DocumentDownloadEndpointTests(PostgreSqlFixture fixture)
             .SeedFullScenarioAsync();
 
         await using AsyncServiceScope setupScope = fixture.CreateProvider().CreateAsyncScope();
-        await WorkflowScenarioRunner.RunTopicApprovalAsync(setupScope.ServiceProvider, scenario);
+        await WorkflowScenarioRunner.RunUpToReviewerAssignedAsync(setupScope.ServiceProvider, scenario);
         await WorkflowScenarioRunner.UploadStudentWorkAsync(setupScope.ServiceProvider, scenario);
 
         IDiplomaDocumentService documentService = setupScope.ServiceProvider.GetRequiredService<IDiplomaDocumentService>();
@@ -51,7 +51,7 @@ public sealed class DocumentDownloadEndpointTests(PostgreSqlFixture fixture)
             .SeedFullScenarioAsync();
 
         await using AsyncServiceScope setupScope = fixture.CreateProvider().CreateAsyncScope();
-        await WorkflowScenarioRunner.RunTopicApprovalAsync(setupScope.ServiceProvider, scenario);
+        await WorkflowScenarioRunner.RunUpToReviewerAssignedAsync(setupScope.ServiceProvider, scenario);
         await WorkflowScenarioRunner.UploadStudentWorkAsync(setupScope.ServiceProvider, scenario);
 
         IDiplomaDocumentService documentService = setupScope.ServiceProvider.GetRequiredService<IDiplomaDocumentService>();

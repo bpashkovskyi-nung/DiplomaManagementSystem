@@ -1,8 +1,6 @@
 using DiplomaManagementSystem.Application;
 using DiplomaManagementSystem.Application.Employee.Contracts;
 using DiplomaManagementSystem.Application.Employee.Dtos;
-using DiplomaManagementSystem.Application.Secretary.Contracts;
-using DiplomaManagementSystem.Application.Secretary.Dtos;
 using DiplomaManagementSystem.Domain.Enums;
 using DiplomaManagementSystem.Integration.Tests.Support;
 using Microsoft.Extensions.DependencyInjection;
@@ -138,7 +136,6 @@ public sealed class EmployeeHomeScenarioTests(PostgreSqlFixture fixture)
         await WorkflowScenarioRunner.RunUpToSupervisorFeedbackStepAsync(services, scenario);
 
         IAdmissionReviewService admissionReviewService = services.GetRequiredService<IAdmissionReviewService>();
-        ISecretaryDiplomaActionService secretaryActions = services.GetRequiredService<ISecretaryDiplomaActionService>();
 
         await admissionReviewService.CompleteSupervisorFeedbackAsync(
             scenario.SupervisorId,
@@ -153,11 +150,6 @@ public sealed class EmployeeHomeScenarioTests(PostgreSqlFixture fixture)
             scenario.AntiPlagiarismId,
             new CompleteCheckpointDto(scenario.DiplomaId, CheckpointOutcome.Approved, null),
             IntegrationTestDocuments.CreatePdf("anti-plagiarism.pdf"),
-            CancellationToken.None);
-        await secretaryActions.AssignReviewerAsync(
-            scenario.SecretaryId,
-            scenario.SessionId,
-            new AssignReviewerDto(scenario.DiplomaId, scenario.ReviewerId),
             CancellationToken.None);
 
         IEmployeeHomeService employeeHomeService = services.GetRequiredService<IEmployeeHomeService>();

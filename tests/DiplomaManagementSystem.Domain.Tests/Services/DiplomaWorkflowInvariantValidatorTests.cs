@@ -13,7 +13,7 @@ public sealed class DiplomaWorkflowInvariantValidatorTests
     public void ValidateTopicVersion_ApprovedWithConfirmedSupervisor_DoesNotThrow()
     {
         Guid supervisorId = Guid.NewGuid();
-        Diploma diploma = CreateDiploma(supervisorId, SupervisorAssignmentStatus.Confirmed, DiplomaLifecycleStatus.WorkInProgressByStudent);
+        Diploma diploma = CreateDiploma(supervisorId, SupervisorAssignmentStatus.Confirmed, DiplomaLifecycleStatus.ReviewerAssigned);
         DiplomaTopicVersion version = CreateTopicVersion(TopicVersionStatus.Approved, supervisorId);
 
         _validator.ValidateTopicVersion(diploma, version);
@@ -22,7 +22,7 @@ public sealed class DiplomaWorkflowInvariantValidatorTests
     [Fact]
     public void ValidateTopicVersion_ApprovedWithoutSupervisor_Throws()
     {
-        Diploma diploma = CreateDiploma(supervisorId: null, SupervisorAssignmentStatus.Pending, DiplomaLifecycleStatus.WorkInProgressByStudent);
+        Diploma diploma = CreateDiploma(supervisorId: null, SupervisorAssignmentStatus.Pending, DiplomaLifecycleStatus.ReviewerAssigned);
         DiplomaTopicVersion version = CreateTopicVersion(TopicVersionStatus.Approved, supervisorId: Guid.NewGuid());
 
         DomainException exception = Assert.Throws<DomainException>(() =>
@@ -35,7 +35,7 @@ public sealed class DiplomaWorkflowInvariantValidatorTests
     public void ValidateTopicVersion_ApprovedWithoutSupervisorReview_Throws()
     {
         Guid supervisorId = Guid.NewGuid();
-        Diploma diploma = CreateDiploma(supervisorId, SupervisorAssignmentStatus.Confirmed, DiplomaLifecycleStatus.WorkInProgressByStudent);
+        Diploma diploma = CreateDiploma(supervisorId, SupervisorAssignmentStatus.Confirmed, DiplomaLifecycleStatus.ReviewerAssigned);
         DiplomaTopicVersion version = CreateTopicVersion(TopicVersionStatus.Approved, supervisorId: null);
 
         DomainException exception = Assert.Throws<DomainException>(() =>
@@ -71,7 +71,7 @@ public sealed class DiplomaWorkflowInvariantValidatorTests
     [Fact]
     public void Validate_RejectsAggregateWithInvalidApprovedTopic()
     {
-        Diploma diploma = CreateDiploma(supervisorId: null, SupervisorAssignmentStatus.Pending, DiplomaLifecycleStatus.WorkInProgressByStudent);
+        Diploma diploma = CreateDiploma(supervisorId: null, SupervisorAssignmentStatus.Pending, DiplomaLifecycleStatus.ReviewerAssigned);
         DiplomaTopicVersion version = CreateTopicVersion(TopicVersionStatus.Approved, supervisorId: Guid.NewGuid());
 
         Assert.Throws<DomainException>(() => _validator.Validate(diploma, [version]));

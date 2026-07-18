@@ -29,7 +29,7 @@ public sealed class WorkReadinessService
             throw new DomainException("Admission checks have already started.");
         }
 
-        if (diploma.LifecycleStatus != DiplomaLifecycleStatus.WorkInProgressByStudent)
+        if (diploma.LifecycleStatus != DiplomaLifecycleStatus.ReviewerAssigned)
         {
             throw new DomainException("Work is not in the student execution phase.");
         }

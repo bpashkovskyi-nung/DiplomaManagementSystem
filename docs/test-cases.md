@@ -53,7 +53,7 @@
 | ID | Case | Input | Expected | Status | Test |
 |----|------|-------|----------|--------|------|
 | TC-DOM-SOP-001 | AllowsLifecycle before work in progress | `AwaitingSupervisor` | `true` | implemented | `AllowsLifecycle_BeforeWorkInProgress_ReturnsTrue` |
-| TC-DOM-SOP-002 | AllowsLifecycle after topic approved | `WorkInProgressByStudent` | `false` | implemented | `AllowsLifecycle_AfterTopicApproved_ReturnsFalse` |
+| TC-DOM-SOP-002 | AllowsLifecycle after reviewer assigned | `ReviewerAssigned` | `false` | implemented | `AllowsLifecycle_AfterTopicApproved_ReturnsFalse` |
 | TC-DOM-SOP-003 | AllowsAdmission when not admitted | `NotAdmitted` | `true` | implemented | `AllowsAdmission_NotAdmitted_ReturnsTrue` |
 | TC-DOM-SOP-004 | AllowsAdmission when admitted | `Admitted` | `false` | implemented | `AllowsAdmission_Admitted_ReturnsFalse` |
 | TC-DOM-SOP-005 | EnsureCanOverride archived session | archived | `DomainException` session archived | implemented | `EnsureCanOverride_ArchivedSession_Throws` |
@@ -75,7 +75,7 @@
 | TC-DOM-DLS-001 | Admitted status wins | `AdmissionStatus=Admitted` | `Admitted` lifecycle | implemented | `Recalculate_Admitted_ReturnsAdmitted` |
 | TC-DOM-DLS-002 | Ready for admission | all checks pass | `ReadyForAdmission` | implemented | `Recalculate_ReadyForAdmission_ReturnsReady` |
 | TC-DOM-DLS-003 | Documents in progress | attempts exist | `DocumentsInProgress` | implemented | `Recalculate_WithAttempts_ReturnsDocumentsInProgress` |
-| TC-DOM-DLS-004 | Work in progress | approved topic, no attempts | `WorkInProgressByStudent` | implemented | `Recalculate_ApprovedTopic_ReturnsWorkInProgress` |
+| TC-DOM-DLS-004 | Topic approved without reviewer | approved topic, no reviewer | `TopicApproved` | implemented | `Recalculate_ApprovedTopicWithoutReviewer_ReturnsTopicApproved` |
 | TC-DOM-DLS-005 | Topic in review | pending topic | `TopicInReview` | implemented | `Recalculate_PendingTopic_ReturnsTopicInReview` |
 | TC-DOM-DLS-006 | Supervisor confirmed | confirmed, no topic | `SupervisorConfirmed` | implemented | `Recalculate_SupervisorConfirmed_ReturnsSupervisorConfirmed` |
 | TC-DOM-DLS-007 | Awaiting supervisor | default | `AwaitingSupervisor` | implemented | `Recalculate_Default_ReturnsAwaitingSupervisor` |

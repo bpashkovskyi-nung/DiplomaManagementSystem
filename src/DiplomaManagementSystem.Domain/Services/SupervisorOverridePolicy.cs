@@ -7,7 +7,7 @@ namespace DiplomaManagementSystem.Domain.Services;
 public static class SupervisorOverridePolicy
 {
     public static bool AllowsLifecycleOverride(DiplomaLifecycleStatus lifecycleStatus) =>
-        lifecycleStatus < DiplomaLifecycleStatus.WorkInProgressByStudent;
+        lifecycleStatus < DiplomaLifecycleStatus.ReviewerAssigned;
 
     public static bool AllowsAdmissionOverride(DiplomaAdmissionStatus admissionStatus) =>
         admissionStatus != DiplomaAdmissionStatus.Admitted;
