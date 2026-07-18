@@ -79,4 +79,23 @@ public sealed class EntityModelSmokeTests
 
         Assert.Same(attempt, document.AdmissionStepAttempt);
     }
+
+    [Fact]
+    public void ExaminationCommissionParticipant_CanSetDefenceSessionNavigation()
+    {
+        DefenceSession session = new() { Id = Guid.NewGuid() };
+        ExaminationCommissionParticipant participant = new()
+        {
+            Id = Guid.NewGuid(),
+            DefenceSessionId = session.Id,
+            DefenceSession = session,
+            Role = ExaminationCommissionRole.Chair,
+            FullName = "Тест",
+            Position = "проф.",
+        };
+        session.ExaminationCommissionParticipants.Add(participant);
+
+        Assert.Same(session, participant.DefenceSession);
+        Assert.Contains(participant, session.ExaminationCommissionParticipants);
+    }
 }

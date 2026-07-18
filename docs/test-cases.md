@@ -146,6 +146,17 @@
 | TC-APP-AUTH-035 | ApproveTopicAsDepartmentHead — no role | | NotDepartmentHead | implemented | `DepartmentHeadTopicAction_NoRole_Throws` |
 | TC-APP-AUTH-036 | RejectTopicAsDepartmentHead — via version | head on version | success | implemented | `RejectTopicAsDepartmentHead_OnVersion_Succeeds` |
 
+### 2.4.1 Examination commission roster
+
+| ID | Case | Input | Expected | Status | Test |
+|----|------|-------|----------|--------|------|
+| TC-APP-EK-001 | Save roster — internal chair + 3 members | valid | persisted snapshots | implemented | `ExaminationCommissionServiceTests` |
+| TC-APP-EK-002 | Save roster — fewer than 3 members | 2 members | validation/domain error | implemented | `ExaminationCommissionServiceTests` |
+| TC-APP-EK-003 | Save roster — internal without rank | rank null | domain error | implemented | `ExaminationCommissionServiceTests` |
+| TC-APP-EK-004 | Save roster — external requires name/position | blank | validation error | implemented | `SaveExaminationCommissionValidator` |
+| TC-APP-EK-005 | Snapshot stable after employee rename | rename user | roster FullName unchanged | implemented | `ExaminationCommissionServiceTests` |
+| TC-APP-EK-006 | HTTP SaveCommission persists roster | form post | reload shows names | implemented | `AdminAnnualRolesEndpointTests` |
+
 ### 2.5 Secretary
 
 | ID | Case | Input | Expected | Status | Test |

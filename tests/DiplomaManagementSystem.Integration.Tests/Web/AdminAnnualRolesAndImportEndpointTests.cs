@@ -65,6 +65,57 @@ public sealed class AdminAnnualRolesEndpointTests(PostgreSqlFixture fixture)
         IntegrationTestHtmlAssertions.AssertContainsText(resultHtml, "Роль призначено");
         IntegrationTestHtmlAssertions.AssertContainsText(resultHtml, "Reviewer One");
     }
+
+    [SkippableFact]
+    public async Task PostSaveCommission_PersistsExternalRoster()
+    {
+        IntegrationTestGuards.RequireDatabase(fixture);
+        IntegrationScenario scenario = await new IntegrationScenarioBuilder(fixture.CreateProvider())
+            .SeedFullScenarioAsync();
+        Guid adminId = await IntegrationAdminHelper.CreateAdminUserAsync(fixture.CreateProvider());
+
+        await using DiplomaManagementSystemWebApplicationFactory factory = fixture.CreateWebFactory();
+        HttpClient client = IntegrationTestWebClient.CreateClient(factory, adminId);
+
+        HttpResponseMessage page = await client.GetAsync(
+            $"/Admin/AnnualRoles?defenceSessionId={scenario.SessionId}");
+        page.EnsureSuccessStatusCode();
+        string html = await page.Content.ReadAsStringAsync();
+        IntegrationTestHtmlAssertions.AssertContainsText(html, "Екзаменаційна комісія");
+        string token = AntiforgeryTokenParser.Parse(html);
+
+        FormUrlEncodedContent form = new(new Dictionary<string, string>
+        {
+            ["__RequestVerificationToken"] = token,
+            ["DefenceSessionId"] = scenario.SessionId.ToString(),
+            ["Chair.IsExternal"] = "true",
+            ["Chair.FullName"] = "Голова Зовнішній",
+            ["Chair.Position"] = "д.т.н., професор",
+            ["Members[0].IsExternal"] = "true",
+            ["Members[0].FullName"] = "Член Перший",
+            ["Members[0].Position"] = "к.т.н.",
+            ["Members[1].IsExternal"] = "true",
+            ["Members[1].FullName"] = "Член Другий",
+            ["Members[1].Position"] = "доцент",
+            ["Members[2].IsExternal"] = "true",
+            ["Members[2].FullName"] = "Член Третій",
+            ["Members[2].Position"] = "старший викладач",
+        });
+
+        HttpResponseMessage postResponse = await client.PostAsync("/Admin/AnnualRoles/SaveCommission", form);
+
+        Assert.Equal(HttpStatusCode.OK, postResponse.StatusCode);
+        string resultHtml = await postResponse.Content.ReadAsStringAsync();
+        IntegrationTestHtmlAssertions.AssertContainsText(resultHtml, "Склад ЕК збережено");
+        IntegrationTestHtmlAssertions.AssertContainsText(resultHtml, "Голова Зовнішній");
+        IntegrationTestHtmlAssertions.AssertContainsText(resultHtml, "Член Третій");
+
+        await using AsyncServiceScope scope = factory.Services.CreateAsyncScope();
+        IApplicationDbContext dbContext = scope.ServiceProvider.GetRequiredService<IApplicationDbContext>();
+        int count = await dbContext.ExaminationCommissionParticipants.CountAsync(
+            participant => participant.DefenceSessionId == scenario.SessionId);
+        Assert.Equal(4, count);
+    }
 }
 
 [Collection(nameof(IntegrationCollection))]

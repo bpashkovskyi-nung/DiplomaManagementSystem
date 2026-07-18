@@ -2,6 +2,8 @@ using DiplomaManagementSystem.Application.Admin.AnnualRoles;
 using DiplomaManagementSystem.Application.Admin.AnnualRoles.Contracts;
 using DiplomaManagementSystem.Application.Admin.DefenceSessions;
 using DiplomaManagementSystem.Application.Admin.DefenceSessions.Contracts;
+using DiplomaManagementSystem.Application.Admin.ExaminationCommission;
+using DiplomaManagementSystem.Application.Admin.ExaminationCommission.Contracts;
 using DiplomaManagementSystem.Application.Admin.EmployeeWorkloadLimits;
 using DiplomaManagementSystem.Application.Admin.EmployeeWorkloadLimits.Contracts;
 using DiplomaManagementSystem.Application.Admin.Employees;
@@ -125,6 +127,7 @@ public static class DependencyInjection
         services.AddScoped<IStudentAdminService, StudentAdminService>();
         services.AddScoped<IEmployeeAdminService, EmployeeAdminService>();
         services.AddScoped<IAnnualRoleService, AnnualRoleService>();
+        services.AddScoped<IExaminationCommissionService, ExaminationCommissionService>();
         services.AddScoped<IEmployeeWorkloadLimitAdminService, EmployeeWorkloadLimitAdminService>();
         services.AddScoped<IEmployeeWorkloadLimitService, EmployeeWorkloadLimitService>();
         services.AddScoped<ISecretaryAccessService, SecretaryAccessService>();

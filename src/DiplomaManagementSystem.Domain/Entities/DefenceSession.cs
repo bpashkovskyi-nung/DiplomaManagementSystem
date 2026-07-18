@@ -27,4 +27,6 @@ public sealed class DefenceSession
     public ICollection<Diploma> Diplomas { get; set; } = [];
 
     public ICollection<AnnualRoleAssignment> RoleAssignments { get; set; } = [];
+
+    public ICollection<ExaminationCommissionParticipant> ExaminationCommissionParticipants { get; set; } = [];
 }

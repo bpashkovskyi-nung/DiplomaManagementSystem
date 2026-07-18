@@ -18,6 +18,8 @@ public sealed class DisplayLocalizationTests
         Assert.Equal("Секретар ДЕК", UkrainianDisplay.FormatAnnualRoleType(AnnualRoleType.ExamCommissionSecretary));
         Assert.Equal("Відповідальний за антиплагіат", UkrainianDisplay.FormatAnnualRoleType(AnnualRoleType.AntiPlagiarismOfficer));
         Assert.Equal("Нормоконтролер", UkrainianDisplay.FormatAnnualRoleType(AnnualRoleType.FormattingReviewer));
+        Assert.Equal("Голова ЕК", UkrainianDisplay.FormatEnum(ExaminationCommissionRole.Chair));
+        Assert.Equal("Член ЕК", UkrainianDisplay.FormatEnum(ExaminationCommissionRole.Member));
     }
 
     [Fact]

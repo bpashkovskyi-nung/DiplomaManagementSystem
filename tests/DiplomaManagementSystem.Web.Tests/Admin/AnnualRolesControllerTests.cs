@@ -4,6 +4,8 @@ using DiplomaManagementSystem.Application.Admin.AnnualRoles.Contracts;
 using DiplomaManagementSystem.Application.Admin.AnnualRoles.Dtos;
 using DiplomaManagementSystem.Application.Admin.DefenceSessions.Contracts;
 using DiplomaManagementSystem.Application.Admin.DefenceSessions.Dtos;
+using DiplomaManagementSystem.Application.Admin.ExaminationCommission.Contracts;
+using DiplomaManagementSystem.Application.Admin.ExaminationCommission.Dtos;
 using DiplomaManagementSystem.Application.Constants;
 using DiplomaManagementSystem.Application.ReadModels;
 using DiplomaManagementSystem.Domain.Enums;
@@ -52,6 +54,7 @@ public sealed class AnnualRolesControllerTests
         Assert.Equal(sessionId, model.DefenceSessionId);
         Assert.Equal(2, model.Roles.Count);
         Assert.Single(model.Employees);
+        Assert.Equal(3, model.Commission.Members.Count);
     }
 
     [Fact]
@@ -65,7 +68,7 @@ public sealed class AnnualRolesControllerTests
             []);
         AnnualRolesController controller = CreateController(
             new FakeAnnualRoleService(page),
-            new AlwaysInvalidValidator());
+            assignValidator: new AlwaysInvalidAssignValidator());
 
         ViewResult result = Assert.IsType<ViewResult>(
             await controller.Assign(
@@ -91,7 +94,7 @@ public sealed class AnnualRolesControllerTests
             [new AnnualRoleSlotDto(AnnualRoleType.DepartmentHead, Guid.NewGuid(), "Employee One")],
             []);
         FakeAnnualRoleService annualRoleService = new(page);
-        AnnualRolesController controller = CreateController(annualRoleService, new AlwaysValidValidator());
+        AnnualRolesController controller = CreateController(annualRoleService, assignValidator: new AlwaysValidAssignValidator());
 
         ViewResult result = Assert.IsType<ViewResult>(
             await controller.Assign(
@@ -119,7 +122,7 @@ public sealed class AnnualRolesControllerTests
             []);
         AnnualRolesController controller = CreateController(
             new ThrowingAnnualRoleService(page, new DomainException("Помилка призначення")),
-            new AlwaysValidValidator());
+            assignValidator: new AlwaysValidAssignValidator());
 
         ViewResult result = Assert.IsType<ViewResult>(
             await controller.Assign(
@@ -135,14 +138,64 @@ public sealed class AnnualRolesControllerTests
         Assert.Contains(controller.ModelState[string.Empty]!.Errors, error => error.ErrorMessage == "Помилка призначення");
     }
 
+    [Fact]
+    public async Task SaveCommission_WhenServiceSucceeds_ReturnsIndexWithSuccess()
+    {
+        Guid sessionId = Guid.NewGuid();
+        AnnualRolesPageDto page = new(
+            sessionId,
+            "2026 — Бакалавр (сем. 1)",
+            [new AnnualRoleSlotDto(AnnualRoleType.DepartmentHead, null, null)],
+            []);
+        FakeExaminationCommissionService commissionService = new(
+            new ExaminationCommissionEditorDto(
+                sessionId,
+                "2026 — Бакалавр (сем. 1)",
+                new ExaminationCommissionDto(null, []),
+                []));
+        AnnualRolesController controller = CreateController(
+            new FakeAnnualRoleService(page),
+            commissionService,
+            new AlwaysValidAssignValidator(),
+            new AlwaysValidCommissionValidator());
+
+        ViewResult result = Assert.IsType<ViewResult>(
+            await controller.SaveCommission(
+                new ExaminationCommissionFormViewModel
+                {
+                    DefenceSessionId = sessionId,
+                    Chair = new ExaminationCommissionParticipantFormViewModel
+                    {
+                        IsExternal = true,
+                        FullName = "Голова",
+                        Position = "проф.",
+                    },
+                    Members =
+                    [
+                        new() { IsExternal = true, FullName = "Ч1", Position = "доц." },
+                        new() { IsExternal = true, FullName = "Ч2", Position = "доц." },
+                        new() { IsExternal = true, FullName = "Ч3", Position = "доц." },
+                    ],
+                },
+                CancellationToken.None));
+
+        Assert.Equal("Index", result.ViewName);
+        Assert.Equal("Склад ЕК збережено.", controller.ViewData["Success"]);
+        Assert.True(commissionService.SaveCalled);
+    }
+
     private static AnnualRolesController CreateController(
         IAnnualRoleService annualRoleService,
-        IValidator<AssignAnnualRoleDto>? validator = null)
+        IExaminationCommissionService? commissionService = null,
+        IValidator<AssignAnnualRoleDto>? assignValidator = null,
+        IValidator<SaveExaminationCommissionDto>? commissionValidator = null)
     {
         AnnualRolesController controller = new(
             annualRoleService,
+            commissionService ?? new FakeExaminationCommissionService(null),
             new FakeDefenceSessionService(),
-            validator ?? new AlwaysValidValidator())
+            assignValidator ?? new AlwaysValidAssignValidator(),
+            commissionValidator ?? new AlwaysValidCommissionValidator())
         {
             ControllerContext = new ControllerContext
             {
@@ -185,6 +238,23 @@ public sealed class AnnualRolesControllerTests
             throw exception;
     }
 
+    private sealed class FakeExaminationCommissionService(ExaminationCommissionEditorDto? editor)
+        : IExaminationCommissionService
+    {
+        public bool SaveCalled { get; private set; }
+
+        public Task<ExaminationCommissionEditorDto?> GetEditorAsync(
+            Guid defenceSessionId,
+            CancellationToken cancellationToken = default) =>
+            Task.FromResult(editor);
+
+        public Task SaveAsync(SaveExaminationCommissionDto request, CancellationToken cancellationToken = default)
+        {
+            SaveCalled = true;
+            return Task.CompletedTask;
+        }
+    }
+
     private sealed class FakeDefenceSessionService : IDefenceSessionService
     {
         public Task<IReadOnlyList<DefenceSessionListItemDto>> GetAllAsync(CancellationToken cancellationToken = default) =>
@@ -206,11 +276,13 @@ public sealed class AnnualRolesControllerTests
             Task.CompletedTask;
     }
 
-    private sealed class AlwaysValidValidator : AbstractValidator<AssignAnnualRoleDto>;
+    private sealed class AlwaysValidAssignValidator : AbstractValidator<AssignAnnualRoleDto>;
 
-    private sealed class AlwaysInvalidValidator : AbstractValidator<AssignAnnualRoleDto>
+    private sealed class AlwaysValidCommissionValidator : AbstractValidator<SaveExaminationCommissionDto>;
+
+    private sealed class AlwaysInvalidAssignValidator : AbstractValidator<AssignAnnualRoleDto>
     {
-        public AlwaysInvalidValidator()
+        public AlwaysInvalidAssignValidator()
         {
             RuleFor(dto => dto.EmployeeId)
                 .Must(_ => false)

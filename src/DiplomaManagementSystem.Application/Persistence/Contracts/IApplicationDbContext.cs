@@ -25,6 +25,8 @@ public interface IApplicationDbContext
 
     DbSet<AnnualRoleAssignment> AnnualRoleAssignments { get; }
 
+    DbSet<ExaminationCommissionParticipant> ExaminationCommissionParticipants { get; }
+
     DbSet<EmployeeSessionWorkloadLimit> EmployeeSessionWorkloadLimits { get; }
 
     DbSet<Diploma> Diplomas { get; }

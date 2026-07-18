@@ -73,6 +73,14 @@ public sealed class WorkflowUkrainianLabelsTests
         Assert.Equal(expected, WorkflowUkrainianLabels.FormatAnnualRoleType(roleType));
     }
 
+    [Theory]
+    [InlineData(ExaminationCommissionRole.Chair, "Голова ЕК")]
+    [InlineData(ExaminationCommissionRole.Member, "Член ЕК")]
+    public void FormatExaminationCommissionRole_ReturnsUkrainian(ExaminationCommissionRole role, string expected)
+    {
+        Assert.Equal(expected, WorkflowUkrainianLabels.FormatExaminationCommissionRole(role));
+    }
+
     [Fact]
     public void FormatAdmissionStepInline_UnknownStep_ReturnsStringValue()
     {

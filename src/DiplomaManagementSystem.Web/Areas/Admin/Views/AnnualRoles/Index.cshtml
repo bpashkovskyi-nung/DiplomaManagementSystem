@@ -1,6 +1,14 @@
 @model DiplomaManagementSystem.Web.Areas.Admin.Models.AnnualRolesViewModel
 @{
     ViewData["Title"] = AdminPageTitles.AnnualRoles;
+    string employeesJson = System.Text.Json.JsonSerializer.Serialize(
+        Model.CommissionEmployees.Select(employee => new
+        {
+            id = employee.Id,
+            fullName = employee.FullName,
+            email = employee.Email,
+            position = employee.Position,
+        }));
 }
 
 <h1 class="mb-1">@ViewData["Title"]</h1>
@@ -43,3 +51,209 @@
     }
     </tbody>
 </table>
+
+<hr class="my-4"/>
+
+<h2 class="h4 mb-3">Екзаменаційна комісія</h2>
+<p class="text-muted small mb-3">
+    Голова — 1 особа. Члени — щонайменше 3. Можна обрати викладача кафедри або ввести зовнішню особу вручну.
+</p>
+
+<form asp-action="SaveCommission" method="post" id="commission-form">
+    @Html.AntiForgeryToken()
+    <input type="hidden" name="DefenceSessionId" value="@Model.DefenceSessionId"/>
+
+    <div class="card mb-3">
+        <div class="card-header">Голова ЕК</div>
+        <div class="card-body">
+            @await Html.PartialAsync("_CommissionParticipantFields", new CommissionParticipantFieldsModel
+            {
+                Prefix = "Chair",
+                Participant = Model.Commission.Chair,
+                Employees = Model.CommissionEmployees,
+            })
+        </div>
+    </div>
+
+    <div class="card mb-3">
+        <div class="card-header d-flex justify-content-between align-items-center">
+            <span>Члени ЕК</span>
+            <button type="button" class="btn btn-sm btn-outline-secondary" id="add-member-btn">Додати члена</button>
+        </div>
+        <div class="card-body" id="members-container">
+            @for (int i = 0; i < Model.Commission.Members.Count; i++)
+            {
+                <div class="commission-member border rounded p-3 mb-3" data-member-index="@i">
+                    <div class="d-flex justify-content-between align-items-center mb-2">
+                        <strong class="member-label">Член @(i + 1)</strong>
+                        <button type="button"
+                                class="btn btn-sm btn-outline-danger remove-member-btn"
+                                @(Model.Commission.Members.Count <= 3 ? "disabled" : null)>
+                            Видалити
+                        </button>
+                    </div>
+                    @await Html.PartialAsync("_CommissionParticipantFields", new CommissionParticipantFieldsModel
+                    {
+                        Prefix = $"Members[{i}]",
+                        Participant = Model.Commission.Members[i],
+                        Employees = Model.CommissionEmployees,
+                    })
+                </div>
+            }
+        </div>
+    </div>
+
+    <button type="submit" class="btn btn-primary">Зберегти склад ЕК</button>
+</form>
+
+<template id="member-template">
+    <div class="commission-member border rounded p-3 mb-3" data-member-index="__INDEX__">
+        <div class="d-flex justify-content-between align-items-center mb-2">
+            <strong class="member-label">Член __NUMBER__</strong>
+            <button type="button" class="btn btn-sm btn-outline-danger remove-member-btn">Видалити</button>
+        </div>
+        <div class="row g-3 commission-participant" data-prefix="Members[__INDEX__]">
+            <div class="col-12">
+                <div class="form-check form-check-inline">
+                    <input class="form-check-input source-internal" type="radio" name="Members[__INDEX__].IsExternal" value="false" checked
+                           id="Members___INDEX___internal"/>
+                    <label class="form-check-label" for="Members___INDEX___internal">Викладач кафедри</label>
+                </div>
+                <div class="form-check form-check-inline">
+                    <input class="form-check-input source-external" type="radio" name="Members[__INDEX__].IsExternal" value="true"
+                           id="Members___INDEX___external"/>
+                    <label class="form-check-label" for="Members___INDEX___external">Зовнішня особа</label>
+                </div>
+            </div>
+            <div class="col-md-6 internal-fields">
+                <label class="form-label">Викладач</label>
+                <select class="form-select employee-select" name="Members[__INDEX__].EmployeeId">
+                    <option value="">— оберіть —</option>
+                </select>
+            </div>
+            <div class="col-md-6 internal-fields">
+                <label class="form-label">Посада (звання)</label>
+                <input type="text" class="form-control position-readonly" readonly/>
+            </div>
+            <div class="col-md-6 external-fields d-none">
+                <label class="form-label">ПІБ</label>
+                <input type="text" class="form-control" name="Members[__INDEX__].FullName" maxlength="200"/>
+            </div>
+            <div class="col-md-6 external-fields d-none">
+                <label class="form-label">Посада</label>
+                <input type="text" class="form-control" name="Members[__INDEX__].Position" maxlength="300"/>
+            </div>
+        </div>
+    </div>
+</template>
+
+<script>
+(() => {
+    const employees = @Html.Raw(employeesJson);
+    const container = document.getElementById('members-container');
+    const addBtn = document.getElementById('add-member-btn');
+    const template = document.getElementById('member-template');
+    const minMembers = 3;
+
+    function fillEmployeeSelect(select) {
+        if (!select || select.dataset.filled === '1') {
+            return;
+        }
+        for (const employee of employees) {
+            const option = document.createElement('option');
+            option.value = employee.id;
+            option.textContent = `${employee.fullName} (${employee.email})`;
+            option.dataset.position = employee.position || '';
+            select.appendChild(option);
+        }
+        select.dataset.filled = '1';
+    }
+
+    function syncParticipant(root) {
+        const isExternal = root.querySelector('.source-external')?.checked === true;
+        root.querySelectorAll('.internal-fields').forEach(el => el.classList.toggle('d-none', isExternal));
+        root.querySelectorAll('.external-fields').forEach(el => el.classList.toggle('d-none', !isExternal));
+        const select = root.querySelector('.employee-select');
+        fillEmployeeSelect(select);
+        const positionInput = root.querySelector('.position-readonly');
+        if (select && positionInput) {
+            const selected = select.selectedOptions[0];
+            positionInput.value = selected?.dataset.position || '';
+        }
+    }
+
+    function reindexMembers() {
+        const members = [...container.querySelectorAll('.commission-member')];
+        members.forEach((member, index) => {
+            member.dataset.memberIndex = String(index);
+            member.querySelector('.member-label').textContent = `Член ${index + 1}`;
+            member.querySelectorAll('[name]').forEach(input => {
+                input.name = input.name.replace(/Members\[\d+]/, `Members[${index}]`);
+            });
+            member.querySelectorAll('[id]').forEach(el => {
+                el.id = el.id.replace(/Members__\d+__/, `Members__${index}__`);
+            });
+            member.querySelectorAll('label[for]').forEach(label => {
+                label.htmlFor = label.htmlFor.replace(/Members__\d+__/, `Members__${index}__`);
+            });
+            const removeBtn = member.querySelector('.remove-member-btn');
+            if (removeBtn) {
+                removeBtn.disabled = members.length <= minMembers;
+            }
+        });
+    }
+
+    document.querySelectorAll('.commission-participant').forEach(syncParticipant);
+
+    document.addEventListener('change', (event) => {
+        const target = event.target;
+        if (!(target instanceof HTMLElement)) {
+            return;
+        }
+        const root = target.closest('.commission-participant');
+        if (!root) {
+            return;
+        }
+        if (target.classList.contains('source-internal')
+            || target.classList.contains('source-external')
+            || target.classList.contains('employee-select')) {
+            syncParticipant(root);
+        }
+    });
+
+    addBtn?.addEventListener('click', () => {
+        const index = container.querySelectorAll('.commission-member').length;
+        const html = template.innerHTML
+            .replaceAll('__INDEX__', String(index))
+            .replaceAll('__NUMBER__', String(index + 1));
+        const wrapper = document.createElement('div');
+        wrapper.innerHTML = html.trim();
+        const member = wrapper.firstElementChild;
+        container.appendChild(member);
+        syncParticipant(member.querySelector('.commission-participant'));
+        reindexMembers();
+    });
+
+    container?.addEventListener('click', (event) => {
+        const target = event.target;
+        if (!(target instanceof HTMLElement) || !target.classList.contains('remove-member-btn')) {
+            return;
+        }
+        if (container.querySelectorAll('.commission-member').length <= minMembers) {
+            return;
+        }
+        target.closest('.commission-member')?.remove();
+        reindexMembers();
+    });
+
+    // Prefill employee selects for existing server-rendered rows.
+    document.querySelectorAll('.commission-participant .employee-select').forEach(select => {
+        fillEmployeeSelect(select);
+        const current = select.getAttribute('data-selected');
+        if (current) {
+            select.value = current;
+        }
+        syncParticipant(select.closest('.commission-participant'));
+    });
+})();
+</script>

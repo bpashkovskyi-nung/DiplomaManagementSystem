@@ -27,6 +27,9 @@ public sealed partial class ApplicationDbContext(DbContextOptions<ApplicationDbC
 
     public DbSet<AnnualRoleAssignment> AnnualRoleAssignments => Set<AnnualRoleAssignment>();
 
+    public DbSet<ExaminationCommissionParticipant> ExaminationCommissionParticipants =>
+        Set<ExaminationCommissionParticipant>();
+
     public DbSet<EmployeeSessionWorkloadLimit> EmployeeSessionWorkloadLimits => Set<EmployeeSessionWorkloadLimit>();
 
     public DbSet<Diploma> Diplomas => Set<Diploma>();
