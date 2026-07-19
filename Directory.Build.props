@@ -4,6 +4,14 @@
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
     <TreatWarningsAsErrors>false</TreatWarningsAsErrors>
+    <EnforceCodeStyleInBuild>true</EnforceCodeStyleInBuild>
+    <AnalysisLevel>latest-recommended</AnalysisLevel>
+    <EnableNETAnalyzers>true</EnableNETAnalyzers>
+    <!--
+      Selective elevation: unused usings + braces + file-scoped namespaces + is-null.
+      Nullable CS86xx stay warnings until cleaned; do not flip TreatWarningsAsErrors=true yet.
+    -->
+    <WarningsAsErrors>$(WarningsAsErrors);IDE0005;IDE0011;IDE0161;IDE0041</WarningsAsErrors>
   </PropertyGroup>
   <Import Project="$(MSBuildThisFileDirectory)eng\sonar-analyzers.props" Condition="'$(RunSonarAnalyzers)' == 'true'" />
 </Project>

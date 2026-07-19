@@ -13,9 +13,9 @@ public sealed class DiplomaDetailsAssemblerTests
     [Fact]
     public void BuildHistory_IncludesTopicVersionsAndAdmissionAttempts()
     {
-        Guid diplomaId = Guid.NewGuid();
-        Guid supervisorId = Guid.NewGuid();
-        Guid headId = Guid.NewGuid();
+        var diplomaId = Guid.NewGuid();
+        var supervisorId = Guid.NewGuid();
+        var headId = Guid.NewGuid();
 
         DiplomaTopicVersion topic = new()
         {
@@ -105,8 +105,8 @@ public sealed class DiplomaDetailsAssemblerTests
     [Fact]
     public void BuildScreenParts_ExposesSecretaryActionsAndWorkflowProgress()
     {
-        Guid diplomaId = Guid.NewGuid();
-        Guid supervisorId = Guid.NewGuid();
+        var diplomaId = Guid.NewGuid();
+        var supervisorId = Guid.NewGuid();
 
         DiplomaTopicVersion topic = new()
         {
@@ -169,8 +169,8 @@ public sealed class DiplomaDetailsAssemblerTests
     [Fact]
     public void BuildReadOnlyScreenParts_DisablesAllSecretaryActions()
     {
-        Guid diplomaId = Guid.NewGuid();
-        Guid supervisorId = Guid.NewGuid();
+        var diplomaId = Guid.NewGuid();
+        var supervisorId = Guid.NewGuid();
 
         DiplomaTopicVersion topic = new()
         {

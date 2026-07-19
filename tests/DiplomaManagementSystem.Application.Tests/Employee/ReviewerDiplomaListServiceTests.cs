@@ -1,5 +1,4 @@
 using DiplomaManagementSystem.Application.Employee;
-using DiplomaManagementSystem.Application.Employee.Contracts;
 using DiplomaManagementSystem.Application.Employee.Dtos;
 using DiplomaManagementSystem.Application.Identity;
 using DiplomaManagementSystem.Application.Persistence;
@@ -15,11 +14,11 @@ public sealed class ReviewerDiplomaListServiceTests
     [Fact]
     public async Task GetListAsync_FiltersByReviewerAssignment_ReturnsMappedItems()
     {
-        Guid reviewerId = Guid.NewGuid();
-        Guid studentId = Guid.NewGuid();
-        Guid supervisorId = Guid.NewGuid();
-        Guid studyGroupId = Guid.NewGuid();
-        Guid sessionId = Guid.NewGuid();
+        var reviewerId = Guid.NewGuid();
+        var studentId = Guid.NewGuid();
+        var supervisorId = Guid.NewGuid();
+        var studyGroupId = Guid.NewGuid();
+        var sessionId = Guid.NewGuid();
 
         Diploma diploma = new()
         {

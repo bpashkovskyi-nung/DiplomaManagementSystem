@@ -1,13 +1,9 @@
-using DiplomaManagementSystem.Application;
-using DiplomaManagementSystem.Application.Constants;
 using DiplomaManagementSystem.Application.Departments;
 using DiplomaManagementSystem.Application.Departments.Contracts;
-using DiplomaManagementSystem.Application.Identity;
-using DiplomaManagementSystem.Application.Tests.Departments;
 using DiplomaManagementSystem.Domain.Entities;
-using DiplomaManagementSystem.Domain.Enums;
 using DiplomaManagementSystem.Domain.Exceptions;
 using DiplomaManagementSystem.Infrastructure.Persistence;
+
 using Microsoft.EntityFrameworkCore;
 
 namespace DiplomaManagementSystem.Application.Tests.Departments;

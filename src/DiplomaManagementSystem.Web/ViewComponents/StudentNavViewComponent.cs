@@ -1,8 +1,10 @@
 using System.Security.Claims;
+
 using DiplomaManagementSystem.Application.Constants;
 using DiplomaManagementSystem.Application.Persistence.Contracts;
 using DiplomaManagementSystem.Domain.Enums;
 using DiplomaManagementSystem.Web.Models.Shared;
+
 using Microsoft.AspNetCore.Mvc;
 
 namespace DiplomaManagementSystem.Web.ViewComponents;

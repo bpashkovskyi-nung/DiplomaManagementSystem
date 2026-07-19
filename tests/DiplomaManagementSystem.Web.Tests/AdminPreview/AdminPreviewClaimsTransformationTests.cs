@@ -42,8 +42,8 @@ public sealed class AdminPreviewClaimsTransformationTests
     [Fact]
     public async Task TransformAsync_WhenImpersonatingStudent_ReplacesIdentityClaims()
     {
-        Guid originalUserId = Guid.NewGuid();
-        Guid studentId = Guid.NewGuid();
+        var originalUserId = Guid.NewGuid();
+        var studentId = Guid.NewGuid();
         ClaimsPrincipal principal = CreatePrincipal(RoleNames.Admin, originalUserId);
         _previewService.Mode = AdminPreviewMode.Student;
         _previewService.ImpersonatedUserId = studentId;

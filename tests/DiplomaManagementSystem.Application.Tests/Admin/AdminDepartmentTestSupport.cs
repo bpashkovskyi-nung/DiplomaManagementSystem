@@ -2,6 +2,7 @@ using DiplomaManagementSystem.Application.Departments;
 using DiplomaManagementSystem.Application.Departments.Contracts;
 using DiplomaManagementSystem.Application.Tests.Departments;
 using DiplomaManagementSystem.Infrastructure.Persistence;
+
 using Microsoft.Extensions.DependencyInjection;
 
 namespace DiplomaManagementSystem.Application.Tests.Admin;

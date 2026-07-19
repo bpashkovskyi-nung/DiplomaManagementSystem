@@ -1,9 +1,12 @@
 using System.Reflection;
+
+using DiplomaManagementSystem.Application.Options;
+using DiplomaManagementSystem.Application.Secretary.Documents.Dtos;
+
 using DocumentFormat.OpenXml;
 using DocumentFormat.OpenXml.Packaging;
 using DocumentFormat.OpenXml.Wordprocessing;
-using DiplomaManagementSystem.Application.Options;
-using DiplomaManagementSystem.Application.Secretary.Documents.Dtos;
+
 using Microsoft.Extensions.Options;
 
 namespace DiplomaManagementSystem.Application.Secretary.Documents;
@@ -25,7 +28,7 @@ internal sealed class TopicOrderDocxGenerator(IOptions<OrganizationOptions> orga
 
         outputStream.Position = 0;
 
-        using (WordprocessingDocument wordDocument = WordprocessingDocument.Open(outputStream, true))
+        using (var wordDocument = WordprocessingDocument.Open(outputStream, true))
         {
             Body body = wordDocument.MainDocumentPart!.Document!.Body!;
             FillHeader(body, document);
@@ -59,7 +62,7 @@ internal sealed class TopicOrderDocxGenerator(IOptions<OrganizationOptions> orga
             ? body.Elements<Paragraph>()
             : body.Elements().TakeWhile(element => element is not Table).OfType<Paragraph>();
 
-        List<Paragraph> paragraphs = headerParagraphs.ToList();
+        var paragraphs = headerParagraphs.ToList();
 
         ReplaceParagraph(paragraphs, "МІНІСТЕРСТВО", _organization.MinistryName);
         ReplaceParagraph(paragraphs, "НАЦІОНАЛЬНИЙ", _organization.UniversityName);
@@ -99,7 +102,7 @@ internal sealed class TopicOrderDocxGenerator(IOptions<OrganizationOptions> orga
     private static void FillStudentTable(Body body, IReadOnlyList<TopicOrderStudentRowDto> students)
     {
         Table table = body.Elements<Table>().First();
-        List<TableRow> rows = table.Elements<TableRow>().ToList();
+        var rows = table.Elements<TableRow>().ToList();
         if (rows.Count < 2)
         {
             return;
@@ -121,7 +124,7 @@ internal sealed class TopicOrderDocxGenerator(IOptions<OrganizationOptions> orga
         TableRow lastRow = templateRow;
         for (int studentIndex = 1; studentIndex < students.Count; studentIndex++)
         {
-            TableRow newRow = (TableRow)templateRow.CloneNode(true);
+            var newRow = (TableRow)templateRow.CloneNode(true);
             FillStudentRow(newRow, studentIndex + 1, students[studentIndex]);
             lastRow.InsertAfterSelf(newRow);
             lastRow = newRow;
@@ -200,7 +203,7 @@ internal sealed class TopicOrderDocxGenerator(IOptions<OrganizationOptions> orga
         Paragraph lastParagraph = templateParagraph;
         for (int index = 1; index < reviewers.Count; index++)
         {
-            Paragraph newParagraph = (Paragraph)templateParagraph.CloneNode(true);
+            var newParagraph = (Paragraph)templateParagraph.CloneNode(true);
             FillReviewerParagraph(newParagraph, index + 1, reviewers[index]);
             lastParagraph.InsertAfterSelf(newParagraph);
             lastParagraph = newParagraph;

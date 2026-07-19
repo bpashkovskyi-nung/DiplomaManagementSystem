@@ -1,5 +1,6 @@
 using System.Globalization;
 using System.Text;
+
 using DiplomaManagementSystem.Application.Common;
 using DiplomaManagementSystem.Application.Identity;
 using DiplomaManagementSystem.Application.Persistence;
@@ -76,7 +77,7 @@ internal sealed class AdmittedReportService(
             return [];
         }
 
-        HashSet<Guid> userIds = diplomas
+        var userIds = diplomas
             .Select(diploma => diploma.StudentId)
             .Concat(diplomas.Where(diploma => diploma.SupervisorId.HasValue).Select(diploma => diploma.SupervisorId!.Value))
             .Concat(diplomas.Where(diploma => diploma.ReviewerId.HasValue).Select(diploma => diploma.ReviewerId!.Value))
@@ -84,7 +85,7 @@ internal sealed class AdmittedReportService(
 
         Dictionary<Guid, ApplicationUser> users = await userDisplayQueries.LoadUsersAsync(userIds, cancellationToken);
 
-        HashSet<Guid> groupIds = users.Values
+        var groupIds = users.Values
             .Where(user => user.StudyGroupId.HasValue)
             .Select(user => user.StudyGroupId!.Value)
             .ToHashSet();
@@ -93,7 +94,7 @@ internal sealed class AdmittedReportService(
             groupIds,
             cancellationToken);
 
-        HashSet<Guid> diplomaIds = diplomas.Select(diploma => diploma.Id).ToHashSet();
+        var diplomaIds = diplomas.Select(diploma => diploma.Id).ToHashSet();
         Dictionary<Guid, string> topicTitles = await topicVersionQueries.GetApprovedTitlesAsync(
             diplomaIds,
             cancellationToken);
@@ -103,7 +104,7 @@ internal sealed class AdmittedReportService(
             {
                 users.TryGetValue(diploma.StudentId, out ApplicationUser? student);
                 string groupName = MissingLabel;
-                if (student?.StudyGroupId is Guid groupId
+                if (student?.StudyGroupId is { } groupId
                     && groupNames.TryGetValue(groupId, out string? name))
                 {
                     groupName = name;

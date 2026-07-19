@@ -112,7 +112,7 @@ public sealed class AreaNavigationTests
     [Fact]
     public void AdminNavigation_SessionContext_IncludesSessionAndStudentsRoutes()
     {
-        Guid sessionId = Guid.Parse("aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee");
+        var sessionId = Guid.Parse("aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee");
         IReadOnlyList<AdminNavLink> links = AdminNavigation.SessionContext(sessionId);
 
         Assert.Equal(4, links.Count);
@@ -124,7 +124,7 @@ public sealed class AreaNavigationTests
     [Fact]
     public void AdminNavigation_StudentsBack_LinksToStudentsAndSession()
     {
-        Guid sessionId = Guid.Parse("11111111-2222-3333-4444-555555555555");
+        var sessionId = Guid.Parse("11111111-2222-3333-4444-555555555555");
         IReadOnlyList<AdminNavLink> links = AdminNavigation.StudentsBack(sessionId);
 
         Assert.Equal(3, links.Count);

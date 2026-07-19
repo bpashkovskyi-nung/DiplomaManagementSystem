@@ -1,6 +1,7 @@
 using DiplomaManagementSystem.Application.Storage;
 using DiplomaManagementSystem.Application.Storage.Contracts;
 using DiplomaManagementSystem.Integration.Tests.Support;
+
 using Microsoft.Extensions.DependencyInjection;
 
 namespace DiplomaManagementSystem.Integration.Tests.Scenarios;

@@ -20,7 +20,7 @@ public sealed class DepartmentContextServiceTests
     public async Task EnsureAdminContext_MultipleAssignments_RedirectsToSelect()
     {
         TestContext context = await CreateContextAsync();
-        Guid userId = Guid.NewGuid();
+        var userId = Guid.NewGuid();
         context.Authorization.SetAdminDepartments(userId, context.DepartmentAId, context.DepartmentBId);
         DefaultHttpContext httpContext = CreateAdminHttpContext(userId);
 
@@ -36,7 +36,7 @@ public sealed class DepartmentContextServiceTests
     public async Task EnsureAdminContext_SingleAssignment_AutoSetsDepartmentCookie()
     {
         TestContext context = await CreateContextAsync();
-        Guid userId = Guid.NewGuid();
+        var userId = Guid.NewGuid();
         context.Authorization.SetAdminDepartments(userId, context.DepartmentAId);
         DefaultHttpContext httpContext = CreateAdminHttpContext(userId);
 
@@ -124,7 +124,7 @@ public sealed class DepartmentContextServiceTests
         dbContext.Departments.AddRange(departmentA, departmentB);
         await dbContext.SaveChangesAsync();
 
-        HttpContextAccessor httpContextAccessor = (HttpContextAccessor)provider.GetRequiredService<IHttpContextAccessor>();
+        var httpContextAccessor = (HttpContextAccessor)provider.GetRequiredService<IHttpContextAccessor>();
         httpContextAccessor.HttpContext = new DefaultHttpContext();
 
         return new TestContext(

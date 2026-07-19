@@ -1,13 +1,12 @@
-using DiplomaManagementSystem.Application;
-using DiplomaManagementSystem.Application.Persistence.Contracts;
 using DiplomaManagementSystem.Application.Constants;
 using DiplomaManagementSystem.Application.Departments;
 using DiplomaManagementSystem.Application.Identity;
-using DiplomaManagementSystem.Application.Tests.Departments;
+using DiplomaManagementSystem.Application.Persistence.Contracts;
 using DiplomaManagementSystem.Domain.Entities;
 using DiplomaManagementSystem.Domain.Enums;
 using DiplomaManagementSystem.Domain.Exceptions;
 using DiplomaManagementSystem.Infrastructure.Persistence;
+
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
@@ -133,7 +132,7 @@ public sealed class DepartmentAuthorizationServiceTests : IDisposable
     [Fact]
     public async Task EnsureSessionInDepartmentAsync_WhenSessionBelongs_Allows()
     {
-        Guid sessionId = Guid.NewGuid();
+        var sessionId = Guid.NewGuid();
         _dbContext.DefenceSessions.Add(new DefenceSession
         {
             Id = sessionId,
@@ -151,7 +150,7 @@ public sealed class DepartmentAuthorizationServiceTests : IDisposable
     [Fact]
     public async Task EnsureSessionInDepartmentAsync_WhenSessionInOtherDepartment_Throws()
     {
-        Guid sessionId = Guid.NewGuid();
+        var sessionId = Guid.NewGuid();
         _dbContext.DefenceSessions.Add(new DefenceSession
         {
             Id = sessionId,

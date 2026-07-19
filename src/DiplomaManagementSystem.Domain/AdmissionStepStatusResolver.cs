@@ -57,7 +57,7 @@ public static class AdmissionStepStatusResolver
             return false;
         }
 
-        List<DiplomaAdmissionStepAttempt> attemptList = attempts.ToList();
+        var attemptList = attempts.ToList();
         if (!IsStepActionable(step.Value, attemptList))
         {
             return false;
@@ -84,7 +84,7 @@ public static class AdmissionStepStatusResolver
         Diploma diploma,
         IEnumerable<DiplomaAdmissionStepAttempt> attempts)
     {
-        List<DiplomaAdmissionStepAttempt> attemptList = attempts.ToList();
+        var attemptList = attempts.ToList();
 
         foreach (AdmissionStep step in AdmissionStepSequence.WorkflowOrder)
         {

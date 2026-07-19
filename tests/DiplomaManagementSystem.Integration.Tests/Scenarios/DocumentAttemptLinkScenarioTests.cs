@@ -2,6 +2,7 @@ using DiplomaManagementSystem.Application.Persistence.Contracts;
 using DiplomaManagementSystem.Domain.Entities;
 using DiplomaManagementSystem.Domain.Enums;
 using DiplomaManagementSystem.Integration.Tests.Support;
+
 using Microsoft.Extensions.DependencyInjection;
 
 namespace DiplomaManagementSystem.Integration.Tests.Scenarios;
@@ -27,7 +28,7 @@ public sealed class DocumentAttemptLinkScenarioTests(PostgreSqlFixture fixture)
             scenario.DiplomaId,
             CancellationToken.None);
 
-        List<DiplomaDocument> checkpointDocuments = documents
+        var checkpointDocuments = documents
             .Where(document => document.AdmissionStepAttemptId is not null)
             .ToList();
 

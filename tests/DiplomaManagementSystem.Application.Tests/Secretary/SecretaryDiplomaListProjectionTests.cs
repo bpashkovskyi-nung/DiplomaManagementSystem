@@ -11,7 +11,7 @@ public sealed class SecretaryDiplomaListProjectionTests
     [Fact]
     public void MapListItem_WhenStudentMissing_UsesPlaceholderLabels()
     {
-        Guid diplomaId = Guid.NewGuid();
+        var diplomaId = Guid.NewGuid();
         Diploma diploma = new()
         {
             Id = diplomaId,
@@ -37,10 +37,10 @@ public sealed class SecretaryDiplomaListProjectionTests
     [Fact]
     public void MapListItem_MapsSupervisorTopicAndCompletedSteps()
     {
-        Guid diplomaId = Guid.NewGuid();
-        Guid studentId = Guid.NewGuid();
-        Guid supervisorId = Guid.NewGuid();
-        Guid groupId = Guid.NewGuid();
+        var diplomaId = Guid.NewGuid();
+        var studentId = Guid.NewGuid();
+        var supervisorId = Guid.NewGuid();
+        var groupId = Guid.NewGuid();
 
         ApplicationUser student = new()
         {
@@ -115,7 +115,7 @@ public sealed class SecretaryDiplomaListProjectionTests
     [Fact]
     public void MapListItems_SortsBySurnameThenFullName()
     {
-        Guid groupId = Guid.NewGuid();
+        var groupId = Guid.NewGuid();
         ApplicationUser first = new() { Id = Guid.NewGuid(), FullName = "Євген Куцук", Email = "a@test.local", StudyGroupId = groupId };
         ApplicationUser second = new() { Id = Guid.NewGuid(), FullName = "Анастасія Мокрецька", Email = "b@test.local", StudyGroupId = groupId };
         ApplicationUser third = new() { Id = Guid.NewGuid(), FullName = "Богдан Агафонкін", Email = "c@test.local", StudyGroupId = groupId };

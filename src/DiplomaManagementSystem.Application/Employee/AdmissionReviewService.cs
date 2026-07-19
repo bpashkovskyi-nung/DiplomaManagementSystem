@@ -14,6 +14,7 @@ using DiplomaManagementSystem.Domain.Entities;
 using DiplomaManagementSystem.Domain.Enums;
 using DiplomaManagementSystem.Domain.Exceptions;
 using DiplomaManagementSystem.Domain.Services;
+
 using Microsoft.EntityFrameworkCore;
 
 namespace DiplomaManagementSystem.Application.Employee;
@@ -60,7 +61,7 @@ internal sealed class AdmissionReviewService(
     {
         List<Diploma> diplomas = await diplomaQueries.ListReviewerQueueAsync(reviewerId, cancellationToken);
 
-        List<Diploma> pending = diplomas
+        var pending = diplomas
             .Where(diploma => AdmissionStepStatusResolver.IsStepActionable(
                 AdmissionStep.ExternalReview,
                 diploma.AdmissionStepAttempts))

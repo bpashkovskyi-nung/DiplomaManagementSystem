@@ -1,6 +1,6 @@
 using DiplomaManagementSystem.Application.Admin.Students.Contracts;
 using DiplomaManagementSystem.Application.Admin.Students.Dtos;
-using DiplomaManagementSystem.Integration.Tests.Support;
+
 using Microsoft.Extensions.DependencyInjection;
 
 namespace DiplomaManagementSystem.Integration.Tests.Scenarios;

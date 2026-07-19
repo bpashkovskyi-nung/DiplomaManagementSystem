@@ -1,6 +1,6 @@
-using DiplomaManagementSystem.Application;
 using DiplomaManagementSystem.Application.Secretary.Dtos;
 using DiplomaManagementSystem.Web.Areas.Secretary.Models;
+
 using Microsoft.AspNetCore.Mvc.Rendering;
 
 namespace DiplomaManagementSystem.Web.Mapping;

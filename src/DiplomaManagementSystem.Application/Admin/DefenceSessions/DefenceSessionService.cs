@@ -8,6 +8,7 @@ using DiplomaManagementSystem.Domain.Entities;
 using DiplomaManagementSystem.Domain.Enums;
 using DiplomaManagementSystem.Domain.Exceptions;
 using DiplomaManagementSystem.Domain.Services;
+
 using Microsoft.EntityFrameworkCore;
 
 namespace DiplomaManagementSystem.Application.Admin.DefenceSessions;
@@ -66,7 +67,7 @@ internal sealed class DefenceSessionService(
             return null;
         }
 
-        List<Guid> groupIds = session.StudyGroups.Select(g => g.Id).ToList();
+        var groupIds = session.StudyGroups.Select(g => g.Id).ToList();
         Dictionary<Guid, int> studentCounts = await GetStudentCountsAsync(groupIds, session.Id, cancellationToken);
 
         IReadOnlyList<StudyGroupItemDto> groups = session.StudyGroups

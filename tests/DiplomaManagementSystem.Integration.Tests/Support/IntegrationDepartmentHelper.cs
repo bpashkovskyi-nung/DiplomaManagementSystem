@@ -113,7 +113,6 @@ internal static class IntegrationDepartmentHelper
         return new SecondDepartmentSeed(department.Id, admin.Id, session.Id, year);
     }
 
-
     public static async Task<Guid> GetDefaultFacultyIdAsync(IServiceProvider serviceProvider)
     {
         await using AsyncServiceScope scope = serviceProvider.CreateAsyncScope();

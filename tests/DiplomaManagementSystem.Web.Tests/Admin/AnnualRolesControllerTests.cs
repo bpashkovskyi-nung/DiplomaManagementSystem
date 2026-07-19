@@ -14,7 +14,6 @@ using DiplomaManagementSystem.Web.Areas.Admin.Controllers;
 using DiplomaManagementSystem.Web.Areas.Admin.Models;
 
 using FluentValidation;
-using FluentValidation.Results;
 
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -37,7 +36,7 @@ public sealed class AnnualRolesControllerTests
     [Fact]
     public async Task Index_WhenSessionExists_ReturnsViewWithModel()
     {
-        Guid sessionId = Guid.NewGuid();
+        var sessionId = Guid.NewGuid();
         AnnualRolesPageDto page = new(
             sessionId,
             "2026 — Бакалавр (сем. 1)",
@@ -60,7 +59,7 @@ public sealed class AnnualRolesControllerTests
     [Fact]
     public async Task Assign_WhenValidationFails_ReturnsIndexWithForm()
     {
-        Guid sessionId = Guid.NewGuid();
+        var sessionId = Guid.NewGuid();
         AnnualRolesPageDto page = new(
             sessionId,
             "2026 — Бакалавр (сем. 1)",
@@ -87,7 +86,7 @@ public sealed class AnnualRolesControllerTests
     [Fact]
     public async Task Assign_WhenServiceSucceeds_ReturnsIndexWithSuccess()
     {
-        Guid sessionId = Guid.NewGuid();
+        var sessionId = Guid.NewGuid();
         AnnualRolesPageDto page = new(
             sessionId,
             "2026 — Бакалавр (сем. 1)",
@@ -114,7 +113,7 @@ public sealed class AnnualRolesControllerTests
     [Fact]
     public async Task Assign_WhenDomainException_ReturnsIndexWithError()
     {
-        Guid sessionId = Guid.NewGuid();
+        var sessionId = Guid.NewGuid();
         AnnualRolesPageDto page = new(
             sessionId,
             "2026 — Бакалавр (сем. 1)",
@@ -141,7 +140,7 @@ public sealed class AnnualRolesControllerTests
     [Fact]
     public async Task SaveCommission_WhenServiceSucceeds_ReturnsIndexWithSuccess()
     {
-        Guid sessionId = Guid.NewGuid();
+        var sessionId = Guid.NewGuid();
         AnnualRolesPageDto page = new(
             sessionId,
             "2026 — Бакалавр (сем. 1)",

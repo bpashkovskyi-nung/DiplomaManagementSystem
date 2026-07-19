@@ -5,11 +5,11 @@ using DiplomaManagementSystem.Domain.Entities;
 using DiplomaManagementSystem.Domain.Enums;
 using DiplomaManagementSystem.Infrastructure.Persistence;
 using DiplomaManagementSystem.Infrastructure.Persistence.Seeding;
+
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging.Abstractions;
-using Microsoft.Extensions.Options;
 
 namespace DiplomaManagementSystem.Application.Tests.Organization;
 
@@ -38,7 +38,7 @@ public sealed class DefaultOrganizationSeederTests : IDisposable
     [Fact]
     public async Task EnsureAsync_WhenDatabaseEmpty_SeedsOrganizationAndBackfillsSession()
     {
-        Guid sessionId = Guid.NewGuid();
+        var sessionId = Guid.NewGuid();
         _dbContext.DefenceSessions.Add(new DefenceSession
         {
             Id = sessionId,

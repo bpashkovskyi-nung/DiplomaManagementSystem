@@ -28,7 +28,7 @@ internal sealed class DiplomaDetailsAssembler(
         users.TryGetValue(diploma.StudentId, out ApplicationUser? student);
 
         string studyGroupName = "?";
-        if (student?.StudyGroupId is Guid groupId)
+        if (student?.StudyGroupId is { } groupId)
         {
             studyGroupName = await studyGroupQueries.GetNameAsync(groupId, cancellationToken) ?? "?";
         }
@@ -51,7 +51,7 @@ internal sealed class DiplomaDetailsAssembler(
             diploma.Id,
             cancellationToken);
 
-        HashSet<Guid> authorIds = comments.Select(comment => comment.AuthorId).ToHashSet();
+        var authorIds = comments.Select(comment => comment.AuthorId).ToHashSet();
         Dictionary<Guid, string> commentAuthorNames = await userDisplayQueries.LoadFullNamesAsync(
             authorIds,
             cancellationToken);
@@ -87,7 +87,7 @@ internal sealed class DiplomaDetailsAssembler(
             context.Diploma.AdmissionStepAttempts,
             context.Users);
 
-        List<SecretaryTopicVersionDto> topicVersions = context.Diploma.TopicVersions
+        var topicVersions = context.Diploma.TopicVersions
             .OrderByDescending(version => version.VersionNumber)
             .Select(version => new SecretaryTopicVersionDto(
                 version.Id,
@@ -108,7 +108,7 @@ internal sealed class DiplomaDetailsAssembler(
                     : null))
             .ToList();
 
-        List<DiplomaCommentDto> commentDtos = context.Comments
+        var commentDtos = context.Comments
             .Select(comment => new DiplomaCommentDto(
                 context.CommentAuthorNames.GetValueOrDefault(comment.AuthorId, "—"),
                 comment.Body,
@@ -142,14 +142,14 @@ internal sealed class DiplomaDetailsAssembler(
             .FirstOrDefault();
 
         string? headApproverName = null;
-        if (approvedTopic?.ReviewedById is Guid headApproverId
+        if (approvedTopic?.ReviewedById is { } headApproverId
             && context.Users.TryGetValue(headApproverId, out ApplicationUser? headApprover))
         {
             headApproverName = headApprover.FullName;
         }
 
         string? supervisorApproverName = null;
-        if (approvedTopic?.SupervisorReviewedById is Guid supervisorApproverId
+        if (approvedTopic?.SupervisorReviewedById is { } supervisorApproverId
             && context.Users.TryGetValue(supervisorApproverId, out ApplicationUser? supervisorApprover))
         {
             supervisorApproverName = supervisorApprover.FullName;
@@ -268,12 +268,12 @@ internal sealed class DiplomaDetailsAssembler(
         IEnumerable<DiplomaAdmissionStepAttempt> attempts,
         Dictionary<Guid, ApplicationUser> users)
     {
-        List<DiplomaAdmissionStepAttempt> attemptList = attempts.ToList();
+        var attemptList = attempts.ToList();
 
         return AdmissionStepSequence.OutcomeSteps
             .Select(step =>
             {
-                List<DiplomaAdmissionStepAttempt> stepAttempts = attemptList
+                var stepAttempts = attemptList
                     .Where(attempt => attempt.Step == step)
                     .ToList();
 

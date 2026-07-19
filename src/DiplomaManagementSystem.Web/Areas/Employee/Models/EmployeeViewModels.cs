@@ -1,10 +1,8 @@
-namespace DiplomaManagementSystem.Web.Areas.Employee.Models;
 
 using DiplomaManagementSystem.Domain.Enums;
 using DiplomaManagementSystem.Web.Areas.Secretary.Models;
-using DiplomaManagementSystem.Web.Models.Shared;
 
-using Microsoft.AspNetCore.Http;
+namespace DiplomaManagementSystem.Web.Areas.Employee.Models;
 
 public sealed class EmployeeHomeViewModel
 {

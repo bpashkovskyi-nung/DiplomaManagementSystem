@@ -12,7 +12,7 @@ public sealed class DiplomaWorkflowInvariantValidatorTests
     [Fact]
     public void ValidateTopicVersion_ApprovedWithConfirmedSupervisor_DoesNotThrow()
     {
-        Guid supervisorId = Guid.NewGuid();
+        var supervisorId = Guid.NewGuid();
         Diploma diploma = CreateDiploma(supervisorId, SupervisorAssignmentStatus.Confirmed, DiplomaLifecycleStatus.ReviewerAssigned);
         DiplomaTopicVersion version = CreateTopicVersion(TopicVersionStatus.Approved, supervisorId);
 
@@ -34,7 +34,7 @@ public sealed class DiplomaWorkflowInvariantValidatorTests
     [Fact]
     public void ValidateTopicVersion_ApprovedWithoutSupervisorReview_Throws()
     {
-        Guid supervisorId = Guid.NewGuid();
+        var supervisorId = Guid.NewGuid();
         Diploma diploma = CreateDiploma(supervisorId, SupervisorAssignmentStatus.Confirmed, DiplomaLifecycleStatus.ReviewerAssigned);
         DiplomaTopicVersion version = CreateTopicVersion(TopicVersionStatus.Approved, supervisorId: null);
 
@@ -47,7 +47,7 @@ public sealed class DiplomaWorkflowInvariantValidatorTests
     [Fact]
     public void ValidateTopicVersion_PendingHeadWithMismatchedSupervisor_Throws()
     {
-        Guid supervisorId = Guid.NewGuid();
+        var supervisorId = Guid.NewGuid();
         Diploma diploma = CreateDiploma(supervisorId, SupervisorAssignmentStatus.Confirmed, DiplomaLifecycleStatus.TopicInReview);
         DiplomaTopicVersion version = CreateTopicVersion(TopicVersionStatus.PendingHead, supervisorId: Guid.NewGuid());
 

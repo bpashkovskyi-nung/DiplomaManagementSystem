@@ -112,7 +112,7 @@ public sealed class StudentWorkflowProgressBuilderTests
     [Fact]
     public void Build_WhenTopicInReview_CurrentStepIsTopicSubmission()
     {
-        Guid diplomaId = Guid.NewGuid();
+        var diplomaId = Guid.NewGuid();
         Diploma diploma = CreateDiploma();
         diploma.Id = diplomaId;
         diploma.SupervisorAssignmentStatus = SupervisorAssignmentStatus.Confirmed;
@@ -139,7 +139,7 @@ public sealed class StudentWorkflowProgressBuilderTests
     [Fact]
     public void Build_WhenDocumentsInProgress_CurrentStepIsSupervisorFeedback()
     {
-        Guid diplomaId = Guid.NewGuid();
+        var diplomaId = Guid.NewGuid();
         DateTimeOffset now = DateTimeOffset.UtcNow;
         Diploma diploma = CreateDiploma();
         diploma.Id = diplomaId;
@@ -168,7 +168,7 @@ public sealed class StudentWorkflowProgressBuilderTests
     [Fact]
     public void Build_WhenReadyForAdmission_ShowsAdmitHint()
     {
-        Guid diplomaId = Guid.NewGuid();
+        var diplomaId = Guid.NewGuid();
         DateTimeOffset now = DateTimeOffset.UtcNow;
         Diploma diploma = CreateDiploma();
         diploma.Id = diplomaId;
@@ -220,7 +220,7 @@ public sealed class StudentWorkflowProgressBuilderTests
     [Fact]
     public void Build_WhenTopicApproved_IncludesApprovalDetailOnTopicReviewStep()
     {
-        Guid diplomaId = Guid.NewGuid();
+        var diplomaId = Guid.NewGuid();
         DateTimeOffset now = DateTimeOffset.UtcNow;
         Diploma diploma = CreateDiploma();
         diploma.Id = diplomaId;
@@ -265,7 +265,7 @@ public sealed class StudentWorkflowProgressBuilderTests
     [Fact]
     public void Build_WhenCheckpointRejected_ShowsRejectedBadge()
     {
-        Guid diplomaId = Guid.NewGuid();
+        var diplomaId = Guid.NewGuid();
         DateTimeOffset now = DateTimeOffset.UtcNow;
         Diploma diploma = CreateDiploma();
         diploma.Id = diplomaId;
@@ -310,8 +310,8 @@ public sealed class StudentWorkflowProgressBuilderTests
     [Fact]
     public void Build_WhenCheckpointPassing_ShowsCompletedBadgeAndRecorder()
     {
-        Guid diplomaId = Guid.NewGuid();
-        Guid recorderId = Guid.NewGuid();
+        var diplomaId = Guid.NewGuid();
+        var recorderId = Guid.NewGuid();
         DateTimeOffset recordedAt = DateTimeOffset.UtcNow;
         Diploma diploma = CreateDocumentsInProgressDiploma(diplomaId);
         diploma.CurrentAdmissionStep = AdmissionStep.FormattingReview;
@@ -348,7 +348,7 @@ public sealed class StudentWorkflowProgressBuilderTests
     [Fact]
     public void Build_WhenCheckpointLocked_ShowsWaitingForPriorBadge()
     {
-        Guid diplomaId = Guid.NewGuid();
+        var diplomaId = Guid.NewGuid();
         Diploma diploma = CreateDocumentsInProgressDiploma(diplomaId);
         diploma.CurrentAdmissionStep = AdmissionStep.AntiPlagiarismClearance;
         diploma.AdmissionStepAttempts = [];
@@ -365,7 +365,7 @@ public sealed class StudentWorkflowProgressBuilderTests
     [Fact]
     public void Build_WhenAssignedReviewer_CurrentExternalReviewBadge()
     {
-        Guid diplomaId = Guid.NewGuid();
+        var diplomaId = Guid.NewGuid();
         Diploma diploma = CreateDocumentsInProgressDiploma(diplomaId);
         diploma.ReviewAssignmentStatus = ReviewAssignmentStatus.Assigned;
         diploma.CurrentAdmissionStep = AdmissionStep.ReviewerAssignment;
@@ -388,7 +388,7 @@ public sealed class StudentWorkflowProgressBuilderTests
     [Fact]
     public void Build_WhenSecretaryOverrideAttempt_FlagsStatus()
     {
-        Guid diplomaId = Guid.NewGuid();
+        var diplomaId = Guid.NewGuid();
         Diploma diploma = CreateDocumentsInProgressDiploma(diplomaId);
         diploma.CurrentAdmissionStep = AdmissionStep.FormattingReview;
         diploma.AdmissionStepAttempts =
@@ -449,7 +449,7 @@ public sealed class StudentWorkflowProgressBuilderTests
     [Fact]
     public void Build_WhenReviewerAssigned_ShowsReviewerNameInDetail()
     {
-        Guid diplomaId = Guid.NewGuid();
+        var diplomaId = Guid.NewGuid();
         Diploma diploma = CreateDocumentsInProgressDiploma(diplomaId);
         diploma.ReviewAssignmentStatus = ReviewAssignmentStatus.Assigned;
         diploma.CurrentAdmissionStep = AdmissionStep.ExternalReview;
@@ -473,7 +473,7 @@ public sealed class StudentWorkflowProgressBuilderTests
     [Fact]
     public void Build_WhenFutureCheckpointWaiting_ShowsWaitingBadge()
     {
-        Guid diplomaId = Guid.NewGuid();
+        var diplomaId = Guid.NewGuid();
         Diploma diploma = CreateDocumentsInProgressDiploma(diplomaId);
         diploma.CurrentAdmissionStep = AdmissionStep.ExternalReview;
         diploma.ReviewAssignmentStatus = ReviewAssignmentStatus.Assigned;
@@ -494,7 +494,7 @@ public sealed class StudentWorkflowProgressBuilderTests
     [Fact]
     public void Build_ForSecretaryAtFormattingStep_ShowsFormattingHint()
     {
-        Guid diplomaId = Guid.NewGuid();
+        var diplomaId = Guid.NewGuid();
         Diploma diploma = CreateDocumentsInProgressDiploma(diplomaId);
         diploma.CurrentAdmissionStep = AdmissionStep.FormattingReview;
         diploma.AdmissionStepAttempts =
@@ -513,7 +513,7 @@ public sealed class StudentWorkflowProgressBuilderTests
     [Fact]
     public void Build_WhenArchivedDuringWorkPhase_AppendsArchivedSuffix()
     {
-        Guid diplomaId = Guid.NewGuid();
+        var diplomaId = Guid.NewGuid();
         Diploma diploma = CreateDocumentsInProgressDiploma(diplomaId);
         diploma.LifecycleStatus = DiplomaLifecycleStatus.ReviewerAssigned;
 
@@ -526,7 +526,7 @@ public sealed class StudentWorkflowProgressBuilderTests
     [Fact]
     public void Build_WhenReviewerNotAssigned_ShowsNotAssignedDetail()
     {
-        Guid diplomaId = Guid.NewGuid();
+        var diplomaId = Guid.NewGuid();
         Diploma diploma = CreateDocumentsInProgressDiploma(diplomaId);
         diploma.CurrentAdmissionStep = AdmissionStep.ReviewerAssignment;
         diploma.AdmissionStepAttempts =
@@ -570,7 +570,7 @@ public sealed class StudentWorkflowProgressBuilderTests
 
     private static Diploma CreateAdmittedDiploma()
     {
-        Guid diplomaId = Guid.NewGuid();
+        var diplomaId = Guid.NewGuid();
         DateTimeOffset now = DateTimeOffset.UtcNow;
 
         Diploma diploma = new()

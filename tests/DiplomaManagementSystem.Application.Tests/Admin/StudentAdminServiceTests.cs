@@ -6,12 +6,12 @@ using DiplomaManagementSystem.Application.Identity.Contracts;
 using DiplomaManagementSystem.Application.Options;
 using DiplomaManagementSystem.Application.Persistence.Contracts;
 using DiplomaManagementSystem.Application.Security;
-using DiplomaManagementSystem.Application.Tests.Departments;
 using DiplomaManagementSystem.Domain.Entities;
 using DiplomaManagementSystem.Domain.Enums;
 using DiplomaManagementSystem.Domain.Exceptions;
 using DiplomaManagementSystem.Domain.Services;
 using DiplomaManagementSystem.Infrastructure.Persistence;
+
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
@@ -102,7 +102,7 @@ public sealed class StudentAdminServiceTests : IDisposable
 
     private async Task<Guid> SeedSessionAsync(DefenceSessionType type = DefenceSessionType.Bachelor)
     {
-        Guid sessionId = Guid.NewGuid();
+        var sessionId = Guid.NewGuid();
         _dbContext.DefenceSessions.Add(new DefenceSession
         {
             Id = sessionId,
@@ -118,7 +118,7 @@ public sealed class StudentAdminServiceTests : IDisposable
 
     private async Task<Guid> SeedGroupAsync(Guid sessionId, string name)
     {
-        Guid groupId = Guid.NewGuid();
+        var groupId = Guid.NewGuid();
         _dbContext.StudyGroups.Add(new StudyGroup
         {
             Id = groupId,
@@ -139,7 +139,7 @@ public sealed class StudentAdminServiceTests : IDisposable
 
     private async Task<Guid> SeedStudentAsync(string fullName, string email, Guid sessionId, Guid groupId)
     {
-        Guid studentId = Guid.NewGuid();
+        var studentId = Guid.NewGuid();
         _dbContext.Users.Add(new ApplicationUser
         {
             Id = studentId,

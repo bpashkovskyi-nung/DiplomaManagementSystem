@@ -1,5 +1,4 @@
 using DiplomaManagementSystem.Application.Student.Dtos;
-using DiplomaManagementSystem.Domain.Enums;
 using DiplomaManagementSystem.Web.Areas.Secretary.Models;
 using DiplomaManagementSystem.Web.Areas.Student.Models;
 using DiplomaManagementSystem.Web.Models.Shared;
@@ -30,7 +29,7 @@ internal static class StudentDiplomaViewModelMapper
                     dto.Assignments.SupervisorId)
                 : null,
             LifecycleStatus = dto.State?.LifecycleStatus,
-            LifecycleDisplay = dto.State?.LifecycleStatus is DiplomaLifecycleStatus lifecycleStatus
+            LifecycleDisplay = dto.State?.LifecycleStatus is { } lifecycleStatus
                 ? UkrainianDisplay.FormatDiplomaLifecycleStatus(lifecycleStatus)
                 : null,
             CurrentTopicTitle = dto.Assignments.CurrentTopicTitle,

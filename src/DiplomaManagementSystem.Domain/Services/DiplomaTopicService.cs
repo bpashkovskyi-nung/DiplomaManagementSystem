@@ -10,7 +10,7 @@ public sealed class DiplomaTopicService
     {
         ArgumentNullException.ThrowIfNull(versions);
 
-        List<DiplomaTopicVersion> versionList = versions.ToList();
+        var versionList = versions.ToList();
 
         if (versionList.Any(version => version.Status == TopicVersionStatus.Approved))
         {
@@ -25,7 +25,7 @@ public sealed class DiplomaTopicService
     {
         ArgumentNullException.ThrowIfNull(versions);
 
-        List<DiplomaTopicVersion> versionList = versions.ToList();
+        var versionList = versions.ToList();
 
         if (versionList.Any(version => version.Status == TopicVersionStatus.Approved))
         {

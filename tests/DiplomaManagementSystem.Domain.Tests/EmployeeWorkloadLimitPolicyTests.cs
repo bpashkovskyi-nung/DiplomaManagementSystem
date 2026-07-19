@@ -1,4 +1,3 @@
-using DiplomaManagementSystem.Domain;
 using DiplomaManagementSystem.Domain.Exceptions;
 
 namespace DiplomaManagementSystem.Domain.Tests;

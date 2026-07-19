@@ -36,7 +36,7 @@ public sealed class ReviewerAssignmentServiceTests
     {
         Diploma diploma = CreateTopicApprovedDiploma();
 
-        Guid reviewerId = Guid.NewGuid();
+        var reviewerId = Guid.NewGuid();
         _service.Assign(diploma, CreateSession(), reviewerId, [], hasApprovedTopic: true);
 
         Assert.Equal(reviewerId, diploma.ReviewerId);

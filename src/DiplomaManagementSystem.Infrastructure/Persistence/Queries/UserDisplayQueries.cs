@@ -2,6 +2,7 @@ using DiplomaManagementSystem.Application.Identity;
 using DiplomaManagementSystem.Application.Persistence;
 using DiplomaManagementSystem.Application.Persistence.Contracts;
 using DiplomaManagementSystem.Domain.Enums;
+
 using Microsoft.EntityFrameworkCore;
 
 namespace DiplomaManagementSystem.Infrastructure.Persistence.Queries;
@@ -66,7 +67,7 @@ internal sealed class UserDisplayQueries(ApplicationDbContext dbContext) : IUser
 
         Dictionary<Guid, ApplicationUser> students = await LoadUsersAsync(studentIds, cancellationToken);
 
-        HashSet<Guid> groupIds = students.Values
+        var groupIds = students.Values
             .Where(student => student.StudyGroupId.HasValue)
             .Select(student => student.StudyGroupId!.Value)
             .ToHashSet();
@@ -78,7 +79,7 @@ internal sealed class UserDisplayQueries(ApplicationDbContext dbContext) : IUser
             pair =>
             {
                 string groupName = MissingLabel;
-                if (pair.Value.StudyGroupId is Guid groupId
+                if (pair.Value.StudyGroupId is { } groupId
                     && groupNames.TryGetValue(groupId, out string? name))
                 {
                     groupName = name;

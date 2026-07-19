@@ -1,6 +1,5 @@
 using DiplomaManagementSystem.Application.Employee.Contracts;
 using DiplomaManagementSystem.Application.Employee.Dtos;
-using DiplomaManagementSystem.Web.Areas.Employee;
 using DiplomaManagementSystem.Web.Areas.Employee.Models;
 
 using Microsoft.AspNetCore.Mvc;

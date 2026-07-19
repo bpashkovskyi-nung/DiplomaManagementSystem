@@ -82,7 +82,7 @@ public sealed class DiplomaAuthorizationServiceTests
         Diploma diploma = CreateActiveDiploma();
         DiplomaAuthorizationService service = CreateService(new FakeDiplomaQueries(diploma));
 
-        DiplomaAction invalidAction = (DiplomaAction)999;
+        var invalidAction = (DiplomaAction)999;
 
         DomainException exception = await Assert.ThrowsAsync<DomainException>(() =>
             service.EnsureCanPerformAsync(_supervisorId, _diplomaId, invalidAction));
@@ -213,7 +213,7 @@ public sealed class DiplomaAuthorizationServiceTests
     [Fact]
     public async Task DepartmentHeadTopicAction_WithRole_Succeeds()
     {
-        Guid headId = Guid.NewGuid();
+        var headId = Guid.NewGuid();
         FakeAnnualRoleQueries roles = new();
         roles.Roles.Add((headId, _sessionId, AnnualRoleType.DepartmentHead));
         Diploma diploma = CreateActiveDiploma();
@@ -239,7 +239,7 @@ public sealed class DiplomaAuthorizationServiceTests
     [Fact]
     public async Task RejectTopicAsDepartmentHead_OnVersion_Succeeds()
     {
-        Guid headId = Guid.NewGuid();
+        var headId = Guid.NewGuid();
         FakeAnnualRoleQueries roles = new();
         roles.Roles.Add((headId, _sessionId, AnnualRoleType.DepartmentHead));
         Diploma diploma = CreateActiveDiploma();

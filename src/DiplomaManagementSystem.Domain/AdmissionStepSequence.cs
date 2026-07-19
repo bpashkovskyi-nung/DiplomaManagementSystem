@@ -54,7 +54,7 @@ public static class AdmissionStepSequence
 
     public static AdmissionStep? GetNextStep(AdmissionStep step)
     {
-        List<AdmissionStep> order = WorkflowOrder.ToList();
+        var order = WorkflowOrder.ToList();
         int index = order.IndexOf(step);
         if (index < 0 || index >= order.Count - 1)
         {

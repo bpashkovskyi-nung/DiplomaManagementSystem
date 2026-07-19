@@ -9,6 +9,7 @@ using DiplomaManagementSystem.Domain.Enums;
 using DiplomaManagementSystem.Domain.Exceptions;
 using DiplomaManagementSystem.Infrastructure.Persistence;
 using DiplomaManagementSystem.Infrastructure.Persistence.Queries;
+
 using Microsoft.EntityFrameworkCore;
 
 namespace DiplomaManagementSystem.Application.Tests.Admin;
@@ -168,7 +169,7 @@ public sealed class AnnualRoleServiceTests : IDisposable
 
     private async Task<Guid> SeedSessionAsync()
     {
-        Guid sessionId = Guid.NewGuid();
+        var sessionId = Guid.NewGuid();
         _dbContext.DefenceSessions.Add(new DefenceSession
         {
             Id = sessionId,
@@ -188,7 +189,7 @@ public sealed class AnnualRoleServiceTests : IDisposable
         string? email = null,
         Guid? departmentId = null)
     {
-        Guid employeeId = Guid.NewGuid();
+        var employeeId = Guid.NewGuid();
         string resolvedEmail = email ?? $"{employeeId:N}@test.local";
         Guid targetDepartmentId = departmentId ?? _departmentId;
         _dbContext.Users.Add(new ApplicationUser

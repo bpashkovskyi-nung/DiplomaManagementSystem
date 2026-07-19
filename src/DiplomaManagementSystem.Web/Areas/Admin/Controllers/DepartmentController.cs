@@ -1,6 +1,5 @@
 using System.Security.Claims;
 
-using DiplomaManagementSystem.Application;
 using DiplomaManagementSystem.Web.Areas.Admin.Models;
 using DiplomaManagementSystem.Web.Departments;
 

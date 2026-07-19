@@ -41,7 +41,7 @@ public sealed class PersonNameSortTests
             "Євген Куцук",
         ];
 
-        List<string> sorted = names
+        var sorted = names
             .OrderBy(name => name, Comparer<string>.Create(PersonNameSort.CompareBySurname))
             .ToList();
 

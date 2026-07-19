@@ -10,8 +10,8 @@ using DiplomaManagementSystem.Domain.Entities;
 using DiplomaManagementSystem.Domain.Enums;
 using DiplomaManagementSystem.Domain.Exceptions;
 using DiplomaManagementSystem.Infrastructure.Persistence;
+
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Options;
 
 namespace DiplomaManagementSystem.Application.Tests.Secretary.Documents;
 
@@ -169,7 +169,7 @@ public sealed class TopicOrderDocumentServiceTests : IDisposable
         };
         _dbContext.Specialties.Add(specialtyB);
 
-        Guid sessionId = Guid.NewGuid();
+        var sessionId = Guid.NewGuid();
         _dbContext.DefenceSessions.Add(new DefenceSession
         {
             Id = sessionId,
@@ -181,8 +181,8 @@ public sealed class TopicOrderDocumentServiceTests : IDisposable
             CreatedAt = DateTimeOffset.UtcNow,
         });
 
-        Guid groupAId = Guid.NewGuid();
-        Guid groupBId = Guid.NewGuid();
+        var groupAId = Guid.NewGuid();
+        var groupBId = Guid.NewGuid();
         _dbContext.StudyGroups.AddRange(
             new StudyGroup
             {
@@ -218,7 +218,7 @@ public sealed class TopicOrderDocumentServiceTests : IDisposable
         ApplicationUser formatting = CreateUser("Нормоконтролер Тестовий", "formatting.topic@test.local", UserKind.Employee);
         ApplicationUser head = CreateUser("Завідувач Тестовий", "head.topic@test.local", UserKind.Employee);
 
-        Guid diplomaId = Guid.NewGuid();
+        var diplomaId = Guid.NewGuid();
         _dbContext.Users.AddRange(student, supervisor, reviewer, formatting, head);
         _dbContext.Diplomas.Add(new Diploma
         {

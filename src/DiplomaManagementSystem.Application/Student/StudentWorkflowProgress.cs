@@ -398,7 +398,7 @@ public static class StudentWorkflowProgressBuilder
             return null;
         }
 
-        List<DiplomaAdmissionStepAttempt> attempts = diploma.AdmissionStepAttempts.ToList();
+        var attempts = diploma.AdmissionStepAttempts.ToList();
         DiplomaAdmissionStepAttempt? lastPassing = AdmissionStepStatusResolver.GetLastPassingAttempt(step.Value, attempts);
         DiplomaAdmissionStepAttempt? lastAttempt = AdmissionStepStatusResolver.GetLastAttempt(step.Value, attempts);
 
@@ -442,7 +442,7 @@ public static class StudentWorkflowProgressBuilder
 
         string? completedByName = null;
         DiplomaAdmissionStepAttempt? statusAttempt = lastPassing ?? lastAttempt;
-        if (statusAttempt?.RecordedById is Guid recordedById)
+        if (statusAttempt?.RecordedById is { } recordedById)
         {
             completedByNames?.TryGetValue(recordedById, out completedByName);
         }

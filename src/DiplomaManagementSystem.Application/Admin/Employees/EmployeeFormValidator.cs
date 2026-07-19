@@ -1,6 +1,5 @@
 using DiplomaManagementSystem.Application.Admin.Employees.Dtos;
 using DiplomaManagementSystem.Application.Security;
-using DiplomaManagementSystem.Domain.Enums;
 
 using FluentValidation;
 

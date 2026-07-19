@@ -1,9 +1,9 @@
 using System.Net;
+
 using DiplomaManagementSystem.Application.Student.Contracts;
 using DiplomaManagementSystem.Application.Student.Dtos;
 using DiplomaManagementSystem.Domain.Enums;
-using DiplomaManagementSystem.Integration.Tests.Support;
-using DiplomaManagementSystem.Integration.Tests.Web;
+
 using Microsoft.Extensions.DependencyInjection;
 
 namespace DiplomaManagementSystem.Integration.Tests.Web;

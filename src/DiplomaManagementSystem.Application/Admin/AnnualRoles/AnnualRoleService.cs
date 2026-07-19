@@ -8,6 +8,7 @@ using DiplomaManagementSystem.Application.Secretary;
 using DiplomaManagementSystem.Domain.Entities;
 using DiplomaManagementSystem.Domain.Enums;
 using DiplomaManagementSystem.Domain.Exceptions;
+
 using Microsoft.EntityFrameworkCore;
 
 namespace DiplomaManagementSystem.Application.Admin.AnnualRoles;
@@ -39,19 +40,19 @@ internal sealed class AnnualRoleService(
             .Where(assignment => assignment.DefenceSessionId == defenceSessionId)
             .ToListAsync(cancellationToken);
 
-        Dictionary<AnnualRoleType, AnnualRoleAssignment> byRole = assignments.ToDictionary(a => a.RoleType);
+        var byRole = assignments.ToDictionary(a => a.RoleType);
 
         List<PersonOptionDto> employees = PersonOptionMapping.From(
             await userDisplayQueries.LoadEmployeeOptionsForDepartmentAsync(session.DepartmentId, cancellationToken));
 
-        HashSet<Guid> assignedEmployeeIds = assignments
+        var assignedEmployeeIds = assignments
             .Select(assignment => assignment.EmployeeId)
             .ToHashSet();
         Dictionary<Guid, string> assignedNames = await userDisplayQueries.LoadFullNamesAsync(
             assignedEmployeeIds,
             cancellationToken);
 
-        List<AnnualRoleSlotDto> slots = AllRoleTypes
+        var slots = AllRoleTypes
             .Select(roleType =>
             {
                 if (!byRole.TryGetValue(roleType, out AnnualRoleAssignment? assignment))

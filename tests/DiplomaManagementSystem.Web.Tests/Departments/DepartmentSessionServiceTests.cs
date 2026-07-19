@@ -12,7 +12,7 @@ public sealed class DepartmentSessionServiceTests
     public void GetSelectedDepartmentId_ReadsCookieValue()
     {
         DefaultHttpContext httpContext = new();
-        Guid departmentId = Guid.Parse("aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee");
+        var departmentId = Guid.Parse("aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee");
         httpContext.Request.Headers.Cookie = $"dms.dept={departmentId}";
         DepartmentSessionService service = CreateService();
 

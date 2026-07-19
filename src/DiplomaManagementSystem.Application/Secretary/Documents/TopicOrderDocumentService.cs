@@ -7,6 +7,7 @@ using DiplomaManagementSystem.Application.Secretary.Documents.Dtos;
 using DiplomaManagementSystem.Domain.Entities;
 using DiplomaManagementSystem.Domain.Enums;
 using DiplomaManagementSystem.Domain.Exceptions;
+
 using Microsoft.EntityFrameworkCore;
 
 namespace DiplomaManagementSystem.Application.Secretary.Documents;
@@ -81,7 +82,7 @@ internal sealed class TopicOrderDocumentService(
         }
 
         List<string> warnings = [];
-        HashSet<Guid> selectedGroupIds = request.StudyGroupIds.ToHashSet();
+        var selectedGroupIds = request.StudyGroupIds.ToHashSet();
 
         List<StudyGroup> selectedGroups = await dbContext.StudyGroups
             .AsNoTracking()
@@ -94,19 +95,19 @@ internal sealed class TopicOrderDocumentService(
             throw new DomainException("Обрано недійсну групу для цієї сесії.");
         }
 
-        HashSet<int?> courses = selectedGroups.Select(group => group.Course).ToHashSet();
+        var courses = selectedGroups.Select(group => group.Course).ToHashSet();
         if (courses.Count > 1)
         {
             throw new DomainException("Помилка: обрані групи мають різний курс. Згенеруйте окремі накази.");
         }
 
-        HashSet<Guid> specialtyIds = selectedGroups.Select(group => group.SpecialtyId).ToHashSet();
+        var specialtyIds = selectedGroups.Select(group => group.SpecialtyId).ToHashSet();
         if (specialtyIds.Count > 1)
         {
             throw new DomainException("Помилка: обрані групи мають різні спеціальності. Згенеруйте окремі накази.");
         }
 
-        HashSet<string> studyForms = selectedGroups.Select(group => group.StudyForm).ToHashSet(StringComparer.Ordinal);
+        var studyForms = selectedGroups.Select(group => group.StudyForm).ToHashSet(StringComparer.Ordinal);
         if (studyForms.Count > 1)
         {
             throw new DomainException("Помилка: обрані групи мають різну форму навчання. Згенеруйте окремі накази.");
@@ -150,16 +151,16 @@ internal sealed class TopicOrderDocumentService(
 
         Dictionary<Guid, ApplicationUser> users = await userDisplayQueries.LoadUsersAsync(userIds, cancellationToken);
 
-        HashSet<Guid> diplomaIds = diplomas.Select(diploma => diploma.Id).ToHashSet();
+        var diplomaIds = diplomas.Select(diploma => diploma.Id).ToHashSet();
         Dictionary<Guid, string> topicTitles = await topicVersionQueries.GetApprovedTitlesAsync(diplomaIds, cancellationToken);
 
-        List<TopicOrderStudentRowDto> students = diplomas
+        var students = diplomas
             .Select(diploma => MapStudentRow(diploma, users, topicTitles, warnings))
             .OrderBy(row => PersonNameSort.SurnameKey(row.StudentFullName), StringComparer.CurrentCultureIgnoreCase)
             .ThenBy(row => row.StudentFullName, StringComparer.CurrentCultureIgnoreCase)
             .ToList();
 
-        List<TopicOrderReviewerRowDto> reviewers = diplomas
+        var reviewers = diplomas
             .Where(diploma => diploma.ReviewerId.HasValue)
             .GroupBy(diploma => diploma.ReviewerId!.Value)
             .Select(group =>
@@ -185,7 +186,7 @@ internal sealed class TopicOrderDocumentService(
         }
 
         string? formattingReviewerLine = null;
-        if (formattingReviewerId is Guid formattingId)
+        if (formattingReviewerId is { } formattingId)
         {
             if (users.TryGetValue(formattingId, out ApplicationUser? formattingReviewer))
             {
@@ -198,7 +199,7 @@ internal sealed class TopicOrderDocumentService(
         }
 
         string? departmentHeadLine = null;
-        if (departmentHeadId is Guid headId)
+        if (departmentHeadId is { } headId)
         {
             if (users.TryGetValue(headId, out ApplicationUser? departmentHead))
             {
@@ -274,7 +275,7 @@ internal sealed class TopicOrderDocumentService(
             return [];
         }
 
-        HashSet<Guid> studentIds = diplomas.Select(diploma => diploma.StudentId).ToHashSet();
+        var studentIds = diplomas.Select(diploma => diploma.StudentId).ToHashSet();
         Dictionary<Guid, Guid?> studentGroups = await dbContext.Users
             .AsNoTracking()
             .Where(user => studentIds.Contains(user.Id))
@@ -298,7 +299,7 @@ internal sealed class TopicOrderDocumentService(
 
     private static HashSet<Guid> CollectUserIds(IReadOnlyList<Diploma> diplomas)
     {
-        HashSet<Guid> userIds = diplomas.Select(diploma => diploma.StudentId).ToHashSet();
+        var userIds = diplomas.Select(diploma => diploma.StudentId).ToHashSet();
         foreach (Diploma diploma in diplomas)
         {
             if (diploma.SupervisorId.HasValue)
@@ -331,7 +332,7 @@ internal sealed class TopicOrderDocumentService(
             supervisorLine = EmployeeOrderNameFormatter.Format(supervisor);
             if (supervisor.AcademicRank is null)
             {
-                    warnings.Add($"Керівник {supervisor.FullName} без вченого звання — у наказі без префікса.");
+                warnings.Add($"Керівник {supervisor.FullName} без вченого звання — у наказі без префікса.");
             }
         }
 

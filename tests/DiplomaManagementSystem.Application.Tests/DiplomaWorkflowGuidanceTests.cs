@@ -404,7 +404,7 @@ public sealed class DiplomaWorkflowGuidanceTests
     [Fact]
     public void OverrideAdmission_ExternalNoReviewer_ReturnsMessage()
     {
-        Guid diplomaId = Guid.NewGuid();
+        var diplomaId = Guid.NewGuid();
         Diploma diploma = new()
         {
             Id = diplomaId,
@@ -433,7 +433,7 @@ public sealed class DiplomaWorkflowGuidanceTests
     [Fact]
     public void OverrideAdmission_Valid_ReturnsNull()
     {
-        Guid diplomaId = Guid.NewGuid();
+        var diplomaId = Guid.NewGuid();
         Diploma diploma = new()
         {
             Id = diplomaId,
@@ -682,7 +682,7 @@ public sealed class DiplomaWorkflowGuidanceTests
     [Fact]
     public void BuildAdmitBlockedReason_WhenAllStepsPassButLifecycleNotReady_ReturnsUpdatingMessage()
     {
-        Guid diplomaId = Guid.NewGuid();
+        var diplomaId = Guid.NewGuid();
         Diploma diploma = new()
         {
             Id = diplomaId,
@@ -724,7 +724,7 @@ public sealed class DiplomaWorkflowGuidanceTests
     [Fact]
     public void BuildOverrideAdmissionStepBlockedReason_WhenPriorStepsIncomplete_ReturnsNotWaiting()
     {
-        Guid diplomaId = Guid.NewGuid();
+        var diplomaId = Guid.NewGuid();
         Diploma diploma = new()
         {
             Id = diplomaId,
@@ -809,7 +809,7 @@ public sealed class DiplomaWorkflowGuidanceTests
 
     private static List<DiplomaAdmissionStepAttempt> CreateAllPassingAttempts()
     {
-        Guid diplomaId = Guid.NewGuid();
+        var diplomaId = Guid.NewGuid();
         return
         [
             CreatePassingAttempt(diplomaId, AdmissionStep.SupervisorFeedback),

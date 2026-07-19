@@ -1,5 +1,4 @@
 using DiplomaManagementSystem.Application.Secretary.Dtos;
-using DiplomaManagementSystem.Domain.Enums;
 using DiplomaManagementSystem.Web.Areas.Secretary.Models;
 
 namespace DiplomaManagementSystem.Web.Mapping;
@@ -19,10 +18,10 @@ internal static class SecretaryDashboardViewModelMapper
     {
         LifecycleStatus = item.LifecycleStatus,
         AdmissionStep = item.AdmissionStep,
-        Label = item.AdmissionStep is AdmissionStep step
+        Label = item.AdmissionStep is { } step
             ? UkrainianDisplay.FormatAdmissionStep(step)
             : UkrainianDisplay.FormatDiplomaLifecycleStatus(item.LifecycleStatus!.Value),
-        BadgeClass = item.AdmissionStep is AdmissionStep admissionStep
+        BadgeClass = item.AdmissionStep is { } admissionStep
             ? UkrainianDisplay.AdmissionStepBadgeClass(admissionStep)
             : UkrainianDisplay.LifecycleBadgeClass(item.LifecycleStatus!.Value),
         Count = item.Count,

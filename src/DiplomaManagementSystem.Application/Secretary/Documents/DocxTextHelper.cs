@@ -31,7 +31,7 @@ internal static class DocxTextHelper
         Run? templateRun = paragraph.Descendants<Run>().FirstOrDefault();
         paragraph.RemoveAllChildren<Run>();
 
-        RunProperties? properties = templateRun?.RunProperties?.CloneNode(true) as RunProperties;
+        var properties = templateRun?.RunProperties?.CloneNode(true) as RunProperties;
 
         Run leftRun = CreateRun(leftText, properties);
         Run tabRun = new();

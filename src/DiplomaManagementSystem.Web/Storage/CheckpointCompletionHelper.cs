@@ -1,6 +1,5 @@
 using DiplomaManagementSystem.Application.Storage;
 using DiplomaManagementSystem.Domain;
-using DiplomaManagementSystem.Domain.Enums;
 using DiplomaManagementSystem.Web.Areas.Employee.Models;
 
 namespace DiplomaManagementSystem.Web.Storage;

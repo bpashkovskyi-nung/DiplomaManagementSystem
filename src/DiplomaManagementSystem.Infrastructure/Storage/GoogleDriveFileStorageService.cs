@@ -1,12 +1,15 @@
 using DiplomaManagementSystem.Application.Options;
 using DiplomaManagementSystem.Application.Storage;
 using DiplomaManagementSystem.Application.Storage.Contracts;
+
 using Google.Apis.Auth.OAuth2;
 using Google.Apis.Drive.v3;
 using Google.Apis.Drive.v3.Data;
 using Google.Apis.Services;
 using Google.Apis.Upload;
+
 using Microsoft.Extensions.Options;
+
 using DriveFile = Google.Apis.Drive.v3.Data.File;
 
 namespace DiplomaManagementSystem.Infrastructure.Storage;

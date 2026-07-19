@@ -1,4 +1,3 @@
-using DiplomaManagementSystem.Application;
 using DiplomaManagementSystem.Application.Admin.DefenceSessions;
 using DiplomaManagementSystem.Application.Admin.DefenceSessions.Dtos;
 using DiplomaManagementSystem.Application.Audit.Contracts;
@@ -10,6 +9,7 @@ using DiplomaManagementSystem.Domain.Enums;
 using DiplomaManagementSystem.Domain.Exceptions;
 using DiplomaManagementSystem.Domain.Services;
 using DiplomaManagementSystem.Infrastructure.Persistence;
+
 using Microsoft.EntityFrameworkCore;
 
 namespace DiplomaManagementSystem.Application.Tests.Admin;

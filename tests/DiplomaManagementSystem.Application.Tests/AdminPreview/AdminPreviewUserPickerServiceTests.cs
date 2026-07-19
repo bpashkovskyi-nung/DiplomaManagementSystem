@@ -2,12 +2,13 @@ using DiplomaManagementSystem.Application.AdminPreview;
 using DiplomaManagementSystem.Application.AdminPreview.Contracts;
 using DiplomaManagementSystem.Application.Departments;
 using DiplomaManagementSystem.Application.Departments.Contracts;
-using DiplomaManagementSystem.Application.Persistence.Contracts;
 using DiplomaManagementSystem.Application.Identity;
+using DiplomaManagementSystem.Application.Persistence.Contracts;
 using DiplomaManagementSystem.Application.Tests.Departments;
 using DiplomaManagementSystem.Domain.Entities;
 using DiplomaManagementSystem.Domain.Enums;
 using DiplomaManagementSystem.Infrastructure.Persistence;
+
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;

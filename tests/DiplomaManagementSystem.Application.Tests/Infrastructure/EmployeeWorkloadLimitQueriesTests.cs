@@ -3,6 +3,7 @@ using DiplomaManagementSystem.Domain.Entities;
 using DiplomaManagementSystem.Domain.Enums;
 using DiplomaManagementSystem.Infrastructure.Persistence;
 using DiplomaManagementSystem.Infrastructure.Persistence.Queries;
+
 using Microsoft.EntityFrameworkCore;
 
 namespace DiplomaManagementSystem.Application.Tests.Infrastructure;
@@ -26,7 +27,7 @@ public sealed class EmployeeWorkloadLimitQueriesTests : IDisposable
     public async Task GetSupervisorLimitAsync_WhenMissing_ReturnsNull()
     {
         Guid sessionId = await SeedSessionAsync();
-        Guid employeeId = Guid.NewGuid();
+        var employeeId = Guid.NewGuid();
 
         int? limit = await _queries.GetSupervisorLimitAsync(sessionId, employeeId);
 
@@ -37,7 +38,7 @@ public sealed class EmployeeWorkloadLimitQueriesTests : IDisposable
     public async Task CountConfirmedSupervisorStudentsAsync_CountsOnlyConfirmed()
     {
         Guid sessionId = await SeedSessionAsync();
-        Guid supervisorId = Guid.NewGuid();
+        var supervisorId = Guid.NewGuid();
         await SeedDiplomaAsync(sessionId, supervisorId, SupervisorAssignmentStatus.Confirmed);
         await SeedDiplomaAsync(sessionId, supervisorId, SupervisorAssignmentStatus.Pending);
         await SeedDiplomaAsync(sessionId, supervisorId, SupervisorAssignmentStatus.Rejected);
@@ -51,7 +52,7 @@ public sealed class EmployeeWorkloadLimitQueriesTests : IDisposable
     public async Task CountConfirmedSupervisorStudentsAsync_ExcludesDiploma()
     {
         Guid sessionId = await SeedSessionAsync();
-        Guid supervisorId = Guid.NewGuid();
+        var supervisorId = Guid.NewGuid();
         Guid excludedDiplomaId = await SeedDiplomaAsync(sessionId, supervisorId, SupervisorAssignmentStatus.Confirmed);
         await SeedDiplomaAsync(sessionId, supervisorId, SupervisorAssignmentStatus.Confirmed);
 
@@ -67,7 +68,7 @@ public sealed class EmployeeWorkloadLimitQueriesTests : IDisposable
     public async Task CountReviewerAssignmentsAsync_CountsAllAssignedReviewers()
     {
         Guid sessionId = await SeedSessionAsync();
-        Guid reviewerId = Guid.NewGuid();
+        var reviewerId = Guid.NewGuid();
         await SeedDiplomaWithReviewerAsync(sessionId, reviewerId, ReviewAssignmentStatus.Assigned);
         await SeedDiplomaWithReviewerAsync(sessionId, reviewerId, ReviewAssignmentStatus.Completed);
 
@@ -80,7 +81,7 @@ public sealed class EmployeeWorkloadLimitQueriesTests : IDisposable
     public async Task CountReviewerAssignmentsAsync_ExcludesDiploma()
     {
         Guid sessionId = await SeedSessionAsync();
-        Guid reviewerId = Guid.NewGuid();
+        var reviewerId = Guid.NewGuid();
         Guid excludedDiplomaId = await SeedDiplomaWithReviewerAsync(sessionId, reviewerId, ReviewAssignmentStatus.Assigned);
         await SeedDiplomaWithReviewerAsync(sessionId, reviewerId, ReviewAssignmentStatus.Assigned);
 
@@ -91,7 +92,7 @@ public sealed class EmployeeWorkloadLimitQueriesTests : IDisposable
 
     private async Task<Guid> SeedSessionAsync()
     {
-        Guid sessionId = Guid.NewGuid();
+        var sessionId = Guid.NewGuid();
         _dbContext.DefenceSessions.Add(new DefenceSession
         {
             Id = sessionId,
@@ -110,7 +111,7 @@ public sealed class EmployeeWorkloadLimitQueriesTests : IDisposable
         Guid supervisorId,
         SupervisorAssignmentStatus status)
     {
-        Guid studentId = Guid.NewGuid();
+        var studentId = Guid.NewGuid();
         string email = $"{Guid.NewGuid():N}@student.test";
         _dbContext.Users.Add(new ApplicationUser
         {
@@ -123,7 +124,7 @@ public sealed class EmployeeWorkloadLimitQueriesTests : IDisposable
             CreatedAt = DateTimeOffset.UtcNow,
         });
 
-        Guid diplomaId = Guid.NewGuid();
+        var diplomaId = Guid.NewGuid();
         _dbContext.Diplomas.Add(new Diploma
         {
             Id = diplomaId,
@@ -145,7 +146,7 @@ public sealed class EmployeeWorkloadLimitQueriesTests : IDisposable
         Guid reviewerId,
         ReviewAssignmentStatus status)
     {
-        Guid studentId = Guid.NewGuid();
+        var studentId = Guid.NewGuid();
         string email = $"{Guid.NewGuid():N}@student.test";
         _dbContext.Users.Add(new ApplicationUser
         {
@@ -158,7 +159,7 @@ public sealed class EmployeeWorkloadLimitQueriesTests : IDisposable
             CreatedAt = DateTimeOffset.UtcNow,
         });
 
-        Guid diplomaId = Guid.NewGuid();
+        var diplomaId = Guid.NewGuid();
         _dbContext.Diplomas.Add(new Diploma
         {
             Id = diplomaId,

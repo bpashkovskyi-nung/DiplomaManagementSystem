@@ -7,6 +7,7 @@ using DiplomaManagementSystem.Domain.Entities;
 using DiplomaManagementSystem.Domain.Enums;
 using DiplomaManagementSystem.Domain.Exceptions;
 using DiplomaManagementSystem.Infrastructure.Persistence;
+
 using Microsoft.EntityFrameworkCore;
 
 namespace DiplomaManagementSystem.Application.Tests.SuperAdmin;
@@ -54,7 +55,7 @@ public sealed class SpecialtyAdminServiceCoverageTests : IDisposable
     public async Task GetActiveOptionsForSessionAsync_ReturnsDepartmentSpecialties()
     {
         (Guid departmentId, Guid specialtyId) = await OrganizationTestData.SeedDepartmentWithSpecialtyAsync(_dbContext);
-        Guid sessionId = Guid.NewGuid();
+        var sessionId = Guid.NewGuid();
         _dbContext.DefenceSessions.Add(new DefenceSession
         {
             Id = sessionId,

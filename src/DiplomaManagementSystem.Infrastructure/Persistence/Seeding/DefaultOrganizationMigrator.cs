@@ -1,7 +1,5 @@
-using DiplomaManagementSystem.Application.Constants;
 using DiplomaManagementSystem.Application.Identity;
 using DiplomaManagementSystem.Application.Options;
-using DiplomaManagementSystem.Infrastructure.Persistence.Seeding;
 
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.DependencyInjection;

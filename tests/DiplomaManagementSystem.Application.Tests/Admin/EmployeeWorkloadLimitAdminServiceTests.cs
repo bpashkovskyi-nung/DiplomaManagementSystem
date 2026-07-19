@@ -9,6 +9,7 @@ using DiplomaManagementSystem.Domain.Enums;
 using DiplomaManagementSystem.Domain.Exceptions;
 using DiplomaManagementSystem.Infrastructure.Persistence;
 using DiplomaManagementSystem.Infrastructure.Persistence.Queries;
+
 using Microsoft.EntityFrameworkCore;
 
 namespace DiplomaManagementSystem.Application.Tests.Admin;
@@ -145,7 +146,7 @@ public sealed class EmployeeWorkloadLimitAdminServiceTests : IDisposable
 
     private async Task<Guid> SeedSessionAsync()
     {
-        Guid sessionId = Guid.NewGuid();
+        var sessionId = Guid.NewGuid();
         _dbContext.DefenceSessions.Add(new DefenceSession
         {
             Id = sessionId,
@@ -162,7 +163,7 @@ public sealed class EmployeeWorkloadLimitAdminServiceTests : IDisposable
 
     private async Task<Guid> SeedEmployeeAsync(string fullName, Guid? departmentId = null)
     {
-        Guid employeeId = Guid.NewGuid();
+        var employeeId = Guid.NewGuid();
         string email = $"{employeeId:N}@test.local";
         Guid targetDepartmentId = departmentId ?? _departmentId;
         _dbContext.Users.Add(new ApplicationUser
@@ -193,7 +194,7 @@ public sealed class EmployeeWorkloadLimitAdminServiceTests : IDisposable
         bool supervisorConfirmed,
         Guid? reviewerId)
     {
-        Guid studentId = Guid.NewGuid();
+        var studentId = Guid.NewGuid();
         string email = $"{studentId:N}@student.test";
         _dbContext.Users.Add(new ApplicationUser
         {
@@ -206,7 +207,7 @@ public sealed class EmployeeWorkloadLimitAdminServiceTests : IDisposable
             CreatedAt = DateTimeOffset.UtcNow,
         });
 
-        Guid diplomaId = Guid.NewGuid();
+        var diplomaId = Guid.NewGuid();
         _dbContext.Diplomas.Add(new Diploma
         {
             Id = diplomaId,

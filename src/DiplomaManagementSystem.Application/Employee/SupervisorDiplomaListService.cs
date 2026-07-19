@@ -23,10 +23,10 @@ internal sealed class SupervisorDiplomaListService(
             return new SupervisorDiplomaListPageDto([], filter, []);
         }
 
-        HashSet<Guid> studentIds = diplomas.Select(diploma => diploma.StudentId).ToHashSet();
+        var studentIds = diplomas.Select(diploma => diploma.StudentId).ToHashSet();
         Dictionary<Guid, ApplicationUser> users = await userDisplayQueries.LoadUsersAsync(studentIds, cancellationToken);
 
-        HashSet<Guid> studyGroupIds = users.Values
+        var studyGroupIds = users.Values
             .Where(user => user.StudyGroupId.HasValue)
             .Select(user => user.StudyGroupId!.Value)
             .ToHashSet();
@@ -35,7 +35,7 @@ internal sealed class SupervisorDiplomaListService(
             studyGroupIds,
             cancellationToken);
 
-        List<StudyGroupFilterOptionDto> studyGroups = studyGroupNames
+        var studyGroups = studyGroupNames
             .OrderBy(pair => pair.Value, StringComparer.CurrentCultureIgnoreCase)
             .Select(pair => new StudyGroupFilterOptionDto(pair.Key, pair.Value))
             .ToList();

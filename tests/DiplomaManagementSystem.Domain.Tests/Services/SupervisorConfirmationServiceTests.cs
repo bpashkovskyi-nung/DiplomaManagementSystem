@@ -12,7 +12,7 @@ public sealed class SupervisorConfirmationServiceTests
     [Fact]
     public void Confirm_WhenPending_SetsConfirmed()
     {
-        Guid supervisorId = Guid.NewGuid();
+        var supervisorId = Guid.NewGuid();
         Diploma diploma = CreateDiploma(supervisorId, SupervisorAssignmentStatus.Pending);
         DefenceSession session = CreateSession();
 
@@ -25,7 +25,7 @@ public sealed class SupervisorConfirmationServiceTests
     [Fact]
     public void Reject_WhenPending_SetsRejected()
     {
-        Guid supervisorId = Guid.NewGuid();
+        var supervisorId = Guid.NewGuid();
         Diploma diploma = CreateDiploma(supervisorId, SupervisorAssignmentStatus.Pending);
         DefenceSession session = CreateSession();
 
@@ -48,7 +48,7 @@ public sealed class SupervisorConfirmationServiceTests
     [Fact]
     public void Confirm_WhenNotPending_Throws()
     {
-        Guid supervisorId = Guid.NewGuid();
+        var supervisorId = Guid.NewGuid();
         Diploma diploma = CreateDiploma(supervisorId, SupervisorAssignmentStatus.Confirmed);
         DefenceSession session = CreateSession();
 
@@ -59,7 +59,7 @@ public sealed class SupervisorConfirmationServiceTests
     [Fact]
     public void Confirm_WhenSessionArchived_Throws()
     {
-        Guid supervisorId = Guid.NewGuid();
+        var supervisorId = Guid.NewGuid();
         Diploma diploma = CreateDiploma(supervisorId, SupervisorAssignmentStatus.Pending);
         DefenceSession session = CreateSession();
         session.Status = DefenceSessionStatus.Archived;

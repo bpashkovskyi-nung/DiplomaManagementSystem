@@ -1,7 +1,4 @@
 using DiplomaManagementSystem.Application.Employee.Contracts;
-
-using DiplomaManagementSystem.Application.Employee.Dtos;
-
 using DiplomaManagementSystem.Application.Persistence.Contracts;
 
 using DiplomaManagementSystem.Application.Secretary;

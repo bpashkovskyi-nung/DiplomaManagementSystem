@@ -6,11 +6,11 @@ using DiplomaManagementSystem.Application.Identity.Contracts;
 using DiplomaManagementSystem.Application.Options;
 using DiplomaManagementSystem.Application.Persistence.Contracts;
 using DiplomaManagementSystem.Application.Security;
-using DiplomaManagementSystem.Application.Tests.Departments;
 using DiplomaManagementSystem.Domain.Entities;
 using DiplomaManagementSystem.Domain.Enums;
 using DiplomaManagementSystem.Domain.Exceptions;
 using DiplomaManagementSystem.Infrastructure.Persistence;
+
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
@@ -115,7 +115,7 @@ public sealed class EmployeeAdminServiceTests : IDisposable
 
     private async Task<Guid> SeedEmployeeAsync(string fullName, string email)
     {
-        Guid employeeId = Guid.NewGuid();
+        var employeeId = Guid.NewGuid();
         _dbContext.Users.Add(new ApplicationUser
         {
             Id = employeeId,

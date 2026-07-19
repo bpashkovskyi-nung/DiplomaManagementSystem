@@ -23,7 +23,7 @@ public sealed class DiplomaLifecycleServiceTests
     [Fact]
     public void Recalculate_ReadyForAdmission_ReturnsReady()
     {
-        Guid diplomaId = Guid.NewGuid();
+        var diplomaId = Guid.NewGuid();
         DateTimeOffset now = DateTimeOffset.UtcNow;
         DiplomaTopicVersion topic = new()
         {
@@ -58,7 +58,7 @@ public sealed class DiplomaLifecycleServiceTests
     [Fact]
     public void Recalculate_WithAttempts_ReturnsDocumentsInProgress()
     {
-        Guid diplomaId = Guid.NewGuid();
+        var diplomaId = Guid.NewGuid();
         Diploma diploma = new()
         {
             Id = diplomaId,
@@ -79,8 +79,8 @@ public sealed class DiplomaLifecycleServiceTests
     [Fact]
     public void Recalculate_ApprovedTopicWithoutReviewer_ReturnsTopicApproved()
     {
-        Guid diplomaId = Guid.NewGuid();
-        Guid supervisorId = Guid.NewGuid();
+        var diplomaId = Guid.NewGuid();
+        var supervisorId = Guid.NewGuid();
         DiplomaTopicVersion topic = CreateApprovedTopic(diplomaId, supervisorId);
 
         Diploma diploma = new()
@@ -99,8 +99,8 @@ public sealed class DiplomaLifecycleServiceTests
     [Fact]
     public void Recalculate_ApprovedTopicWithReviewer_ReturnsReviewerAssigned()
     {
-        Guid diplomaId = Guid.NewGuid();
-        Guid supervisorId = Guid.NewGuid();
+        var diplomaId = Guid.NewGuid();
+        var supervisorId = Guid.NewGuid();
         DiplomaTopicVersion topic = CreateApprovedTopic(diplomaId, supervisorId);
 
         Diploma diploma = new()
@@ -121,7 +121,7 @@ public sealed class DiplomaLifecycleServiceTests
     [Fact]
     public void Recalculate_PendingTopic_ReturnsTopicInReview()
     {
-        Guid diplomaId = Guid.NewGuid();
+        var diplomaId = Guid.NewGuid();
         DiplomaTopicVersion topic = new()
         {
             DiplomaId = diplomaId,

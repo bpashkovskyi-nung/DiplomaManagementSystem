@@ -1,5 +1,6 @@
 using DiplomaManagementSystem.Application.Persistence;
 using DiplomaManagementSystem.Application.Persistence.Contracts;
+
 using Microsoft.EntityFrameworkCore;
 
 namespace DiplomaManagementSystem.Infrastructure.Persistence.Queries;

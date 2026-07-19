@@ -125,7 +125,7 @@ public sealed class AdmissionStepStatusResolverTests
     [Fact]
     public void CanSecretaryOverride_ExternalWithoutReviewer_ReturnsFalse()
     {
-        Guid diplomaId = Guid.NewGuid();
+        var diplomaId = Guid.NewGuid();
         Diploma diploma = new()
         {
             Id = diplomaId,
@@ -147,7 +147,7 @@ public sealed class AdmissionStepStatusResolverTests
     [Fact]
     public void CanSecretaryOverride_ActionableStep_ReturnsTrue()
     {
-        Guid diplomaId = Guid.NewGuid();
+        var diplomaId = Guid.NewGuid();
         Diploma diploma = new()
         {
             Id = diplomaId,
@@ -205,7 +205,7 @@ public sealed class AdmissionStepStatusResolverTests
     [Fact]
     public void AreAllOutcomeStepsPassing_AllPass_ReturnsTrue()
     {
-        Guid diplomaId = Guid.NewGuid();
+        var diplomaId = Guid.NewGuid();
         List<DiplomaAdmissionStepAttempt> attempts =
         [
             CreateAttempt(AdmissionStep.SupervisorFeedback, CheckpointOutcome.Approved, diplomaId),
@@ -221,7 +221,7 @@ public sealed class AdmissionStepStatusResolverTests
     [Fact]
     public void AreAllOutcomeStepsPassing_MissingStep_ReturnsFalse()
     {
-        Guid diplomaId = Guid.NewGuid();
+        var diplomaId = Guid.NewGuid();
         List<DiplomaAdmissionStepAttempt> attempts =
         [
             CreateAttempt(AdmissionStep.SupervisorFeedback, CheckpointOutcome.Approved, diplomaId),
@@ -246,7 +246,7 @@ public sealed class AdmissionStepStatusResolverTests
     [Fact]
     public void ResolveCurrentStep_SupervisorRejected_ReturnsSupervisorFeedback()
     {
-        Guid diplomaId = Guid.NewGuid();
+        var diplomaId = Guid.NewGuid();
         Diploma diploma = new()
         {
             Id = diplomaId,
@@ -266,7 +266,7 @@ public sealed class AdmissionStepStatusResolverTests
     [Fact]
     public void ResolveCurrentStep_FormattingNotPassing_ReturnsFormattingReview()
     {
-        Guid diplomaId = Guid.NewGuid();
+        var diplomaId = Guid.NewGuid();
         Diploma diploma = new()
         {
             Id = diplomaId,
@@ -287,7 +287,7 @@ public sealed class AdmissionStepStatusResolverTests
     [Fact]
     public void ResolveCurrentStep_CompletedWithoutExternalReview_ReturnsExternalReview()
     {
-        Guid diplomaId = Guid.NewGuid();
+        var diplomaId = Guid.NewGuid();
         Diploma diploma = new()
         {
             Id = diplomaId,
@@ -310,7 +310,7 @@ public sealed class AdmissionStepStatusResolverTests
     [Fact]
     public void ResolveCurrentStep_ReadyForReviewer_ReturnsReviewerAssignment()
     {
-        Guid diplomaId = Guid.NewGuid();
+        var diplomaId = Guid.NewGuid();
         Diploma diploma = new()
         {
             Id = diplomaId,
@@ -333,7 +333,7 @@ public sealed class AdmissionStepStatusResolverTests
     [Fact]
     public void ResolveCurrentStep_ReviewerAssigned_ReturnsExternalReview()
     {
-        Guid diplomaId = Guid.NewGuid();
+        var diplomaId = Guid.NewGuid();
         Diploma diploma = new()
         {
             Id = diplomaId,
@@ -355,7 +355,7 @@ public sealed class AdmissionStepStatusResolverTests
     [Fact]
     public void ResolveCurrentStep_NotReadyForReviewer_SkipsReviewerAssignment()
     {
-        Guid diplomaId = Guid.NewGuid();
+        var diplomaId = Guid.NewGuid();
         Diploma diploma = new()
         {
             Id = diplomaId,
@@ -376,7 +376,7 @@ public sealed class AdmissionStepStatusResolverTests
     [Fact]
     public void ResolveCurrentStep_AssignedWithExternalPassing_ReturnsNull()
     {
-        Guid diplomaId = Guid.NewGuid();
+        var diplomaId = Guid.NewGuid();
         Diploma diploma = new()
         {
             Id = diplomaId,
@@ -400,7 +400,7 @@ public sealed class AdmissionStepStatusResolverTests
     [Fact]
     public void ResolveCurrentStep_AllComplete_ReturnsNull()
     {
-        Guid diplomaId = Guid.NewGuid();
+        var diplomaId = Guid.NewGuid();
         Diploma diploma = new()
         {
             Id = diplomaId,

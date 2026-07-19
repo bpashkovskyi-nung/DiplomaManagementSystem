@@ -1,4 +1,3 @@
-using DiplomaManagementSystem.Application.SuperAdmin.OrganizationImport;
 using DiplomaManagementSystem.Application.SuperAdmin.OrganizationImport.Dtos;
 
 namespace DiplomaManagementSystem.Application.SuperAdmin.OrganizationImport.Contracts;

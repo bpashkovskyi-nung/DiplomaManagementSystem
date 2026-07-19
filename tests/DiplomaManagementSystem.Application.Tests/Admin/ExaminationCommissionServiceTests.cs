@@ -234,7 +234,7 @@ public sealed class ExaminationCommissionServiceTests : IDisposable
 
     private async Task<Guid> SeedSessionAsync()
     {
-        Guid sessionId = Guid.NewGuid();
+        var sessionId = Guid.NewGuid();
         _dbContext.DefenceSessions.Add(new DefenceSession
         {
             Id = sessionId,
@@ -255,7 +255,7 @@ public sealed class ExaminationCommissionServiceTests : IDisposable
         string? email = null,
         Guid? departmentId = null)
     {
-        Guid employeeId = Guid.NewGuid();
+        var employeeId = Guid.NewGuid();
         string resolvedEmail = email ?? $"{employeeId:N}@test.local";
         Guid targetDepartmentId = departmentId ?? _departmentId;
         _dbContext.Users.Add(new ApplicationUser

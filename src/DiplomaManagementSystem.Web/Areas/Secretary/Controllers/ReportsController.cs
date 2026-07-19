@@ -2,6 +2,7 @@ using DiplomaManagementSystem.Application.Secretary.Contracts;
 using DiplomaManagementSystem.Application.Secretary.Dtos;
 using DiplomaManagementSystem.Web.Mapping;
 using DiplomaManagementSystem.Web.Secretary;
+
 using Microsoft.AspNetCore.Mvc;
 
 namespace DiplomaManagementSystem.Web.Areas.Secretary.Controllers;

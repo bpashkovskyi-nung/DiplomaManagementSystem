@@ -2,6 +2,7 @@ using DiplomaManagementSystem.Application.Admin.StudyGroups.Contracts;
 using DiplomaManagementSystem.Application.Admin.StudyGroups.Dtos;
 using DiplomaManagementSystem.Domain.Exceptions;
 using DiplomaManagementSystem.Integration.Tests.Support;
+
 using Microsoft.Extensions.DependencyInjection;
 
 namespace DiplomaManagementSystem.Integration.Tests.Admin;

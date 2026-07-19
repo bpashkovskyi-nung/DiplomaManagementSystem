@@ -1,5 +1,3 @@
-using DiplomaManagementSystem.Web.Areas.Admin.Models;
-
 namespace DiplomaManagementSystem.Web.Departments;
 
 public sealed class DepartmentSelectorViewModel

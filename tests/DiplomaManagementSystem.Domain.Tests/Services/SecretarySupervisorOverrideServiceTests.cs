@@ -13,7 +13,7 @@ public sealed class SecretarySupervisorOverrideServiceTests
     [Fact]
     public void Override_SetsSupervisorAndConfirmed()
     {
-        Guid newSupervisorId = Guid.NewGuid();
+        var newSupervisorId = Guid.NewGuid();
         Diploma diploma = CreateWritableDiploma();
         DefenceSession session = CreateActiveSession();
         DateTimeOffset before = DateTimeOffset.UtcNow;

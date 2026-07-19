@@ -24,7 +24,7 @@ internal sealed class SecretaryDashboardService(
             sessionId,
             cancellationToken);
 
-        Dictionary<DiplomaLifecycleStatus, int> countsByLifecycle = diplomas
+        var countsByLifecycle = diplomas
             .GroupBy(diploma => diploma.LifecycleStatus)
             .ToDictionary(group => group.Key, group => group.Count());
 

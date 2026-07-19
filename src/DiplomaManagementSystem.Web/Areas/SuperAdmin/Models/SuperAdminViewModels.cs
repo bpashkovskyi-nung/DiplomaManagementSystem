@@ -1,5 +1,5 @@
 using System.ComponentModel.DataAnnotations;
-using DiplomaManagementSystem.Application;
+
 using DiplomaManagementSystem.Application.SuperAdmin.OrganizationImport;
 
 using Microsoft.AspNetCore.Mvc.ModelBinding.Validation;

@@ -1,9 +1,11 @@
 using System.Net;
+
 using DiplomaManagementSystem.Application.Identity;
 using DiplomaManagementSystem.Application.Identity.Contracts;
 using DiplomaManagementSystem.Application.Persistence.Contracts;
 using DiplomaManagementSystem.Domain.Entities;
 using DiplomaManagementSystem.Integration.Tests.Support;
+
 using Microsoft.Extensions.DependencyInjection;
 
 namespace DiplomaManagementSystem.Integration.Tests.Web;

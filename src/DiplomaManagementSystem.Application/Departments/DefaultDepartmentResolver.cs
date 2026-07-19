@@ -1,4 +1,3 @@
-using DiplomaManagementSystem.Application.Departments;
 using DiplomaManagementSystem.Application.Persistence.Contracts;
 using DiplomaManagementSystem.Domain.Exceptions;
 

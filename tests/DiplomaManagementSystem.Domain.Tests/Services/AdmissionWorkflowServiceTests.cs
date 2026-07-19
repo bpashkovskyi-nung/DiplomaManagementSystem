@@ -126,8 +126,8 @@ public sealed class AdmissionWorkflowServiceTests
     [Fact]
     public void RecordAttempt_ExternalReviewApproved_SetsReviewCompleted()
     {
-        Guid diplomaId = Guid.NewGuid();
-        Guid reviewerId = Guid.NewGuid();
+        var diplomaId = Guid.NewGuid();
+        var reviewerId = Guid.NewGuid();
         Diploma diploma = new()
         {
             Id = diplomaId,
@@ -224,7 +224,7 @@ public sealed class AdmissionWorkflowServiceTests
     [Fact]
     public void RecordAttempt_Approved_AddsAttemptAndAdvancesStep()
     {
-        Guid userId = Guid.NewGuid();
+        var userId = Guid.NewGuid();
         Diploma diploma = new() { CurrentAdmissionStep = AdmissionStep.SupervisorFeedback };
         List<DiplomaAdmissionStepAttempt> attempts = [];
 
@@ -246,7 +246,7 @@ public sealed class AdmissionWorkflowServiceTests
     [Fact]
     public void RecordAttempt_WhenRejected_AllowsReReview()
     {
-        Guid userId = Guid.NewGuid();
+        var userId = Guid.NewGuid();
         Diploma diploma = new() { CurrentAdmissionStep = AdmissionStep.SupervisorFeedback };
         List<DiplomaAdmissionStepAttempt> attempts =
         [

@@ -87,7 +87,7 @@ internal sealed class StudentDiplomaService(
             .OrderByDescending(version => version.VersionNumber)
             .FirstOrDefault();
 
-        List<StudentTopicVersionDto> topicVersions = diploma.TopicVersions
+        var topicVersions = diploma.TopicVersions
             .OrderByDescending(version => version.VersionNumber)
             .Select(version => new StudentTopicVersionDto(
                 version.Id,
@@ -112,10 +112,10 @@ internal sealed class StudentDiplomaService(
             diploma.Id,
             cancellationToken);
 
-        HashSet<Guid> authorIds = comments.Select(comment => comment.AuthorId).ToHashSet();
+        var authorIds = comments.Select(comment => comment.AuthorId).ToHashSet();
         Dictionary<Guid, string> authorNames = await userDisplayQueries.LoadFullNamesAsync(authorIds, cancellationToken);
 
-        List<DiplomaCommentDto> commentDtos = comments
+        var commentDtos = comments
             .Select(comment => new DiplomaCommentDto(
                 authorNames.GetValueOrDefault(comment.AuthorId, "—"),
                 comment.Body,
@@ -126,7 +126,7 @@ internal sealed class StudentDiplomaService(
 
         bool hasStudentWork = await diplomaDocumentService.HasStudentWorkAsync(diploma.Id, cancellationToken);
 
-        DiplomaWorkflowState workflow = DiplomaWorkflowState.From(
+        var workflow = DiplomaWorkflowState.From(
             diploma,
             WorkflowAudience.Student,
             new DiplomaWorkflowOptions(
@@ -145,14 +145,14 @@ internal sealed class StudentDiplomaService(
             .FirstOrDefault();
 
         string? headApproverName = null;
-        if (approvedTopic?.ReviewedById is Guid headApproverId
+        if (approvedTopic?.ReviewedById is { } headApproverId
             && users.TryGetValue(headApproverId, out ApplicationUser? headApprover))
         {
             headApproverName = headApprover.FullName;
         }
 
         string? supervisorApproverName = null;
-        if (approvedTopic?.SupervisorReviewedById is Guid supervisorApproverId
+        if (approvedTopic?.SupervisorReviewedById is { } supervisorApproverId
             && users.TryGetValue(supervisorApproverId, out ApplicationUser? supervisorApprover))
         {
             supervisorApproverName = supervisorApprover.FullName;

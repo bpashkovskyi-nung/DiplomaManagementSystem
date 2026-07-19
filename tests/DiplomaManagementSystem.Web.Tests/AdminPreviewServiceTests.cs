@@ -47,7 +47,7 @@ public sealed class AdminPreviewServiceTests
     public void SetImpersonatedUserId_StoresUserForSuperAdmin()
     {
         DefaultHttpContext httpContext = CreateSuperAdminContext();
-        Guid userId = Guid.NewGuid();
+        var userId = Guid.NewGuid();
 
         _service.SetImpersonatedUserId(httpContext, userId);
 
@@ -104,7 +104,7 @@ public sealed class AdminPreviewServiceTests
     public void GetImpersonatedUserId_UsesPrincipal_WhenHttpContextUserIsAnonymous()
     {
         DefaultHttpContext httpContext = CreateSuperAdminContext();
-        Guid userId = Guid.NewGuid();
+        var userId = Guid.NewGuid();
         _service.SetImpersonatedUserId(httpContext, userId);
         httpContext.User = new ClaimsPrincipal(new ClaimsIdentity());
 

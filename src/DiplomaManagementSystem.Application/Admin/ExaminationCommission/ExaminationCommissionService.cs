@@ -38,7 +38,7 @@ internal sealed class ExaminationCommissionService(
 
         ExaminationCommissionParticipant? chairEntity = participants
             .FirstOrDefault(participant => participant.Role == ExaminationCommissionRole.Chair);
-        List<ExaminationCommissionParticipantDto> members = participants
+        var members = participants
             .Where(participant => participant.Role == ExaminationCommissionRole.Member)
             .Select(ToDto)
             .ToList();
@@ -159,7 +159,7 @@ internal sealed class ExaminationCommissionService(
                 pair.Id,
                 pair.FullName,
                 pair.Email,
-                pair.AcademicRank is EmployeeAcademicRank rank
+                pair.AcademicRank is { } rank
                     ? AcademicRankLabels.GetDisplayName(rank)
                     : null))
             .ToList();
@@ -184,7 +184,7 @@ internal sealed class ExaminationCommissionService(
             return (role, fullName, position, null, sortOrder);
         }
 
-        if (input.EmployeeId is not Guid employeeId)
+        if (input.EmployeeId is not { } employeeId)
         {
             throw new DomainException("Оберіть викладача кафедри.");
         }
@@ -194,7 +194,7 @@ internal sealed class ExaminationCommissionService(
             throw new DomainException($"Employee {employeeId} not found.");
         }
 
-        if (employee.AcademicRank is not EmployeeAcademicRank rank)
+        if (employee.AcademicRank is not { } rank)
         {
             throw new DomainException(
                 $"Для викладача «{employee.FullName}» потрібно заповнити вчене звання.");
@@ -215,7 +215,7 @@ internal sealed class ExaminationCommissionService(
         HashSet<Guid> seen = [];
         foreach ((_, _, _, Guid? employeeId, _) in participants)
         {
-            if (employeeId is not Guid id)
+            if (employeeId is not { } id)
             {
                 continue;
             }

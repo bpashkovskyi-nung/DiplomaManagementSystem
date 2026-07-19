@@ -12,7 +12,7 @@ public sealed class TopicReviewServiceTests
     [Fact]
     public void SupervisorReject_WhenValid_SetsRejected()
     {
-        Guid reviewerId = Guid.NewGuid();
+        var reviewerId = Guid.NewGuid();
         DiplomaTopicVersion version = CreateVersion(TopicVersionStatus.PendingSupervisor);
 
         _service.SupervisorReject(version, reviewerId, "  Потрібні правки  ");
@@ -26,7 +26,7 @@ public sealed class TopicReviewServiceTests
     [Fact]
     public void DepartmentHeadReject_WhenValid_SetsRejected()
     {
-        Guid headId = Guid.NewGuid();
+        var headId = Guid.NewGuid();
         DiplomaTopicVersion version = CreateVersion(TopicVersionStatus.PendingHead);
 
         _service.DepartmentHeadReject(version, headId, "Не відповідає вимогам");
@@ -57,7 +57,7 @@ public sealed class TopicReviewServiceTests
     [Fact]
     public void SupervisorApprove_MovesToPendingHead()
     {
-        Guid reviewerId = Guid.NewGuid();
+        var reviewerId = Guid.NewGuid();
         DiplomaTopicVersion version = CreateVersion(TopicVersionStatus.PendingSupervisor);
 
         _service.SupervisorApprove(version, reviewerId);
@@ -72,8 +72,8 @@ public sealed class TopicReviewServiceTests
     [Fact]
     public void DepartmentHeadApprove_MovesToApproved()
     {
-        Guid supervisorId = Guid.NewGuid();
-        Guid headId = Guid.NewGuid();
+        var supervisorId = Guid.NewGuid();
+        var headId = Guid.NewGuid();
         DiplomaTopicVersion version = CreateVersion(TopicVersionStatus.PendingHead);
         version.SupervisorReviewedById = supervisorId;
         version.SupervisorReviewedAt = DateTimeOffset.UtcNow.AddHours(-1);

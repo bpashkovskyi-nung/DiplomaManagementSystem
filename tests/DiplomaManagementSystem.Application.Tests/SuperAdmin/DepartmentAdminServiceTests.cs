@@ -1,11 +1,12 @@
-using DiplomaManagementSystem.Application;
 using DiplomaManagementSystem.Application.SuperAdmin.Departments;
 using DiplomaManagementSystem.Application.SuperAdmin.Departments.Dtos;
 using DiplomaManagementSystem.Application.SuperAdmin.Faculties;
 using DiplomaManagementSystem.Application.SuperAdmin.Faculties.Dtos;
 using DiplomaManagementSystem.Application.Tests.Departments;
+using DiplomaManagementSystem.Domain.Entities;
 using DiplomaManagementSystem.Domain.Exceptions;
 using DiplomaManagementSystem.Infrastructure.Persistence;
+
 using Microsoft.EntityFrameworkCore;
 
 namespace DiplomaManagementSystem.Application.Tests.SuperAdmin;
@@ -99,7 +100,7 @@ public sealed class DepartmentAdminServiceTests : IDisposable
 
         await _service.UpdateAsync(departmentId, new DepartmentFormDto(departmentId, facultyB, "Кафедра нова"));
 
-        var department = await _dbContext.Departments.FindAsync(departmentId);
+        Department? department = await _dbContext.Departments.FindAsync(departmentId);
         Assert.NotNull(department);
         Assert.Equal(facultyB, department.FacultyId);
         Assert.Equal("Кафедра нова", department.Name);

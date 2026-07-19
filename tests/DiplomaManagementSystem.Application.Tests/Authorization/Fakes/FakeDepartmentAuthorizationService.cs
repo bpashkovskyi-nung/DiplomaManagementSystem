@@ -23,7 +23,7 @@ internal sealed class FakeDepartmentAuthorizationService : IDepartmentAuthorizat
         Guid userId,
         CancellationToken cancellationToken = default)
     {
-        List<Guid> departmentIds = _employeeMemberships
+        var departmentIds = _employeeMemberships
             .Where(pair => pair.UserId == userId)
             .Select(pair => pair.DepartmentId)
             .ToList();

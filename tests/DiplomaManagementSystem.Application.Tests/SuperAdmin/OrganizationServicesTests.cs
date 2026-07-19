@@ -1,12 +1,10 @@
-using DiplomaManagementSystem.Application;
-using DiplomaManagementSystem.Application.Departments;
-using DiplomaManagementSystem.Application.Departments.Contracts;
 using DiplomaManagementSystem.Application.SuperAdmin.Faculties;
 using DiplomaManagementSystem.Application.SuperAdmin.Faculties.Dtos;
 using DiplomaManagementSystem.Application.SuperAdmin.OrganizationImport;
 using DiplomaManagementSystem.Application.SuperAdmin.OrganizationImport.Dtos;
 using DiplomaManagementSystem.Domain.Exceptions;
 using DiplomaManagementSystem.Infrastructure.Persistence;
+
 using Microsoft.EntityFrameworkCore;
 
 namespace DiplomaManagementSystem.Application.Tests.SuperAdmin;

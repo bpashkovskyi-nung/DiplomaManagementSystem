@@ -4,6 +4,7 @@
 
 | Документ | Опис |
 |----------|------|
+| [coding-style.md](coding-style.md) | Канонічний coding style, analyzers, coverage ratchet |
 | [features/feature1.md](features/feature1.md) | Feature 1: список студентів рецензента |
 | [features/feature2.md](features/feature2.md) | Feature 2: ліміти керівника/рецензента в сесії |
 | [features/feature3.md](features/feature3.md) | Feature 3: генерація документів (MVP — наказ на теми, DOCX) |

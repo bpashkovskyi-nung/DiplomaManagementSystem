@@ -6,6 +6,12 @@ on:
   pull_request:
     branches: [main, master]
 
+env:
+  # Measured merged line coverage baseline (2026-07-18): 90.6%.
+  # Floor = 90 (target met). Raise only if coverage grows; never lower without review.
+  # See docs/coding-style.md.
+  COVERAGE_LINE_FLOOR: '90'
+
 jobs:
   build-and-test:
     runs-on: ubuntu-latest
@@ -24,10 +30,24 @@ jobs:
         run: dotnet build --no-restore -c Release
 
       - name: Format
-        run: dotnet format --verify-no-changes --verbosity quiet
+        # Enforce whitespace + style diagnostics at error severity (selective IDE* as errors via Directory.Build.props).
+        # Analyzer warnings (CA*) stay in build output; do not fail format verify.
+        run: dotnet format --verify-no-changes --severity error --verbosity quiet
 
-      - name: Test
-        run: dotnet test --no-build -c Release --filter "FullyQualifiedName!~Integration"
+      - name: Unit Test + Coverage
+        run: >
+          dotnet test --no-build -c Release
+          --filter "FullyQualifiedName!~Integration"
+          --settings coverlet.runsettings
+          --collect:"XPlat Code Coverage"
+          --results-directory ./artifacts/coverage/unit
+
+      - name: Upload unit coverage
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage-unit
+          path: artifacts/coverage/unit
+          if-no-files-found: error
 
   integration-test:
     runs-on: ubuntu-latest
@@ -59,7 +79,63 @@ jobs:
       - name: Build
         run: dotnet build --no-restore -c Release
 
-      - name: Integration Test
+      - name: Integration Test + Coverage
         env:
           DIPLOMA_INTEGRATION_PG: Host=localhost;Port=5432;Database=diploma_test;Username=test;Password=test
-        run: dotnet test tests/DiplomaManagementSystem.Integration.Tests --no-build -c Release
+        run: >
+          dotnet test tests/DiplomaManagementSystem.Integration.Tests --no-build -c Release
+          --settings coverlet.runsettings
+          --collect:"XPlat Code Coverage"
+          --results-directory ./artifacts/coverage/integration
+
+      - name: Upload integration coverage
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage-integration
+          path: artifacts/coverage/integration
+          if-no-files-found: error
+
+  coverage:
+    runs-on: ubuntu-latest
+    needs: [build-and-test, integration-test]
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Download unit coverage
+        uses: actions/download-artifact@v4
+        with:
+          name: coverage-unit
+          path: artifacts/coverage/unit
+
+      - name: Download integration coverage
+        uses: actions/download-artifact@v4
+        with:
+          name: coverage-integration
+          path: artifacts/coverage/integration
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '10.0.x'
+
+      - name: Install ReportGenerator
+        run: dotnet tool install --global dotnet-reportgenerator-globaltool --version 5.5.10
+
+      - name: Merge coverage and gate
+        run: |
+          reportgenerator \
+            "-reports:artifacts/coverage/**/coverage.cobertura.xml" \
+            "-targetdir:artifacts/coverage/merged" \
+            "-reporttypes:Cobertura;TextSummary" \
+            "-assemblyfilters:+DiplomaManagementSystem.Domain;+DiplomaManagementSystem.Application;+DiplomaManagementSystem.Infrastructure;+DiplomaManagementSystem.Web" \
+            "-filefilters:-**/Migrations/**" \
+            "minimumCoverageThresholds:lineCoverage=${{ env.COVERAGE_LINE_FLOOR }}"
+
+      - name: Coverage summary
+        run: cat artifacts/coverage/merged/Summary.txt
+
+      - name: Upload merged coverage
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage-merged
+          path: artifacts/coverage/merged

@@ -1,6 +1,5 @@
 using DiplomaManagementSystem.Application.Employee.Dtos;
 using DiplomaManagementSystem.Web.Areas.Employee.Models;
-using DiplomaManagementSystem.Web.Areas.Secretary.Models;
 
 namespace DiplomaManagementSystem.Web.Mapping;
 

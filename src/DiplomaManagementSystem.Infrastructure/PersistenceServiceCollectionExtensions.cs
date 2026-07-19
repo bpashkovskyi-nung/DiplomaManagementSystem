@@ -1,8 +1,9 @@
 using DiplomaManagementSystem.Application.Identity;
 using DiplomaManagementSystem.Application.Persistence.Contracts;
 using DiplomaManagementSystem.Infrastructure.Persistence;
-using DiplomaManagementSystem.Infrastructure.Persistence.Seeding;
 using DiplomaManagementSystem.Infrastructure.Persistence.Queries;
+using DiplomaManagementSystem.Infrastructure.Persistence.Seeding;
+
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
