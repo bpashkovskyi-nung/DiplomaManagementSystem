@@ -16,6 +16,12 @@ public interface ISecretaryDiplomaActionService
         AdmitDiplomaDto request,
         CancellationToken cancellationToken = default);
 
+    Task ConfirmDefenceDateAsync(
+        Guid actorId,
+        Guid sessionId,
+        ConfirmDefenceDateDto request,
+        CancellationToken cancellationToken = default);
+
     Task OverrideSupervisorAsync(
         Guid actorId,
         Guid sessionId,

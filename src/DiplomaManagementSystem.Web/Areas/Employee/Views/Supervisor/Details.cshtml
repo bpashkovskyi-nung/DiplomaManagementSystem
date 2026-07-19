@@ -12,3 +12,44 @@
 @await Component.InvokeAsync("EmployeeRoleNav", new { activeRole = EmployeeRoleArea.Supervisor })
 
 <partial name="_DiplomaDetailsReadOnly" model="Model"/>
+
+@if (Model.DefenceDateRequest is { } dateRequest)
+{
+    <div class="card mt-4 mb-4">
+        <div class="card-header">Побажання щодо дати захисту</div>
+        <div class="card-body">
+            @if (dateRequest.ConfirmedDefenceDate.HasValue)
+            {
+                <p class="mb-0">Підтверджена дата: <strong>@dateRequest.ConfirmedDefenceDate.Value.ToString("d")</strong></p>
+            }
+            else if (dateRequest.PreferredDate.HasValue)
+            {
+                <p class="mb-0">Бажана дата: <strong>@dateRequest.PreferredDate.Value.ToString("d")</strong></p>
+            }
+            else if (dateRequest.CanRequest)
+            {
+                <form asp-action="RequestDefenceDate" method="post" class="row g-2 align-items-end">
+                    @Html.AntiForgeryToken()
+                    <input type="hidden" name="DiplomaId" value="@dateRequest.DiplomaId"/>
+                    <div class="col-md-8">
+                        <label class="form-label">Бажана дата</label>
+                        <select class="form-select" name="DefenceDateOptionId" required>
+                            <option value="">— оберіть дату —</option>
+                            @foreach (var option in dateRequest.AvailableDates)
+                            {
+                                <option value="@option.OptionId">@option.Date.ToString("d")</option>
+                            }
+                        </select>
+                    </div>
+                    <div class="col-md-4">
+                        <button type="submit" class="btn btn-primary w-100">Надіслати побажання</button>
+                    </div>
+                </form>
+            }
+            else
+            {
+                <p class="text-muted mb-0">Подання побажання зараз недоступне.</p>
+            }
+        </div>
+    </div>
+}

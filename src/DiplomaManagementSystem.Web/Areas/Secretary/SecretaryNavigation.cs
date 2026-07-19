@@ -9,6 +9,8 @@ internal static class SecretaryNavigation
     public static IReadOnlyList<SecretaryNavLink> DocumentsAndReports() =>
     [
         new(SecretaryPageTitles.Home, "Dashboard", "Index"),
+        new(SecretaryPageTitles.SessionSetup, "SessionSetup", "Index"),
+        new(SecretaryPageTitles.DefenceDatePreferences, "DefenceDates", "Index"),
         new(SecretaryPageTitles.TopicOrder, "Documents", "TopicOrder"),
         new(SecretaryPageTitles.AdmittedReport, "Reports", "Admitted"),
     ];

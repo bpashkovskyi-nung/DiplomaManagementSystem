@@ -29,4 +29,8 @@ public sealed class DefenceSession
     public ICollection<AnnualRoleAssignment> RoleAssignments { get; set; } = [];
 
     public ICollection<ExaminationCommissionParticipant> ExaminationCommissionParticipants { get; set; } = [];
+
+    public ICollection<DefenceSessionMilestone> Milestones { get; set; } = [];
+
+    public ICollection<DefenceDateOption> DefenceDateOptions { get; set; } = [];
 }

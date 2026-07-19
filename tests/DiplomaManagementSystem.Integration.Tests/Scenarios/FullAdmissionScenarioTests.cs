@@ -31,5 +31,6 @@ public sealed class FullAdmissionScenarioTests(PostgreSqlFixture fixture)
             scope.ServiceProvider,
             scenario);
         IntegrationScenarioAssertions.AssertAdmitted(details);
+        Assert.Equal(new DateOnly(2026, 6, 20), details.State.DefenceDate);
     }
 }

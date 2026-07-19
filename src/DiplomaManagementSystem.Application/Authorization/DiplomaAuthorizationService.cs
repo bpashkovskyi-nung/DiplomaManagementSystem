@@ -109,15 +109,41 @@ internal sealed class DiplomaAuthorizationService(
 
             case DiplomaAction.AssignReviewer:
             case DiplomaAction.AdmitDiploma:
+            case DiplomaAction.ConfirmDefenceDate:
             case DiplomaAction.OverrideSupervisor:
             case DiplomaAction.AddSecretaryComment:
             case DiplomaAction.OverrideAdmissionStep:
                 await EnsureSecretaryForSessionAsync(userId, diploma.DefenceSessionId, cancellationToken);
                 break;
 
+            case DiplomaAction.RecordMilestoneProgress:
+            case DiplomaAction.RequestDefenceDate:
+                await EnsureSupervisorOrStudentForPreferenceAsync(diploma, userId, action, cancellationToken);
+                break;
+
             default:
                 throw new DomainException(AuthorizationMessages.UnsupportedAction);
         }
+    }
+
+    private async Task EnsureSupervisorOrStudentForPreferenceAsync(
+        Diploma diploma,
+        Guid userId,
+        DiplomaAction action,
+        CancellationToken cancellationToken)
+    {
+        if (action == DiplomaAction.RecordMilestoneProgress)
+        {
+            await EnsureSupervisorAsync(diploma, userId, cancellationToken);
+            return;
+        }
+
+        if (diploma.StudentId == userId)
+        {
+            return;
+        }
+
+        await EnsureSupervisorAsync(diploma, userId, cancellationToken);
     }
 
     private async Task EnsureSecretaryForSessionAsync(

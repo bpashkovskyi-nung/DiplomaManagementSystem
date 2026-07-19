@@ -29,6 +29,10 @@ public interface IApplicationDbContext
 
     DbSet<EmployeeSessionWorkloadLimit> EmployeeSessionWorkloadLimits { get; }
 
+    DbSet<DefenceSessionMilestone> DefenceSessionMilestones { get; }
+
+    DbSet<DefenceDateOption> DefenceDateOptions { get; }
+
     DbSet<Diploma> Diplomas { get; }
 
     DbSet<DiplomaTopicVersion> DiplomaTopicVersions { get; }
@@ -38,6 +42,10 @@ public interface IApplicationDbContext
     DbSet<DiplomaDocument> DiplomaDocuments { get; }
 
     DbSet<DiplomaComment> DiplomaComments { get; }
+
+    DbSet<DiplomaMilestoneProgress> DiplomaMilestoneProgressEntries { get; }
+
+    DbSet<DefenceDatePreference> DefenceDatePreferences { get; }
 
     DbSet<AuditLog> AuditLogs { get; }
 

@@ -129,7 +129,20 @@ internal static class WorkflowScenarioRunner
         await secretaryActions.AdmitAsync(
             scenario.SecretaryId,
             scenario.SessionId,
-            new AdmitDiplomaDto(scenario.DiplomaId, new DateOnly(2026, 6, 20)),
+            new AdmitDiplomaDto(scenario.DiplomaId),
+            cancellationToken);
+
+        ISessionSetupService sessionSetup = services.GetRequiredService<ISessionSetupService>();
+        DateOnly defenceDate = new(2026, 6, 20);
+        await sessionSetup.SaveDefenceDatesAsync(
+            scenario.SessionId,
+            new SaveDefenceDatesDto([defenceDate]),
+            cancellationToken);
+
+        await secretaryActions.ConfirmDefenceDateAsync(
+            scenario.SecretaryId,
+            scenario.SessionId,
+            new ConfirmDefenceDateDto(scenario.DiplomaId, defenceDate),
             cancellationToken);
     }
 

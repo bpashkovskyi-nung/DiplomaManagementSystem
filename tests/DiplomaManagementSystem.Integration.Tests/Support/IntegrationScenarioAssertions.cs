@@ -146,7 +146,6 @@ internal static class IntegrationScenarioAssertions
     {
         Assert.Equal(DiplomaLifecycleStatus.Admitted, details.State.LifecycleStatus);
         Assert.Equal(DiplomaAdmissionStatus.Admitted, details.State.AdmissionStatus);
-        Assert.NotNull(details.State.DefenceDate);
     }
 
     public static void AssertEmptyMyDiploma(MyDiplomaDto dto)

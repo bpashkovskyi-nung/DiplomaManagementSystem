@@ -1,0 +1,70 @@
+@model DepartmentProgressReportPageViewModel
+@{
+    ViewData["Title"] = EmployeePageTitles.DepartmentProgressReport;
+}
+
+<h1 class="mb-4">@ViewData["Title"]</h1>
+
+<partial name="_TempDataAlerts"/>
+@await Component.InvokeAsync("EmployeeRoleNav", new { activeRole = EmployeeRoleArea.Supervisor })
+
+<form method="get" class="row g-2 mb-4">
+    <div class="col-md-8">
+        <select class="form-select" name="sessionId" asp-items="Model.Sessions">
+            <option value="">— оберіть сесію —</option>
+        </select>
+    </div>
+    <div class="col-md-4">
+        <button type="submit" class="btn btn-primary">Показати</button>
+    </div>
+</form>
+
+@if (Model.Report is null)
+{
+    <div class="alert alert-info">Оберіть доступну сесію захисту.</div>
+}
+else
+{
+    <p class="text-muted">@Model.Report.SessionLabel</p>
+    @foreach (DiplomaManagementSystem.Application.Employee.Dtos.DepartmentProgressSupervisorGroupDto group in Model.Report.Groups)
+    {
+        <section class="mb-4">
+            <h2 class="h5">@group.SupervisorName</h2>
+            <div class="table-responsive">
+                <table class="table table-striped table-bordered align-middle">
+                    <thead>
+                    <tr>
+                        <th>Студент</th>
+                        <th>Група</th>
+                        @foreach (DiplomaManagementSystem.Application.Employee.Dtos.MilestoneColumnDto milestone in Model.Report.Milestones)
+                        {
+                            <th>
+                                Етап @milestone.Ordinal
+                                <small class="d-block text-muted">@milestone.ExpectedPercent%</small>
+                            </th>
+                        }
+                    </tr>
+                    </thead>
+                    <tbody>
+                    @foreach (DiplomaManagementSystem.Application.Employee.Dtos.DepartmentProgressStudentDto student in group.Students)
+                    {
+                        <tr>
+                            <td>@student.StudentFullName</td>
+                            <td>@student.StudyGroupName</td>
+                            @foreach (int? percent in student.ActualPercents)
+                            {
+                                <td>@(percent.HasValue ? $"{percent.Value}%" : "—")</td>
+                            }
+                        </tr>
+                    }
+                    </tbody>
+                </table>
+            </div>
+        </section>
+    }
+
+    @if (Model.Report.Groups.Count == 0)
+    {
+        <div class="alert alert-info">У сесії немає студентів.</div>
+    }
+}

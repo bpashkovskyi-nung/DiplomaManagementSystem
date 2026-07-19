@@ -193,6 +193,59 @@ namespace DiplomaManagementSystem.Infrastructure.Persistence.Migrations
                     b.ToTable("audit_logs", (string)null);
                 });
 
+            modelBuilder.Entity("DiplomaManagementSystem.Domain.Entities.DefenceDateOption", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<DateOnly>("Date")
+                        .HasColumnType("date");
+
+                    b.Property<Guid>("DefenceSessionId")
+                        .HasColumnType("uuid");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("DefenceSessionId", "Date")
+                        .IsUnique();
+
+                    b.ToTable("defence_date_options", (string)null);
+                });
+
+            modelBuilder.Entity("DiplomaManagementSystem.Domain.Entities.DefenceDatePreference", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("DefenceDateOptionId")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("DiplomaId")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTimeOffset>("RequestedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<short>("RequesterType")
+                        .HasColumnType("smallint");
+
+                    b.Property<Guid>("RequesterUserId")
+                        .HasColumnType("uuid");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("DefenceDateOptionId");
+
+                    b.HasIndex("DiplomaId")
+                        .IsUnique();
+
+                    b.HasIndex("RequesterUserId");
+
+                    b.ToTable("defence_date_preferences", (string)null);
+                });
+
             modelBuilder.Entity("DiplomaManagementSystem.Domain.Entities.DefenceSession", b =>
                 {
                     b.Property<Guid>("Id")
@@ -225,6 +278,40 @@ namespace DiplomaManagementSystem.Infrastructure.Persistence.Migrations
                     b.HasIndex("DepartmentId");
 
                     b.ToTable("defence_sessions", (string)null);
+                });
+
+            modelBuilder.Entity("DiplomaManagementSystem.Domain.Entities.DefenceSessionMilestone", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("DefenceSessionId")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateOnly>("DueDate")
+                        .HasColumnType("date");
+
+                    b.Property<int>("ExpectedPercent")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("Ordinal")
+                        .HasColumnType("integer");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("DefenceSessionId", "DueDate")
+                        .IsUnique();
+
+                    b.HasIndex("DefenceSessionId", "Ordinal")
+                        .IsUnique();
+
+                    b.ToTable("defence_session_milestones", null, t =>
+                        {
+                            t.HasCheckConstraint("CK_defence_session_milestones_expected_percent", "\"ExpectedPercent\" >= 0 AND \"ExpectedPercent\" <= 100");
+
+                            t.HasCheckConstraint("CK_defence_session_milestones_ordinal", "\"Ordinal\" >= 1 AND \"Ordinal\" <= 3");
+                        });
                 });
 
             modelBuilder.Entity("DiplomaManagementSystem.Domain.Entities.Department", b =>
@@ -516,6 +603,42 @@ namespace DiplomaManagementSystem.Infrastructure.Persistence.Migrations
                         .IsUnique();
 
                     b.ToTable("diploma_documents", (string)null);
+                });
+
+            modelBuilder.Entity("DiplomaManagementSystem.Domain.Entities.DiplomaMilestoneProgress", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<int>("ActualPercent")
+                        .HasColumnType("integer");
+
+                    b.Property<Guid>("DiplomaId")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("MilestoneId")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTimeOffset>("RecordedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<Guid>("RecordedByUserId")
+                        .HasColumnType("uuid");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("MilestoneId");
+
+                    b.HasIndex("RecordedByUserId");
+
+                    b.HasIndex("DiplomaId", "MilestoneId")
+                        .IsUnique();
+
+                    b.ToTable("diploma_milestone_progress", null, t =>
+                        {
+                            t.HasCheckConstraint("CK_diploma_milestone_progress_actual_percent", "\"ActualPercent\" >= 0 AND \"ActualPercent\" <= 100");
+                        });
                 });
 
             modelBuilder.Entity("DiplomaManagementSystem.Domain.Entities.DiplomaTopicVersion", b =>
@@ -928,6 +1051,42 @@ namespace DiplomaManagementSystem.Infrastructure.Persistence.Migrations
                     b.Navigation("DefenceSession");
                 });
 
+            modelBuilder.Entity("DiplomaManagementSystem.Domain.Entities.DefenceDateOption", b =>
+                {
+                    b.HasOne("DiplomaManagementSystem.Domain.Entities.DefenceSession", "DefenceSession")
+                        .WithMany("DefenceDateOptions")
+                        .HasForeignKey("DefenceSessionId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("DefenceSession");
+                });
+
+            modelBuilder.Entity("DiplomaManagementSystem.Domain.Entities.DefenceDatePreference", b =>
+                {
+                    b.HasOne("DiplomaManagementSystem.Domain.Entities.DefenceDateOption", "DefenceDateOption")
+                        .WithMany("Preferences")
+                        .HasForeignKey("DefenceDateOptionId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("DiplomaManagementSystem.Domain.Entities.Diploma", "Diploma")
+                        .WithOne("DefenceDatePreference")
+                        .HasForeignKey("DiplomaManagementSystem.Domain.Entities.DefenceDatePreference", "DiplomaId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("DiplomaManagementSystem.Application.Identity.ApplicationUser", null)
+                        .WithMany()
+                        .HasForeignKey("RequesterUserId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("DefenceDateOption");
+
+                    b.Navigation("Diploma");
+                });
+
             modelBuilder.Entity("DiplomaManagementSystem.Domain.Entities.DefenceSession", b =>
                 {
                     b.HasOne("DiplomaManagementSystem.Domain.Entities.Department", "Department")
@@ -937,6 +1096,17 @@ namespace DiplomaManagementSystem.Infrastructure.Persistence.Migrations
                         .IsRequired();
 
                     b.Navigation("Department");
+                });
+
+            modelBuilder.Entity("DiplomaManagementSystem.Domain.Entities.DefenceSessionMilestone", b =>
+                {
+                    b.HasOne("DiplomaManagementSystem.Domain.Entities.DefenceSession", "DefenceSession")
+                        .WithMany("Milestones")
+                        .HasForeignKey("DefenceSessionId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("DefenceSession");
                 });
 
             modelBuilder.Entity("DiplomaManagementSystem.Domain.Entities.Department", b =>
@@ -1067,6 +1237,31 @@ namespace DiplomaManagementSystem.Infrastructure.Persistence.Migrations
                     b.Navigation("AdmissionStepAttempt");
 
                     b.Navigation("Diploma");
+                });
+
+            modelBuilder.Entity("DiplomaManagementSystem.Domain.Entities.DiplomaMilestoneProgress", b =>
+                {
+                    b.HasOne("DiplomaManagementSystem.Domain.Entities.Diploma", "Diploma")
+                        .WithMany("MilestoneProgressEntries")
+                        .HasForeignKey("DiplomaId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("DiplomaManagementSystem.Domain.Entities.DefenceSessionMilestone", "Milestone")
+                        .WithMany("ProgressEntries")
+                        .HasForeignKey("MilestoneId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("DiplomaManagementSystem.Application.Identity.ApplicationUser", null)
+                        .WithMany()
+                        .HasForeignKey("RecordedByUserId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Diploma");
+
+                    b.Navigation("Milestone");
                 });
 
             modelBuilder.Entity("DiplomaManagementSystem.Domain.Entities.DiplomaTopicVersion", b =>
@@ -1204,15 +1399,29 @@ namespace DiplomaManagementSystem.Infrastructure.Persistence.Migrations
                         .IsRequired();
                 });
 
+            modelBuilder.Entity("DiplomaManagementSystem.Domain.Entities.DefenceDateOption", b =>
+                {
+                    b.Navigation("Preferences");
+                });
+
             modelBuilder.Entity("DiplomaManagementSystem.Domain.Entities.DefenceSession", b =>
                 {
+                    b.Navigation("DefenceDateOptions");
+
                     b.Navigation("Diplomas");
 
                     b.Navigation("ExaminationCommissionParticipants");
 
+                    b.Navigation("Milestones");
+
                     b.Navigation("RoleAssignments");
 
                     b.Navigation("StudyGroups");
+                });
+
+            modelBuilder.Entity("DiplomaManagementSystem.Domain.Entities.DefenceSessionMilestone", b =>
+                {
+                    b.Navigation("ProgressEntries");
                 });
 
             modelBuilder.Entity("DiplomaManagementSystem.Domain.Entities.Department", b =>
@@ -1232,7 +1441,11 @@ namespace DiplomaManagementSystem.Infrastructure.Persistence.Migrations
 
                     b.Navigation("Comments");
 
+                    b.Navigation("DefenceDatePreference");
+
                     b.Navigation("Documents");
+
+                    b.Navigation("MilestoneProgressEntries");
 
                     b.Navigation("TopicVersions");
                 });

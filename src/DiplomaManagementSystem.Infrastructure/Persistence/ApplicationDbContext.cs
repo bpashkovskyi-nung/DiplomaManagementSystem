@@ -33,6 +33,10 @@ public sealed partial class ApplicationDbContext(DbContextOptions<ApplicationDbC
 
     public DbSet<EmployeeSessionWorkloadLimit> EmployeeSessionWorkloadLimits => Set<EmployeeSessionWorkloadLimit>();
 
+    public DbSet<DefenceSessionMilestone> DefenceSessionMilestones => Set<DefenceSessionMilestone>();
+
+    public DbSet<DefenceDateOption> DefenceDateOptions => Set<DefenceDateOption>();
+
     public DbSet<Diploma> Diplomas => Set<Diploma>();
 
     public DbSet<DiplomaTopicVersion> DiplomaTopicVersions => Set<DiplomaTopicVersion>();
@@ -42,6 +46,10 @@ public sealed partial class ApplicationDbContext(DbContextOptions<ApplicationDbC
     public DbSet<DiplomaDocument> DiplomaDocuments => Set<DiplomaDocument>();
 
     public DbSet<DiplomaComment> DiplomaComments => Set<DiplomaComment>();
+
+    public DbSet<DiplomaMilestoneProgress> DiplomaMilestoneProgressEntries => Set<DiplomaMilestoneProgress>();
+
+    public DbSet<DefenceDatePreference> DefenceDatePreferences => Set<DefenceDatePreference>();
 
     public DbSet<AuditLog> AuditLogs => Set<AuditLog>();
 

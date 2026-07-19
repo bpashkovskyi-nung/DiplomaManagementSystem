@@ -1,0 +1,69 @@
+@model DiplomaManagementSystem.Application.Employee.Dtos.SupervisorProgressPageDto
+@{
+    ViewData["Title"] = EmployeePageTitles.SupervisorProgress;
+}
+
+<h1 class="mb-1">@ViewData["Title"]</h1>
+@if (!string.IsNullOrWhiteSpace(Model.SessionLabel))
+{
+    <p class="text-muted mb-4">@Model.SessionLabel</p>
+}
+
+<partial name="_TempDataAlerts"/>
+@await Component.InvokeAsync("EmployeeRoleNav", new { activeRole = EmployeeRoleArea.Supervisor })
+
+@if (Model.Students.Count == 0)
+{
+    <div class="alert alert-info">Студентів для відображення немає.</div>
+}
+else if (Model.Milestones.Count == 0)
+{
+    <div class="alert alert-info">Етапи прогресу для цієї сесії ще не налаштовано.</div>
+}
+else
+{
+    <div class="table-responsive">
+        <table class="table table-bordered align-middle">
+            <thead>
+            <tr>
+                <th>Студент</th>
+                <th>Група</th>
+                @foreach (DiplomaManagementSystem.Application.Employee.Dtos.MilestoneColumnDto milestone in Model.Milestones)
+                {
+                    <th>
+                        Етап @milestone.Ordinal
+                        <small class="d-block text-muted">
+                            @milestone.DueDate.ToString("d") · @milestone.ExpectedPercent%
+                        </small>
+                    </th>
+                }
+            </tr>
+            </thead>
+            <tbody>
+            @foreach (DiplomaManagementSystem.Application.Employee.Dtos.SupervisorProgressStudentDto student in Model.Students)
+            {
+                <tr>
+                    <td>
+                        <a asp-action="Details" asp-route-id="@student.DiplomaId">@student.StudentFullName</a>
+                    </td>
+                    <td>@student.StudyGroupName</td>
+                    @foreach (DiplomaManagementSystem.Application.Employee.Dtos.SupervisorProgressCellDto cell in student.Cells)
+                    {
+                        <td>
+                            <form asp-action="SetProgress" method="post" class="d-flex gap-2">
+                                @Html.AntiForgeryToken()
+                                <input type="hidden" name="sessionId" value="@Model.SessionId"/>
+                                <input type="hidden" name="DiplomaId" value="@student.DiplomaId"/>
+                                <input type="hidden" name="MilestoneId" value="@cell.MilestoneId"/>
+                                <input class="form-control form-control-sm" type="number" name="ActualPercent"
+                                       value="@cell.ActualPercent" min="0" max="100" required aria-label="Фактичний прогрес"/>
+                                <button type="submit" class="btn btn-sm btn-outline-primary">Зберегти</button>
+                            </form>
+                        </td>
+                    }
+                </tr>
+            }
+            </tbody>
+        </table>
+    </div>
+}

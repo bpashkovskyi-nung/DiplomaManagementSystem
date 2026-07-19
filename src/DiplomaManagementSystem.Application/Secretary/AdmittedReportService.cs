@@ -60,7 +60,7 @@ internal sealed class AdmittedReportService(
             builder.Append(',');
             builder.Append(CsvEscape(item.ReviewerName ?? string.Empty));
             builder.Append(',');
-            builder.Append(CsvEscape(item.DefenceDate.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture)));
+            builder.Append(CsvEscape(item.DefenceDate?.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture) ?? string.Empty));
             builder.AppendLine();
         }
 
@@ -130,7 +130,7 @@ internal sealed class AdmittedReportService(
                     topicTitles.GetValueOrDefault(diploma.Id, MissingLabel),
                     supervisorName,
                     reviewerName,
-                    diploma.DefenceDate!.Value);
+                    diploma.DefenceDate);
             })
             .OrderBy(item => PersonNameSort.SurnameKey(item.StudentFullName), StringComparer.CurrentCultureIgnoreCase)
             .ThenBy(item => item.StudentFullName, StringComparer.CurrentCultureIgnoreCase)

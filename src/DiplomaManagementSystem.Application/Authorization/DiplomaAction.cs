@@ -14,7 +14,10 @@ public enum DiplomaAction
     RejectTopicAsDepartmentHead,
     AssignReviewer,
     AdmitDiploma,
+    ConfirmDefenceDate,
     OverrideSupervisor,
     AddSecretaryComment,
     OverrideAdmissionStep,
+    RecordMilestoneProgress,
+    RequestDefenceDate,
 }

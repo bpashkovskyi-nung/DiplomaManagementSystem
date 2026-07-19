@@ -1,3 +1,4 @@
+using DiplomaManagementSystem.Application.Employee.Dtos;
 using DiplomaManagementSystem.Domain.Enums;
 using DiplomaManagementSystem.Web.Areas.Student.Models;
 using DiplomaManagementSystem.Web.Models.Shared;
@@ -208,6 +209,8 @@ public sealed class DiplomaDetailsViewModel
     public DiplomaDocumentsViewModel Documents { get; set; } = new();
 
     public IReadOnlyList<SelectListItem> EmployeePool { get; set; } = [];
+
+    public DefenceDateRequestFormDto? DefenceDateRequest { get; set; }
 }
 
 public sealed class AdmissionStepStatusViewModel
@@ -286,6 +289,11 @@ public sealed class AssignReviewerViewModel
 }
 
 public sealed class AdmitDiplomaViewModel
+{
+    public Guid DiplomaId { get; set; }
+}
+
+public sealed class ConfirmDefenceDateViewModel
 {
     public Guid DiplomaId { get; set; }
 

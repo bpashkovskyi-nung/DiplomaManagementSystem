@@ -84,6 +84,8 @@ public static class DependencyInjection
         services.AddSingleton<AdmissionWorkflowService>();
         services.AddSingleton<ReviewerAssignmentService>();
         services.AddSingleton<DiplomaAdmissionService>();
+        services.AddSingleton<DefenceSessionMilestoneService>();
+        services.AddSingleton<DefenceDatePreferenceService>();
         services.AddSingleton<SecretarySupervisorOverrideService>();
         services.AddSingleton<WorkReadinessService>();
         services.AddSingleton<DefenceSessionArchiveService>();
@@ -147,6 +149,11 @@ public static class DependencyInjection
         services.AddScoped<DiplomaDetailsAssembler>();
         services.AddScoped<ISecretaryDiplomaDetailsService, SecretaryDiplomaDetailsService>();
         services.AddScoped<ISecretaryDiplomaActionService, SecretaryDiplomaActionService>();
+        services.AddScoped<ISessionSetupService, SessionSetupService>();
+        services.AddScoped<IDefenceDatePreferenceQueueService, DefenceDatePreferenceQueueService>();
+        services.AddScoped<ISupervisorProgressService, SupervisorProgressService>();
+        services.AddScoped<IDepartmentProgressReportService, DepartmentProgressReportService>();
+        services.AddScoped<IDefenceDateRequestService, DefenceDateRequestService>();
         services.AddScoped<IAdmittedReportService, AdmittedReportService>();
         services.AddScoped<TopicOrderDocxGenerator>();
         services.AddScoped<ITopicOrderDocumentService, TopicOrderDocumentService>();

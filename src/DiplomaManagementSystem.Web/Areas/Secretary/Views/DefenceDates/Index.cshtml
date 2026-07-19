@@ -1,0 +1,57 @@
+@model DiplomaManagementSystem.Application.Secretary.Dtos.DefenceDatePreferenceQueueDto
+@{
+    ViewData["Title"] = SecretaryPageTitles.DefenceDatePreferences;
+}
+
+<h1 class="mb-1">@ViewData["Title"]</h1>
+<p class="text-muted mb-4">@Model.SessionLabel</p>
+
+<partial name="_TempDataAlerts"/>
+<partial name="_SecretaryNavLinks" model="SecretaryNavigation.DocumentsAndReports()"/>
+
+<p>
+    <strong>Доступні дати:</strong>
+    @(Model.AvailableDates.Count == 0
+        ? "не налаштовано"
+        : string.Join(", ", Model.AvailableDates.Select(date => date.ToString("d"))))
+</p>
+
+<div class="table-responsive">
+    <table class="table table-striped align-middle">
+        <thead>
+        <tr>
+            <th>Студент</th>
+            <th>Група</th>
+            <th>Бажана дата</th>
+            <th>Хто подав</th>
+            <th>Подано</th>
+            <th>Підтверджена дата</th>
+            <th></th>
+        </tr>
+        </thead>
+        <tbody>
+        @if (Model.Items.Count == 0)
+        {
+            <tr>
+                <td colspan="7" class="text-muted">Побажань щодо дат ще немає.</td>
+            </tr>
+        }
+        @foreach (DiplomaManagementSystem.Application.Secretary.Dtos.DefenceDatePreferenceItemDto item in Model.Items)
+        {
+            <tr>
+                <td>@item.StudentFullName</td>
+                <td>@item.StudyGroupName</td>
+                <td>@item.PreferredDate.ToString("d")</td>
+                <td>@item.RequesterTypeLabel — @item.RequesterName</td>
+                <td>@item.RequestedAt.ToLocalTime().ToString("g")</td>
+                <td>@(item.ConfirmedDefenceDate?.ToString("d") ?? "—")</td>
+                <td>
+                    <a asp-controller="Diplomas" asp-action="Details" asp-route-id="@item.DiplomaId">
+                        Підтвердити
+                    </a>
+                </td>
+            </tr>
+        }
+        </tbody>
+    </table>
+</div>

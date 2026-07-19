@@ -142,8 +142,8 @@ public static class StudentWorkflowProgressBuilder
                     ? $"Студента допущено до захисту. Дата захисту: {diploma.DefenceDate.Value:d}."
                     : $"Ви допущені до захисту. Дата захисту: {diploma.DefenceDate.Value:d}."
                 : audience == WorkflowAudience.Secretary
-                    ? "Студента допущено до захисту."
-                    : "Ви допущені до захисту.";
+                    ? "Студента допущено до захисту. Фінальну дату ще не підтверджено."
+                    : "Ви допущені до захисту. Фінальну дату ще не підтверджено.";
         }
 
         return new StudentWorkflowProgressDto(

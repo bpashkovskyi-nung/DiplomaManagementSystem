@@ -1,0 +1,69 @@
+@model DiplomaManagementSystem.Application.Secretary.Dtos.SessionSetupPageDto
+@{
+    ViewData["Title"] = SecretaryPageTitles.SessionSetup;
+}
+
+<h1 class="mb-1">@ViewData["Title"]</h1>
+<p class="text-muted mb-4">@Model.SessionLabel</p>
+
+<partial name="_TempDataAlerts"/>
+<partial name="_SecretaryNavLinks" model="SecretaryNavigation.DocumentsAndReports()"/>
+
+<div class="card mb-4">
+    <div class="card-header">Етапи прогресу</div>
+    <div class="card-body">
+        <form asp-action="SaveMilestones" method="post">
+            @Html.AntiForgeryToken()
+            <div class="table-responsive">
+                <table class="table align-middle">
+                    <thead>
+                    <tr>
+                        <th>Етап</th>
+                        <th>Кінцева дата</th>
+                        <th>Очікуваний прогрес, %</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    @for (int i = 0; i < 3; i++)
+                    {
+                        DiplomaManagementSystem.Application.Secretary.Dtos.MilestoneSetupItemDto? item =
+                            Model.Milestones.ElementAtOrDefault(i);
+                        <tr>
+                            <td>@(i + 1)</td>
+                            <td>
+                                <input class="form-control" type="date" name="Milestones[@i].DueDate"
+                                       value="@(item?.DueDate?.ToString("yyyy-MM-dd"))" required/>
+                            </td>
+                            <td>
+                                <input class="form-control" type="number" name="Milestones[@i].ExpectedPercent"
+                                       value="@item?.ExpectedPercent" min="0" max="100" required/>
+                            </td>
+                        </tr>
+                    }
+                    </tbody>
+                </table>
+            </div>
+            <button type="submit" class="btn btn-primary">Зберегти етапи</button>
+        </form>
+    </div>
+</div>
+
+<div class="card mb-4">
+    <div class="card-header">Доступні дати захисту</div>
+    <div class="card-body">
+        <form asp-action="SaveDefenceDates" method="post">
+            @Html.AntiForgeryToken()
+            <div class="row g-2 mb-3">
+                @for (int i = 0; i < Math.Max(Model.AvailableDates.Count + 3, 5); i++)
+                {
+                    DiplomaManagementSystem.Application.Secretary.Dtos.DefenceDateOptionDto? option =
+                        Model.AvailableDates.ElementAtOrDefault(i);
+                    <div class="col-md-4">
+                        <input class="form-control" type="date" name="Dates" value="@(option?.Date.ToString("yyyy-MM-dd"))"/>
+                    </div>
+                }
+            </div>
+            <button type="submit" class="btn btn-primary">Зберегти дати</button>
+        </form>
+    </div>
+</div>

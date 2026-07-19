@@ -22,6 +22,10 @@ public static class EmployeePageTitles
 
     public const string FormattingReview = "Нормоконтроль — перевірка";
 
+    public const string SupervisorProgress = "Прогрес студентів";
+
+    public const string DepartmentProgressReport = "Звіт прогресу";
+
     public const string SupervisorRole = "Керівник";
 
     public const string ReviewerRole = "Рецензент";

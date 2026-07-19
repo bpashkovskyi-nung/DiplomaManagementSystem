@@ -374,6 +374,90 @@ public sealed class DiplomaAuthorizationServiceTests
             DiplomaAction.RejectTopicAsSupervisor);
     }
 
+    // TC-APP-AUTH-060
+    [Fact]
+    public async Task ConfirmDefenceDate_WithAccess_Succeeds()
+    {
+        FakeAnnualRoleQueries roles = new() { CanAccessAsSecretary = true };
+        Diploma diploma = CreateActiveDiploma();
+        DiplomaAuthorizationService service = CreateService(new FakeDiplomaQueries(diploma), annualRoleQueries: roles);
+
+        await service.EnsureCanPerformAsync(_secretaryId, _diplomaId, DiplomaAction.ConfirmDefenceDate);
+    }
+
+    // TC-APP-AUTH-061
+    [Fact]
+    public async Task ConfirmDefenceDate_NoAccess_Throws()
+    {
+        Diploma diploma = CreateActiveDiploma();
+        DiplomaAuthorizationService service = CreateService(new FakeDiplomaQueries(diploma));
+
+        DomainException exception = await Assert.ThrowsAsync<DomainException>(() =>
+            service.EnsureCanPerformAsync(_secretaryId, _diplomaId, DiplomaAction.ConfirmDefenceDate));
+
+        Assert.Equal(AuthorizationMessages.NotSecretaryForSession, exception.Message);
+    }
+
+    // TC-APP-AUTH-062
+    [Fact]
+    public async Task RecordMilestoneProgress_Supervisor_Succeeds()
+    {
+        Diploma diploma = CreateActiveDiploma(supervisorId: _supervisorId);
+        DiplomaAuthorizationService service = CreateService(new FakeDiplomaQueries(diploma));
+
+        await service.EnsureCanPerformAsync(_supervisorId, _diplomaId, DiplomaAction.RecordMilestoneProgress);
+    }
+
+    // TC-APP-AUTH-063
+    [Fact]
+    public async Task RecordMilestoneProgress_WrongUser_Throws()
+    {
+        Diploma diploma = CreateActiveDiploma(supervisorId: _supervisorId);
+        DiplomaAuthorizationService service = CreateService(new FakeDiplomaQueries(diploma));
+
+        DomainException exception = await Assert.ThrowsAsync<DomainException>(() =>
+            service.EnsureCanPerformAsync(Guid.NewGuid(), _diplomaId, DiplomaAction.RecordMilestoneProgress));
+
+        Assert.Equal(AuthorizationMessages.NotSupervisor, exception.Message);
+    }
+
+    // TC-APP-AUTH-064
+    [Fact]
+    public async Task RequestDefenceDate_Student_Succeeds()
+    {
+        var studentId = Guid.NewGuid();
+        Diploma diploma = CreateActiveDiploma();
+        diploma.StudentId = studentId;
+        DiplomaAuthorizationService service = CreateService(new FakeDiplomaQueries(diploma));
+
+        await service.EnsureCanPerformAsync(studentId, _diplomaId, DiplomaAction.RequestDefenceDate);
+    }
+
+    // TC-APP-AUTH-065
+    [Fact]
+    public async Task RequestDefenceDate_Supervisor_Succeeds()
+    {
+        Diploma diploma = CreateActiveDiploma(supervisorId: _supervisorId);
+        diploma.StudentId = Guid.NewGuid();
+        DiplomaAuthorizationService service = CreateService(new FakeDiplomaQueries(diploma));
+
+        await service.EnsureCanPerformAsync(_supervisorId, _diplomaId, DiplomaAction.RequestDefenceDate);
+    }
+
+    // TC-APP-AUTH-066
+    [Fact]
+    public async Task RequestDefenceDate_UnrelatedUser_Throws()
+    {
+        Diploma diploma = CreateActiveDiploma(supervisorId: _supervisorId);
+        diploma.StudentId = Guid.NewGuid();
+        DiplomaAuthorizationService service = CreateService(new FakeDiplomaQueries(diploma));
+
+        DomainException exception = await Assert.ThrowsAsync<DomainException>(() =>
+            service.EnsureCanPerformAsync(Guid.NewGuid(), _diplomaId, DiplomaAction.RequestDefenceDate));
+
+        Assert.Equal(AuthorizationMessages.NotSupervisor, exception.Message);
+    }
+
     private DiplomaAuthorizationService CreateService(
         FakeDiplomaQueries diplomaQueries,
         FakeTopicVersionQueries? topicVersionQueries = null,

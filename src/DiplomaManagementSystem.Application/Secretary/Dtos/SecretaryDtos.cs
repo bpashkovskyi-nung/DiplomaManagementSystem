@@ -80,7 +80,9 @@ public sealed record SecretaryTopicVersionDto(
 
 public sealed record AssignReviewerDto(Guid DiplomaId, Guid ReviewerId);
 
-public sealed record AdmitDiplomaDto(Guid DiplomaId, DateOnly DefenceDate);
+public sealed record AdmitDiplomaDto(Guid DiplomaId);
+
+public sealed record ConfirmDefenceDateDto(Guid DiplomaId, DateOnly DefenceDate);
 
 public sealed record OverrideSupervisorDto(Guid DiplomaId, Guid SupervisorId, string Reason);
 
@@ -103,4 +105,4 @@ public sealed record AdmittedReportItemDto(
     string TopicTitle,
     string SupervisorName,
     string? ReviewerName,
-    DateOnly DefenceDate);
+    DateOnly? DefenceDate);

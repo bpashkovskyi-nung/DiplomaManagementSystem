@@ -114,18 +114,17 @@ public sealed class DiplomaAdmissionServiceTests
     private readonly DiplomaAdmissionService _service = new();
 
     [Fact]
-    public void Admit_WhenReady_SetsAdmitted()
+    public void Admit_WhenReady_SetsAdmittedWithoutDate()
     {
         Diploma diploma = new()
         {
             AdmissionStatus = DiplomaAdmissionStatus.NotAdmitted,
         };
 
-        DateOnly defenceDate = new(2026, 6, 15);
-        _service.Admit(diploma, CreateSession(), defenceDate, DiplomaLifecycleStatus.ReadyForAdmission);
+        _service.Admit(diploma, CreateSession(), DiplomaLifecycleStatus.ReadyForAdmission);
 
         Assert.Equal(DiplomaAdmissionStatus.Admitted, diploma.AdmissionStatus);
-        Assert.Equal(defenceDate, diploma.DefenceDate);
+        Assert.Null(diploma.DefenceDate);
     }
 
     [Fact]
@@ -137,7 +136,6 @@ public sealed class DiplomaAdmissionServiceTests
             _service.Admit(
                 diploma,
                 CreateSession(),
-                new DateOnly(2026, 6, 15),
                 DiplomaLifecycleStatus.DocumentsInProgress));
     }
 
@@ -156,7 +154,6 @@ public sealed class DiplomaAdmissionServiceTests
             _service.Admit(
                 diploma,
                 session,
-                new DateOnly(2026, 6, 15),
                 DiplomaLifecycleStatus.ReadyForAdmission));
     }
 
@@ -172,8 +169,57 @@ public sealed class DiplomaAdmissionServiceTests
             _service.Admit(
                 diploma,
                 CreateSession(),
-                new DateOnly(2026, 6, 15),
                 DiplomaLifecycleStatus.ReadyForAdmission));
+    }
+
+    [Fact]
+    public void ConfirmDefenceDate_WhenAdmittedAndAvailable_SetsDate()
+    {
+        Diploma diploma = new()
+        {
+            AdmissionStatus = DiplomaAdmissionStatus.Admitted,
+        };
+
+        DateOnly defenceDate = new(2026, 6, 20);
+        _service.ConfirmDefenceDate(
+            diploma,
+            CreateSession(),
+            defenceDate,
+            [new DefenceDateOption { Date = defenceDate }]);
+
+        Assert.Equal(defenceDate, diploma.DefenceDate);
+    }
+
+    [Fact]
+    public void ConfirmDefenceDate_WhenDateUnavailable_Throws()
+    {
+        Diploma diploma = new()
+        {
+            AdmissionStatus = DiplomaAdmissionStatus.Admitted,
+        };
+
+        Assert.Throws<DomainException>(() =>
+            _service.ConfirmDefenceDate(
+                diploma,
+                CreateSession(),
+                new DateOnly(2026, 6, 20),
+                [new DefenceDateOption { Date = new DateOnly(2026, 6, 21) }]));
+    }
+
+    [Fact]
+    public void ConfirmDefenceDate_WhenNotAdmitted_Throws()
+    {
+        Diploma diploma = new()
+        {
+            AdmissionStatus = DiplomaAdmissionStatus.NotAdmitted,
+        };
+
+        Assert.Throws<DomainException>(() =>
+            _service.ConfirmDefenceDate(
+                diploma,
+                CreateSession(),
+                new DateOnly(2026, 6, 20),
+                [new DefenceDateOption { Date = new DateOnly(2026, 6, 20) }]));
     }
 
     private static DefenceSession CreateSession() => new()

@@ -43,4 +43,8 @@ public sealed class Diploma
     public ICollection<DiplomaAdmissionStepAttempt> AdmissionStepAttempts { get; set; } = [];
 
     public ICollection<DiplomaComment> Comments { get; set; } = [];
+
+    public ICollection<DiplomaMilestoneProgress> MilestoneProgressEntries { get; set; } = [];
+
+    public DefenceDatePreference? DefenceDatePreference { get; set; }
 }

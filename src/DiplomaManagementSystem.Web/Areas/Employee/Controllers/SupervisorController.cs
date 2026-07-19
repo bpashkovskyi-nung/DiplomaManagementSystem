@@ -6,6 +6,7 @@ using DiplomaManagementSystem.Application.Secretary.Dtos;
 using DiplomaManagementSystem.Domain.Enums;
 using DiplomaManagementSystem.Domain.Exceptions;
 using DiplomaManagementSystem.Web.Areas.Employee.Models;
+using DiplomaManagementSystem.Web.Areas.Secretary.Models;
 using DiplomaManagementSystem.Web.Mapping;
 
 using FluentValidation;
@@ -21,11 +22,15 @@ public sealed class SupervisorController(
     ISupervisorWorkflowService supervisorWorkflowService,
     ISupervisorDiplomaListService supervisorDiplomaListService,
     ISupervisorDiplomaDetailsService supervisorDiplomaDetailsService,
+    ISupervisorProgressService supervisorProgressService,
+    IDefenceDateRequestService defenceDateRequestService,
     IAdmissionReviewService admissionReviewService,
     IValidator<SupervisorActionDto> supervisorRejectValidator,
     IValidator<ApproveTopicDto> approveTopicValidator,
     IValidator<ReviewTopicDto> reviewTopicRejectValidator,
-    IValidator<CompleteCheckpointDto> completeCheckpointValidator) : EmployeeControllerBase
+    IValidator<CompleteCheckpointDto> completeCheckpointValidator,
+    IValidator<SetMilestoneProgressDto> milestoneProgressValidator,
+    IValidator<RequestDefenceDateDto> defenceDateRequestValidator) : EmployeeControllerBase
 {
     [HttpGet]
     public async Task<IActionResult> Students(
@@ -70,7 +75,76 @@ public sealed class SupervisorController(
             return NotFound();
         }
 
-        return View(SecretaryDiplomaDetailsMapper.Map(details));
+        DiplomaDetailsViewModel model = SecretaryDiplomaDetailsMapper.Map(details);
+        model.DefenceDateRequest = await defenceDateRequestService.GetFormForSupervisorAsync(
+            GetUserId(),
+            id,
+            cancellationToken);
+
+        return View(model);
+    }
+
+    [HttpGet]
+    public async Task<IActionResult> Progress(Guid? sessionId, CancellationToken cancellationToken)
+    {
+        SupervisorProgressPageDto page =
+            await supervisorProgressService.GetPageAsync(GetUserId(), sessionId, cancellationToken);
+        return View(page);
+    }
+
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> SetProgress(
+        SetMilestoneProgressDto request,
+        Guid sessionId,
+        CancellationToken cancellationToken)
+    {
+        FluentValidation.Results.ValidationResult validation =
+            await milestoneProgressValidator.ValidateAsync(request, cancellationToken);
+        if (!validation.IsValid)
+        {
+            TempData["Error"] = string.Join(" ", validation.Errors.Select(error => error.ErrorMessage));
+            return RedirectToAction(nameof(Progress), new { sessionId });
+        }
+
+        try
+        {
+            await supervisorProgressService.SetActualPercentAsync(GetUserId(), request, cancellationToken);
+            TempData["Success"] = "Прогрес оновлено.";
+        }
+        catch (DomainException ex)
+        {
+            TempData["Error"] = ex.Message;
+        }
+
+        return RedirectToAction(nameof(Progress), new { sessionId });
+    }
+
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> RequestDefenceDate(
+        RequestDefenceDateDto request,
+        CancellationToken cancellationToken)
+    {
+        FluentValidation.Results.ValidationResult validation =
+            await defenceDateRequestValidator.ValidateAsync(request, cancellationToken);
+        if (!validation.IsValid)
+        {
+            TempData["Error"] = string.Join(" ", validation.Errors.Select(error => error.ErrorMessage));
+            return RedirectToAction(nameof(Details), new { id = request.DiplomaId });
+        }
+
+        try
+        {
+            await defenceDateRequestService.RequestAsSupervisorAsync(GetUserId(), request, cancellationToken);
+            TempData["Success"] = "Побажання щодо дати захисту надіслано.";
+        }
+        catch (DomainException ex)
+        {
+            TempData["Error"] = ex.Message;
+        }
+
+        return RedirectToAction(nameof(Details), new { id = request.DiplomaId });
     }
 
     [HttpGet]

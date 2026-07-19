@@ -92,10 +92,12 @@ public sealed class AreaNavigationTests
     {
         IReadOnlyList<SecretaryNavLink> links = SecretaryNavigation.DocumentsAndReports();
 
-        Assert.Equal(3, links.Count);
+        Assert.Equal(5, links.Count);
         Assert.Equal(SecretaryPageTitles.Home, links[0].Text);
-        Assert.Equal(SecretaryPageTitles.TopicOrder, links[1].Text);
-        Assert.Equal(SecretaryPageTitles.AdmittedReport, links[2].Text);
+        Assert.Equal(SecretaryPageTitles.SessionSetup, links[1].Text);
+        Assert.Equal(SecretaryPageTitles.DefenceDatePreferences, links[2].Text);
+        Assert.Equal(SecretaryPageTitles.TopicOrder, links[3].Text);
+        Assert.Equal(SecretaryPageTitles.AdmittedReport, links[4].Text);
     }
 
     [Fact]
