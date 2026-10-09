@@ -1,5 +1,6 @@
 using DiplomaManagementSystem.Application;
 using DiplomaManagementSystem.Application.Employee.Dtos;
+using DiplomaManagementSystem.Domain.Enums;
 using DiplomaManagementSystem.Web.Areas.Admin;
 using DiplomaManagementSystem.Web.Areas.Admin.Models;
 using DiplomaManagementSystem.Web.Areas.Employee;
@@ -25,9 +26,10 @@ public sealed class AreaNavigationTests
         Assert.Equal(EmployeeRoleArea.Supervisor, nav.ActiveRole);
         Assert.Equal(2, nav.AvailableRoles.Count);
         Assert.True(nav.AvailableRoles.Single(role => role.Area == EmployeeRoleArea.Supervisor).IsActive);
-        Assert.Equal(4, nav.Submenu.Count);
+        Assert.Equal(5, nav.Submenu.Count);
         Assert.Equal(EmployeePageTitles.MyStudentsNav, nav.Submenu[0].Text);
         Assert.True(nav.Submenu[0].IsActive);
+        Assert.Contains(nav.Submenu, item => item.Action == "Progress");
         Assert.DoesNotContain(nav.Submenu, item => item.Controller == "AntiPlagiarism");
     }
 
@@ -70,7 +72,7 @@ public sealed class AreaNavigationTests
 
         Assert.Equal(2, sections.Count);
         Assert.Equal(EmployeePageTitles.SupervisorRole, sections[0].Title);
-        Assert.Equal(3, sections[0].Items.Count);
+        Assert.Equal(4, sections[0].Items.Count);
         Assert.NotNull(sections[0].StudentListLink);
         Assert.Equal(EmployeePageTitles.MyStudentsNav, sections[0].StudentListLink!.Text);
         Assert.Equal(EmployeePageTitles.SessionRolesSection, sections[1].Title);
@@ -85,55 +87,52 @@ public sealed class AreaNavigationTests
         Assert.Equal(EmployeePageTitles.ConfirmStudentRequestNav, EmployeeRoleNavigationBuilder.GetSubmenuLabel("SupervisorPendingStudents"));
         Assert.Equal(EmployeePageTitles.SubmitExternalReviewNav, EmployeeRoleNavigationBuilder.GetSubmenuLabel("Reviewer"));
         Assert.Equal(EmployeePageTitles.AntiPlagiarismRole, EmployeeRoleNavigationBuilder.GetSubmenuLabel("AntiPlagiarism"));
+        Assert.Equal(EmployeePageTitles.SupervisorProgress, EmployeeRoleNavigationBuilder.GetSubmenuLabel("SupervisorProgress"));
     }
 
     [Fact]
-    public void SecretaryNavigation_DocumentsAndReports_ContainsExpectedLinks()
+    public void SecretaryNavigation_DiplomaDetailsBack_ContainsOnlyDiplomasList()
     {
-        IReadOnlyList<SecretaryNavLink> links = SecretaryNavigation.DocumentsAndReports();
+        IReadOnlyList<SecretaryNavLink> links = SecretaryNavigation.DiplomaDetailsBack(DefenceSessionType.Master);
 
-        Assert.Equal(5, links.Count);
-        Assert.Equal(SecretaryPageTitles.Home, links[0].Text);
-        Assert.Equal(SecretaryPageTitles.SessionSetup, links[1].Text);
-        Assert.Equal(SecretaryPageTitles.DefenceDatePreferences, links[2].Text);
-        Assert.Equal(SecretaryPageTitles.TopicOrder, links[3].Text);
-        Assert.Equal(SecretaryPageTitles.AdmittedReport, links[4].Text);
+        Assert.Single(links);
+        Assert.Equal("Diplomas", links[0].Controller);
+        Assert.Equal("Index", links[0].Action);
     }
 
     [Fact]
-    public void AdminNavigation_Global_ContainsExpectedLinks()
+    public void AdminNavigation_DefenceSessionsBack_LinksToSessionsList()
     {
-        IReadOnlyList<AdminNavLink> links = AdminNavigation.Global();
+        IReadOnlyList<AdminNavLink> links = AdminNavigation.DefenceSessionsBack();
 
-        Assert.Equal(3, links.Count);
-        Assert.Equal(AdminPageTitles.Home, links[0].Text);
-        Assert.Equal(AdminPageTitles.DefenceSessions, links[1].Text);
-        Assert.Equal(AdminPageTitles.Employees, links[2].Text);
+        Assert.Single(links);
+        Assert.Equal(AdminPageTitles.DefenceSessions, links[0].Text);
+        Assert.Equal("DefenceSessions", links[0].Controller);
+        Assert.Equal("Index", links[0].Action);
     }
 
     [Fact]
-    public void AdminNavigation_SessionContext_IncludesSessionAndStudentsRoutes()
+    public void AdminNavigation_SessionBack_LinksToSessionDetails()
     {
         var sessionId = Guid.Parse("aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee");
-        IReadOnlyList<AdminNavLink> links = AdminNavigation.SessionContext(sessionId);
+        IReadOnlyList<AdminNavLink> links = AdminNavigation.SessionBack(sessionId);
 
-        Assert.Equal(4, links.Count);
-        Assert.Equal(sessionId.ToString(), links[1].RouteValues!["id"]);
-        Assert.Equal(sessionId.ToString(), links[2].RouteValues!["defenceSessionId"]);
-        Assert.Equal(AdminPageTitles.Students, links[2].Text);
+        Assert.Single(links);
+        Assert.Equal(AdminPageTitles.DefenceSession, links[0].Text);
+        Assert.Equal("DefenceSessions", links[0].Controller);
+        Assert.Equal("Details", links[0].Action);
+        Assert.Equal(sessionId.ToString(), links[0].RouteValues!["id"]);
     }
 
     [Fact]
-    public void AdminNavigation_StudentsBack_LinksToStudentsAndSession()
+    public void AdminNavigation_StudentsBack_LinksToStudents()
     {
         var sessionId = Guid.Parse("11111111-2222-3333-4444-555555555555");
         IReadOnlyList<AdminNavLink> links = AdminNavigation.StudentsBack(sessionId);
 
-        Assert.Equal(3, links.Count);
+        Assert.Single(links);
         Assert.Equal("Students", links[0].Controller);
         Assert.Equal(sessionId.ToString(), links[0].RouteValues!["defenceSessionId"]);
-        Assert.Equal("DefenceSessions", links[1].Controller);
-        Assert.Equal("Details", links[1].Action);
     }
 
     private static EmployeeHomeDto CreateSupervisorOnlyHome() =>
@@ -152,6 +151,12 @@ public sealed class AreaNavigationTests
                 1,
                 "Supervisor",
                 "PendingStudents"),
+            new EmployeeRoleCardDto(
+                "SupervisorProgress",
+                EmployeePageTitles.SupervisorProgress,
+                0,
+                "Supervisor",
+                "Progress"),
         ]);
 
     private static EmployeeHomeDto CreateMultiRoleHome() =>
@@ -182,6 +187,12 @@ public sealed class AreaNavigationTests
                 0,
                 "Supervisor",
                 "Checkpoints"),
+            new EmployeeRoleCardDto(
+                "SupervisorProgress",
+                EmployeePageTitles.SupervisorProgress,
+                0,
+                "Supervisor",
+                "Progress"),
             new EmployeeRoleCardDto(
                 "AntiPlagiarism",
                 EmployeePageTitles.AntiPlagiarism,

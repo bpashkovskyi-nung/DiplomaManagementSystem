@@ -77,7 +77,7 @@ public sealed class DiplomaLifecycleServiceTests
 
     // TC-DOM-DLS-004
     [Fact]
-    public void Recalculate_ApprovedTopicWithoutReviewer_ReturnsTopicApproved()
+    public void Recalculate_ApprovedTopicWithoutReviewer_ReturnsWorkInProgress()
     {
         var diplomaId = Guid.NewGuid();
         var supervisorId = Guid.NewGuid();
@@ -93,11 +93,11 @@ public sealed class DiplomaLifecycleServiceTests
 
         DiplomaLifecycleStatus status = _service.Recalculate(diploma, topic, attempts: []);
 
-        Assert.Equal(DiplomaLifecycleStatus.TopicApproved, status);
+        Assert.Equal(DiplomaLifecycleStatus.WorkInProgressByStudent, status);
     }
 
     [Fact]
-    public void Recalculate_ApprovedTopicWithReviewer_ReturnsReviewerAssigned()
+    public void Recalculate_ApprovedTopicWithReviewer_ReturnsWorkInProgress()
     {
         var diplomaId = Guid.NewGuid();
         var supervisorId = Guid.NewGuid();
@@ -114,7 +114,7 @@ public sealed class DiplomaLifecycleServiceTests
 
         DiplomaLifecycleStatus status = _service.Recalculate(diploma, topic, attempts: []);
 
-        Assert.Equal(DiplomaLifecycleStatus.ReviewerAssigned, status);
+        Assert.Equal(DiplomaLifecycleStatus.WorkInProgressByStudent, status);
     }
 
     // TC-DOM-DLS-005
@@ -170,7 +170,7 @@ public sealed class DiplomaLifecycleServiceTests
     public void CanStartAdmissionReview_Valid_ReturnsTrue()
     {
         bool canStart = _service.CanStartAdmissionReview(
-            DiplomaLifecycleStatus.ReviewerAssigned,
+            DiplomaLifecycleStatus.WorkInProgressByStudent,
             latestTopicVersion: new DiplomaTopicVersion { Status = TopicVersionStatus.Approved },
             attemptCount: 0,
             currentAdmissionStep: null);
@@ -183,7 +183,7 @@ public sealed class DiplomaLifecycleServiceTests
     public void CanStartAdmissionReview_WithAttempts_ReturnsFalse()
     {
         bool canStart = _service.CanStartAdmissionReview(
-            DiplomaLifecycleStatus.ReviewerAssigned,
+            DiplomaLifecycleStatus.WorkInProgressByStudent,
             latestTopicVersion: new DiplomaTopicVersion { Status = TopicVersionStatus.Approved },
             attemptCount: 1,
             currentAdmissionStep: AdmissionStep.SupervisorFeedback);
@@ -201,6 +201,18 @@ public sealed class DiplomaLifecycleServiceTests
             currentAdmissionStep: null);
 
         Assert.False(canStart);
+    }
+
+    [Fact]
+    public void CanStartAdmissionReview_WorkInProgress_ReturnsTrue()
+    {
+        bool canStart = _service.CanStartAdmissionReview(
+            DiplomaLifecycleStatus.WorkInProgressByStudent,
+            latestTopicVersion: new DiplomaTopicVersion { Status = TopicVersionStatus.Approved },
+            attemptCount: 0,
+            currentAdmissionStep: null);
+
+        Assert.True(canStart);
     }
 
     private static DiplomaTopicVersion CreateApprovedTopic(Guid diplomaId, Guid supervisorId) =>

@@ -53,7 +53,7 @@
 | ID | Case | Input | Expected | Status | Test |
 |----|------|-------|----------|--------|------|
 | TC-DOM-SOP-001 | AllowsLifecycle before work in progress | `AwaitingSupervisor` | `true` | implemented | `AllowsLifecycle_BeforeWorkInProgress_ReturnsTrue` |
-| TC-DOM-SOP-002 | AllowsLifecycle after reviewer assigned | `ReviewerAssigned` | `false` | implemented | `AllowsLifecycle_AfterTopicApproved_ReturnsFalse` |
+| TC-DOM-SOP-002 | AllowsLifecycle after work in progress | `WorkInProgressByStudent` | `false` | implemented | `AllowsLifecycle_AfterTopicApproved_ReturnsFalse` |
 | TC-DOM-SOP-003 | AllowsAdmission when not admitted | `NotAdmitted` | `true` | implemented | `AllowsAdmission_NotAdmitted_ReturnsTrue` |
 | TC-DOM-SOP-004 | AllowsAdmission when admitted | `Admitted` | `false` | implemented | `AllowsAdmission_Admitted_ReturnsFalse` |
 | TC-DOM-SOP-005 | EnsureCanOverride archived session | archived | `DomainException` session archived | implemented | `EnsureCanOverride_ArchivedSession_Throws` |

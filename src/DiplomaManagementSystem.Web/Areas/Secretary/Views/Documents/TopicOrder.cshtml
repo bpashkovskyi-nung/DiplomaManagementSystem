@@ -8,8 +8,6 @@
 
 <partial name="_TempDataAlerts"/>
 
-<partial name="_SecretaryNavLinks" model="SecretaryNavigation.DocumentsAndReports()"/>
-
 <form asp-action="TopicOrder" method="post">
     @Html.AntiForgeryToken()
     <input type="hidden" asp-for="SessionId"/>

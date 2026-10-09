@@ -41,7 +41,7 @@ public sealed class DiplomaWorkflowInvariantScenarioTests(PostgreSqlFixture fixt
 
         diploma.SupervisorId = null;
         diploma.SupervisorAssignmentStatus = SupervisorAssignmentStatus.Pending;
-        diploma.LifecycleStatus = DiplomaLifecycleStatus.ReviewerAssigned;
+        diploma.LifecycleStatus = DiplomaLifecycleStatus.WorkInProgressByStudent;
         dbContext.DiplomaTopicVersions.Add(topicVersion);
 
         DomainException exception = await Assert.ThrowsAsync<DomainException>(() =>

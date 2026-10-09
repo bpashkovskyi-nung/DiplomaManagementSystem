@@ -55,7 +55,7 @@ public sealed class SecretaryDiplomaActionEndpointTests(PostgreSqlFixture fixtur
 
         Assert.NotNull(details);
         Assert.Equal(scenario.ReviewerId, details.Assignments.ReviewerId);
-        Assert.Equal(DiplomaLifecycleStatus.ReviewerAssigned, details.State.LifecycleStatus);
+        Assert.Equal(DiplomaLifecycleStatus.WorkInProgressByStudent, details.State.LifecycleStatus);
         Assert.Null(details.State.CurrentAdmissionStep);
         Assert.Equal(ReviewAssignmentStatus.Assigned, details.Assignments.ReviewAssignmentStatus);
     }

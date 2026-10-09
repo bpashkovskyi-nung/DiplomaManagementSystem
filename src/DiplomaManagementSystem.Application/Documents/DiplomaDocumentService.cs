@@ -292,9 +292,10 @@ internal sealed class DiplomaDocumentService(
         }
 
         if (diploma.LifecycleStatus is not (
-            DiplomaLifecycleStatus.ReviewerAssigned
+            DiplomaLifecycleStatus.WorkInProgressByStudent
             or DiplomaLifecycleStatus.DocumentsInProgress
-            or DiplomaLifecycleStatus.ReadyForAdmission))
+            or DiplomaLifecycleStatus.ReadyForAdmission
+            or DiplomaLifecycleStatus.TopicApproved))
         {
             throw new DomainException("Work upload is not available at the current lifecycle stage.");
         }

@@ -515,7 +515,7 @@ public sealed class StudentWorkflowProgressBuilderTests
     {
         var diplomaId = Guid.NewGuid();
         Diploma diploma = CreateDocumentsInProgressDiploma(diplomaId);
-        diploma.LifecycleStatus = DiplomaLifecycleStatus.ReviewerAssigned;
+        diploma.LifecycleStatus = DiplomaLifecycleStatus.WorkInProgressByStudent;
 
         StudentWorkflowProgressDto progress = StudentWorkflowProgressBuilder.Build(diploma, sessionActive: false);
 

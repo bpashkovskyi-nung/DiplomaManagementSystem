@@ -42,15 +42,7 @@ public sealed class DiplomaLifecycleService(
         if (latestTopicVersion?.Status == TopicVersionStatus.Approved)
         {
             _validator.ValidateTopicVersion(diploma, latestTopicVersion);
-
-            if (diploma.ReviewAssignmentStatus == ReviewAssignmentStatus.Assigned
-                || diploma.ReviewAssignmentStatus == ReviewAssignmentStatus.Completed
-                || diploma.ReviewerId is not null)
-            {
-                return DiplomaLifecycleStatus.ReviewerAssigned;
-            }
-
-            return DiplomaLifecycleStatus.TopicApproved;
+            return DiplomaLifecycleStatus.WorkInProgressByStudent;
         }
 
         if (latestTopicVersion is not null)
@@ -73,7 +65,7 @@ public sealed class DiplomaLifecycleService(
         int attemptCount,
         AdmissionStep? currentAdmissionStep) =>
         latestTopicVersion?.Status == TopicVersionStatus.Approved
-        && currentStatus == DiplomaLifecycleStatus.ReviewerAssigned
+        && currentStatus == DiplomaLifecycleStatus.WorkInProgressByStudent
         && attemptCount == 0
         && currentAdmissionStep is null;
 }

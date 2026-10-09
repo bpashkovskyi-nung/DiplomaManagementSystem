@@ -122,6 +122,13 @@ internal sealed class EmployeeHomeService(
                 pendingSupervisorFeedback,
                 "Supervisor",
                 "Checkpoints"));
+
+            roles.Add(new EmployeeRoleCardDto(
+                "SupervisorProgress",
+                EmployeePageTitles.SupervisorProgress,
+                0,
+                "Supervisor",
+                "Progress"));
         }
 
         if (isReviewer)

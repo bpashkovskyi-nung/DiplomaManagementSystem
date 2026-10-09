@@ -26,7 +26,7 @@ public sealed class DisplayLocalizationTests
     public void UkrainianDisplay_FormatsOtherEnumLabels()
     {
         Assert.Equal("Тема затверджена", UkrainianDisplay.FormatDiplomaLifecycleStatus(DiplomaLifecycleStatus.TopicApproved));
-        Assert.Equal("Рецензента призначено", UkrainianDisplay.FormatDiplomaLifecycleStatus(DiplomaLifecycleStatus.ReviewerAssigned));
+        Assert.Equal("Робота в процесі", UkrainianDisplay.FormatDiplomaLifecycleStatus(DiplomaLifecycleStatus.WorkInProgressByStudent));
         Assert.Equal("Готово до допуску", UkrainianDisplay.FormatDiplomaLifecycleStatus(DiplomaLifecycleStatus.ReadyForAdmission));
         Assert.Equal("Нормоконтроль", UkrainianDisplay.FormatAdmissionStep(AdmissionStep.FormattingReview));
         Assert.Equal("Бакалавр", UkrainianDisplay.FormatDefenceSessionType(DefenceSessionType.Bachelor));

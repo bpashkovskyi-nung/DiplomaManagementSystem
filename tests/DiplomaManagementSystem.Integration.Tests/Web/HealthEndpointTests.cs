@@ -10,7 +10,7 @@ public sealed class HealthEndpointTests(PostgreSqlFixture fixture)
         await using DiplomaManagementSystemWebApplicationFactory factory = fixture.CreateWebFactory();
         HttpClient client = factory.CreateClient();
 
-        HttpResponseMessage response = await client.GetAsync("/health");
+        HttpResponseMessage response = await client.GetAsync("/healthchecks");
 
         Assert.Equal(System.Net.HttpStatusCode.OK, response.StatusCode);
     }

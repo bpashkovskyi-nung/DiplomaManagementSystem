@@ -1,3 +1,5 @@
+using System.Security.Claims;
+
 namespace DiplomaManagementSystem.Web.AdminPreview;
 
 internal static class AdminPreviewModeRules
@@ -44,4 +46,18 @@ internal static class AdminPreviewModeRules
 
     public static bool IsEmployeeSurface(AdminPreviewMode mode) =>
         mode is AdminPreviewMode.Secretary or AdminPreviewMode.Employee;
+
+    public static bool CanShowAreaNav(
+        IAdminPreviewService previewService,
+        HttpContext httpContext,
+        ClaimsPrincipal user,
+        string area)
+    {
+        if (!previewService.IsAdmin(user, httpContext) || !previewService.IsActivePreview(httpContext))
+        {
+            return true;
+        }
+
+        return AreaMatchesMode(area, previewService.GetMode(httpContext, user));
+    }
 }

@@ -53,7 +53,7 @@ public sealed class StudentDiplomaEndpointTests(PostgreSqlFixture fixture)
         MyDiplomaDto diploma = await studentService.GetMyDiplomaAsync(scenario.StudentId, CancellationToken.None);
 
         Assert.Single(bundle.StudentWorkVersions);
-        Assert.Equal(DiplomaLifecycleStatus.ReviewerAssigned, diploma.State!.LifecycleStatus);
+        Assert.Equal(DiplomaLifecycleStatus.WorkInProgressByStudent, diploma.State!.LifecycleStatus);
         Assert.Null(diploma.State.CurrentAdmissionStep);
     }
 

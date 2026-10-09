@@ -11,17 +11,6 @@ namespace DiplomaManagementSystem.Web.Tests.SuperAdmin;
 public sealed class SuperAdminNavigationTests
 {
     [Fact]
-    public void SuperAdminNavigation_Global_ContainsExpectedLinksInOrder()
-    {
-        IReadOnlyList<SuperAdminNavLink> links = SuperAdminNavigation.Global();
-
-        Assert.Equal(2, links.Count);
-        Assert.Equal(SuperAdminPageTitles.Faculties, links[0].Text);
-        Assert.Equal("Faculties", links[0].Controller);
-        Assert.Equal(SuperAdminPageTitles.OrganizationImport, links[1].Text);
-    }
-
-    [Fact]
     public void SuperAdminNavigation_FacultyDepartmentsBack_ReturnsFacultiesLinkOnly()
     {
         IReadOnlyList<SuperAdminNavLink> links = SuperAdminNavigation.FacultyDepartmentsBack();
@@ -29,6 +18,19 @@ public sealed class SuperAdminNavigationTests
         Assert.Single(links);
         Assert.Equal(SuperAdminPageTitles.Faculties, links[0].Text);
         Assert.Equal("Faculties", links[0].Controller);
+    }
+
+    [Fact]
+    public void SuperAdminNavigation_DepartmentFormBack_IncludesFacultiesAndDepartments()
+    {
+        var facultyId = Guid.Parse("aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee");
+        IReadOnlyList<SuperAdminNavLink> links = SuperAdminNavigation.DepartmentFormBack(facultyId, "ІТ");
+
+        Assert.Equal(2, links.Count);
+        Assert.Equal(SuperAdminPageTitles.Faculties, links[0].Text);
+        Assert.Equal("ІТ", links[1].Text);
+        Assert.Equal("Departments", links[1].Controller);
+        Assert.Equal(facultyId.ToString(), links[1].RouteValues!["facultyId"]);
     }
 }
 

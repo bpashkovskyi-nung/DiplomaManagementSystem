@@ -17,8 +17,11 @@ using DiplomaManagementSystem.Web.Secretary;
 
 using FluentValidation;
 
+using HealthChecks.UI.Client;
+
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 using Microsoft.AspNetCore.Localization;
 using Microsoft.Extensions.Options;
 
@@ -99,7 +102,13 @@ app.UseSession();
 app.UseAuthentication();
 app.UseAuthorization();
 app.MapStaticAssets();
-app.MapHealthChecks("/health");
+app.UseHealthChecks(
+    "/healthchecks",
+    new HealthCheckOptions
+    {
+        Predicate = _ => true,
+        ResponseWriter = UIResponseWriter.WriteHealthCheckUIResponse,
+    });
 
 app.MapControllerRoute(
         name: "areas",

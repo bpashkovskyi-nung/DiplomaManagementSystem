@@ -34,7 +34,7 @@ internal sealed class SecretaryDashboardService(
         AddLifecycleBucket(buckets, countsByLifecycle, DiplomaLifecycleStatus.SupervisorConfirmed);
         AddLifecycleBucket(buckets, countsByLifecycle, DiplomaLifecycleStatus.TopicInReview);
         AddLifecycleBucket(buckets, countsByLifecycle, DiplomaLifecycleStatus.TopicApproved);
-        AddLifecycleBucket(buckets, countsByLifecycle, DiplomaLifecycleStatus.ReviewerAssigned);
+        AddLifecycleBucket(buckets, countsByLifecycle, DiplomaLifecycleStatus.WorkInProgressByStudent);
 
         foreach (AdmissionStep step in Enum.GetValues<AdmissionStep>().OrderBy(step => step))
         {

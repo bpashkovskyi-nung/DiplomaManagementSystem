@@ -1,8 +1,4 @@
-@using DiplomaManagementSystem.Application.Constants
-@using DiplomaManagementSystem.Application.Departments.Contracts
 @using DiplomaManagementSystem.Web.AdminPreview
-@inject IAdminPreviewService AdminPreviewService
-@inject IDepartmentContext DepartmentContext
 <!DOCTYPE html>
 <html lang="uk">
 <head>
@@ -28,21 +24,8 @@
                     @await Component.InvokeAsync("StudentNav")
                     @await Component.InvokeAsync("EmployeeNav")
                     @await Component.InvokeAsync("SecretaryNav")
-                    @if (User.IsInRole(RoleNames.SuperAdmin)
-                         && AdminPreviewService.GetMode(Context) == AdminPreviewMode.SuperAdmin)
-                    {
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="SuperAdmin" asp-controller="Home" asp-action="Index">@SuperAdminPageTitles.Home</a>
-                        </li>
-                    }
-                    @if (AdminPreviewService.GetMode(Context) == AdminPreviewMode.Admin
-                         && (User.IsInRole(RoleNames.Admin)
-                             || (User.IsInRole(RoleNames.SuperAdmin) && DepartmentContext.IsSuperAdminImpersonating)))
-                    {
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="Admin" asp-controller="Home" asp-action="Index">@AdminPageTitles.Home</a>
-                        </li>
-                    }
+                    @await Component.InvokeAsync("SuperAdminNav")
+                    @await Component.InvokeAsync("AdminNav")
                 </ul>
                 <ul class="navbar-nav align-items-center">
                     @if (User.Identity?.IsAuthenticated == true)

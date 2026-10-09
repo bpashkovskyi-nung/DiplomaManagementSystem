@@ -16,6 +16,8 @@ public sealed class AdminPreviewViewModel
 
     public bool RequiresUserSelection { get; init; }
 
+    public bool NeedsDepartmentSelection { get; init; }
+
     public AdminPreviewMode? SelectUserMode { get; init; }
 
     public IReadOnlyList<AdminPreviewOptionViewModel> Options { get; init; } = [];

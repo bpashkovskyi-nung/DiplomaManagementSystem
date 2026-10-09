@@ -45,44 +45,61 @@ public sealed class ReviewerAssignmentServiceTests
     }
 
     [Fact]
+    public void Assign_WhenWorkInProgress_SetsReviewer()
+    {
+        Diploma diploma = CreateTopicApprovedDiploma();
+        diploma.LifecycleStatus = DiplomaLifecycleStatus.WorkInProgressByStudent;
+
+        var reviewerId = Guid.NewGuid();
+        _service.Assign(diploma, CreateSession(), reviewerId, [], hasApprovedTopic: true);
+
+        Assert.Equal(reviewerId, diploma.ReviewerId);
+        Assert.Equal(ReviewAssignmentStatus.Assigned, diploma.ReviewAssignmentStatus);
+    }
+
+    [Fact]
+    public void Assign_WhenAdmissionStartedAndReady_SetsExternalReviewStep()
+    {
+        Diploma diploma = CreateTopicApprovedDiploma();
+        diploma.LifecycleStatus = DiplomaLifecycleStatus.DocumentsInProgress;
+        diploma.CurrentAdmissionStep = AdmissionStep.ReviewerAssignment;
+
+        List<DiplomaAdmissionStepAttempt> attempts =
+        [
+            CreatePassing(AdmissionStep.SupervisorFeedback),
+            CreatePassing(AdmissionStep.FormattingReview),
+            CreatePassing(AdmissionStep.AntiPlagiarismClearance),
+        ];
+
+        var reviewerId = Guid.NewGuid();
+        _service.Assign(diploma, CreateSession(), reviewerId, attempts, hasApprovedTopic: true);
+
+        Assert.Equal(reviewerId, diploma.ReviewerId);
+        Assert.Equal(ReviewAssignmentStatus.Assigned, diploma.ReviewAssignmentStatus);
+        Assert.Equal(AdmissionStep.ExternalReview, diploma.CurrentAdmissionStep);
+    }
+
+    [Fact]
+    public void Assign_WhenAlreadyAssigned_AllowsReassignment()
+    {
+        Diploma diploma = CreateTopicApprovedDiploma();
+        diploma.ReviewAssignmentStatus = ReviewAssignmentStatus.Assigned;
+        diploma.ReviewerId = Guid.NewGuid();
+
+        var reviewerId = Guid.NewGuid();
+        _service.Assign(diploma, CreateSession(), reviewerId, [], hasApprovedTopic: true);
+
+        Assert.Equal(reviewerId, diploma.ReviewerId);
+        Assert.Equal(ReviewAssignmentStatus.Assigned, diploma.ReviewAssignmentStatus);
+    }
+
+    [Fact]
     public void Assign_WhenTopicNotApproved_Throws()
     {
         Diploma diploma = CreateTopicApprovedDiploma();
 
         Assert.Throws<DomainException>(() =>
             _service.Assign(diploma, CreateSession(), Guid.NewGuid(), [], hasApprovedTopic: false));
-    }
-
-    [Fact]
-    public void Assign_WhenLifecycleNotTopicApproved_Throws()
-    {
-        Diploma diploma = CreateTopicApprovedDiploma();
-        diploma.LifecycleStatus = DiplomaLifecycleStatus.ReviewerAssigned;
-        diploma.ReviewAssignmentStatus = ReviewAssignmentStatus.NotAssigned;
-
-        Assert.Throws<DomainException>(() =>
-            _service.Assign(diploma, CreateSession(), Guid.NewGuid(), [], hasApprovedTopic: true));
-    }
-
-    [Fact]
-    public void Assign_WhenAdmissionAlreadyStarted_Throws()
-    {
-        Diploma diploma = CreateTopicApprovedDiploma();
-        diploma.CurrentAdmissionStep = AdmissionStep.SupervisorFeedback;
-
-        Assert.Throws<DomainException>(() =>
-            _service.Assign(diploma, CreateSession(), Guid.NewGuid(), [], hasApprovedTopic: true));
-    }
-
-    [Fact]
-    public void Assign_WhenAlreadyAssigned_Throws()
-    {
-        Diploma diploma = CreateTopicApprovedDiploma();
-        diploma.ReviewAssignmentStatus = ReviewAssignmentStatus.Assigned;
-        diploma.ReviewerId = Guid.NewGuid();
-
-        Assert.Throws<DomainException>(() =>
-            _service.Assign(diploma, CreateSession(), Guid.NewGuid(), [], hasApprovedTopic: true));
     }
 
     [Fact]
@@ -101,6 +118,17 @@ public sealed class ReviewerAssignmentServiceTests
             LifecycleStatus = DiplomaLifecycleStatus.TopicApproved,
             ReviewAssignmentStatus = ReviewAssignmentStatus.NotAssigned,
             CurrentAdmissionStep = null,
+        };
+
+    private static DiplomaAdmissionStepAttempt CreatePassing(AdmissionStep step) =>
+        new()
+        {
+            Id = Guid.NewGuid(),
+            Step = step,
+            AttemptNumber = 1,
+            Outcome = CheckpointOutcome.Approved,
+            RecordedById = Guid.NewGuid(),
+            RecordedAt = DateTimeOffset.UtcNow,
         };
 
     private static DefenceSession CreateSession() => new()

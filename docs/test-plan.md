@@ -351,7 +351,7 @@ Domain не тестується integration-ом окремо; перевіря
 
 | Сценарій | Статус |
 |----------|--------|
-| `GET /health` | ✅ |
+| `GET /healthchecks` | ✅ |
 | Auth + role area access | ✅ |
 | POST student select supervisor | ✅ |
 | POST secretary admit | ✅ (antiforgery з `/Employee/Home`; cookie сесії вручну) |

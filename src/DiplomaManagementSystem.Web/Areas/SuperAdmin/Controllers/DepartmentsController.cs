@@ -7,6 +7,7 @@ using DiplomaManagementSystem.Application.SuperAdmin.Faculties.Dtos;
 using DiplomaManagementSystem.Application.SuperAdmin.Specialties.Contracts;
 using DiplomaManagementSystem.Application.SuperAdmin.Specialties.Dtos;
 using DiplomaManagementSystem.Domain.Exceptions;
+using DiplomaManagementSystem.Web.AdminPreview;
 using DiplomaManagementSystem.Web.Areas.SuperAdmin.Models;
 using DiplomaManagementSystem.Web.Departments;
 using DiplomaManagementSystem.Web.Mapping;
@@ -20,7 +21,8 @@ public sealed class DepartmentsController(
     IDepartmentAdminAssignmentService assignmentService,
     IFacultyAdminService facultyAdminService,
     ISpecialtyAdminService specialtyAdminService,
-    IDepartmentSessionService departmentSessionService) : SuperAdminControllerBase
+    IDepartmentSessionService departmentSessionService,
+    IAdminPreviewService adminPreviewService) : SuperAdminControllerBase
 {
     [HttpGet]
     public async Task<IActionResult> Index(Guid? facultyId, CancellationToken cancellationToken)
@@ -240,6 +242,7 @@ public sealed class DepartmentsController(
             return NotFound();
         }
 
+        adminPreviewService.SetMode(HttpContext, AdminPreviewMode.Admin);
         departmentSessionService.SetSelectedDepartment(HttpContext, id, superAdminImpersonating: true);
         return RedirectToAction("Index", "Home", new { area = "Admin" });
     }
