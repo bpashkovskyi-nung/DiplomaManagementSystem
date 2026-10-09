@@ -1,10 +1,12 @@
 using System.Net;
+
 using DiplomaManagementSystem.Application.Admin.AnnualRoles.Contracts;
 using DiplomaManagementSystem.Application.Admin.AnnualRoles.Dtos;
 using DiplomaManagementSystem.Application.Admin.DefenceSessions.Contracts;
 using DiplomaManagementSystem.Application.Admin.DefenceSessions.Dtos;
 using DiplomaManagementSystem.Domain.Enums;
 using DiplomaManagementSystem.Integration.Tests.Support;
+
 using Microsoft.Extensions.DependencyInjection;
 
 namespace DiplomaManagementSystem.Integration.Tests.Web;
@@ -21,6 +23,7 @@ public sealed class SecretarySessionEndpointTests(PostgreSqlFixture fixture)
 
         await using AsyncServiceScope setupScope = fixture.CreateProvider().CreateAsyncScope();
         IServiceProvider services = setupScope.ServiceProvider;
+        await IntegrationDepartmentHelper.EnsureDefaultDepartmentContextAsync(services);
 
         IDefenceSessionService defenceSessionService = services.GetRequiredService<IDefenceSessionService>();
         IAnnualRoleService annualRoleService = services.GetRequiredService<IAnnualRoleService>();

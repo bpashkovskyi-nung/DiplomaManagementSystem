@@ -27,8 +27,8 @@ public sealed class EmployeeDiplomaListProjectionTests
     [Fact]
     public async Task MapPendingStudentsAsync_WhenDisplayMissing_UsesPlaceholderAndSortsBySurname()
     {
-        Guid firstStudentId = Guid.NewGuid();
-        Guid secondStudentId = Guid.NewGuid();
+        var firstStudentId = Guid.NewGuid();
+        var secondStudentId = Guid.NewGuid();
         DateTimeOffset updatedAt = DateTimeOffset.UtcNow;
 
         FakeUserDisplayQueries queries = new()
@@ -70,8 +70,8 @@ public sealed class EmployeeDiplomaListProjectionTests
     [Fact]
     public async Task MapPendingCheckpointItemsAsync_MapsTopicTitle()
     {
-        Guid studentId = Guid.NewGuid();
-        Guid diplomaId = Guid.NewGuid();
+        var studentId = Guid.NewGuid();
+        var diplomaId = Guid.NewGuid();
 
         FakeUserDisplayQueries userQueries = new()
         {
@@ -109,8 +109,8 @@ public sealed class EmployeeDiplomaListProjectionTests
     [Fact]
     public async Task MapPendingCheckpointItemsAsync_MapsLatestStudentWork()
     {
-        Guid studentId = Guid.NewGuid();
-        Guid diplomaId = Guid.NewGuid();
+        var studentId = Guid.NewGuid();
+        var diplomaId = Guid.NewGuid();
 
         FakeUserDisplayQueries userQueries = new()
         {
@@ -165,9 +165,9 @@ public sealed class EmployeeDiplomaListProjectionTests
     [Fact]
     public async Task MapTopicReviewItemsAsync_MapsVersionsAndSortsBySurname()
     {
-        Guid firstStudentId = Guid.NewGuid();
-        Guid secondStudentId = Guid.NewGuid();
-        Guid supervisorId = Guid.NewGuid();
+        var firstStudentId = Guid.NewGuid();
+        var secondStudentId = Guid.NewGuid();
+        var supervisorId = Guid.NewGuid();
         DateTimeOffset submittedAt = DateTimeOffset.UtcNow;
 
         FakeUserDisplayQueries queries = new()
@@ -217,8 +217,8 @@ public sealed class EmployeeDiplomaListProjectionTests
     [Fact]
     public async Task MapReviewerAssignmentsAsync_MapsStatusAndTopic()
     {
-        Guid studentId = Guid.NewGuid();
-        Guid diplomaId = Guid.NewGuid();
+        var studentId = Guid.NewGuid();
+        var diplomaId = Guid.NewGuid();
 
         FakeUserDisplayQueries userQueries = new()
         {
@@ -284,7 +284,7 @@ public sealed class EmployeeDiplomaListProjectionTests
             IReadOnlyCollection<Guid> userIds,
             CancellationToken cancellationToken = default)
         {
-            Dictionary<Guid, string> result = userIds
+            var result = userIds
                 .Where(FullNames.ContainsKey)
                 .ToDictionary(id => id, id => FullNames[id]);
 
@@ -300,17 +300,22 @@ public sealed class EmployeeDiplomaListProjectionTests
             IReadOnlyCollection<Guid> studentIds,
             CancellationToken cancellationToken = default)
         {
-            Dictionary<Guid, StudentDisplayInfo> result = studentIds
+            var result = studentIds
                 .Where(StudentDisplays.ContainsKey)
                 .ToDictionary(id => id, id => StudentDisplays[id]);
 
             return Task.FromResult(result);
         }
 
-        public Task<List<UserOption>> LoadEmployeeOptionsAsync(CancellationToken cancellationToken = default) =>
+        public Task<List<UserOption>> LoadEmployeeOptionsForDepartmentAsync(
+            Guid departmentId,
+            CancellationToken cancellationToken = default) =>
             Task.FromResult(new List<UserOption>());
 
-        public Task<bool> IsEmployeeAsync(Guid userId, CancellationToken cancellationToken = default) =>
+        public Task<bool> IsActiveDepartmentEmployeeAsync(
+            Guid userId,
+            Guid departmentId,
+            CancellationToken cancellationToken = default) =>
             Task.FromResult(false);
 
         public Task<StudentStorageContext?> GetStudentStorageContextAsync(
@@ -330,7 +335,7 @@ public sealed class EmployeeDiplomaListProjectionTests
             IReadOnlyCollection<Guid> diplomaIds,
             CancellationToken cancellationToken = default)
         {
-            Dictionary<Guid, string> result = diplomaIds
+            var result = diplomaIds
                 .Where(ApprovedTitles.ContainsKey)
                 .ToDictionary(id => id, id => ApprovedTitles[id]);
 

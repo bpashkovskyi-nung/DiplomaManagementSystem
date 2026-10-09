@@ -1,6 +1,8 @@
 using System.Net;
+
 using DiplomaManagementSystem.Application;
 using DiplomaManagementSystem.Integration.Tests.Support;
+
 using Microsoft.Extensions.DependencyInjection;
 
 namespace DiplomaManagementSystem.Integration.Tests.Web;

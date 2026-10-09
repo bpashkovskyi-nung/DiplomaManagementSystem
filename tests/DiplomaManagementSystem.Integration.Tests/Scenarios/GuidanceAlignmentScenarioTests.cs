@@ -6,6 +6,7 @@ using DiplomaManagementSystem.Application.Student.Dtos;
 using DiplomaManagementSystem.Domain.Entities;
 using DiplomaManagementSystem.Domain.Enums;
 using DiplomaManagementSystem.Integration.Tests.Support;
+
 using Microsoft.Extensions.DependencyInjection;
 
 namespace DiplomaManagementSystem.Integration.Tests.Scenarios;
@@ -29,18 +30,19 @@ public sealed class GuidanceAlignmentScenarioTests(PostgreSqlFixture fixture)
             services,
             scenario.StudentId);
 
-        Assert.Equal(DiplomaLifecycleStatus.WorkInProgressByStudent, diploma.State!.LifecycleStatus);
+        Assert.Equal(DiplomaLifecycleStatus.TopicApproved, diploma.State!.LifecycleStatus);
         Assert.NotNull(diploma.Actions);
         Assert.False(diploma.Actions.CanDeclareWorkReady);
+        Assert.False(diploma.Actions.CanUploadWork);
 
         string? expected = DiplomaWorkflowGuidance.BuildDeclareWorkReadyBlockedReason(
             showSection: true,
             sessionActive: true,
-            lifecycleStatus: DiplomaLifecycleStatus.WorkInProgressByStudent,
+            lifecycleStatus: DiplomaLifecycleStatus.TopicApproved,
             hasStudentWork: false);
 
         Assert.Equal(expected, diploma.Actions.DeclareWorkReadyBlockedReason);
-        Assert.Contains("завантажте", diploma.Actions.DeclareWorkReadyBlockedReason, StringComparison.OrdinalIgnoreCase);
+        Assert.Contains("рецензента", diploma.Actions.DeclareWorkReadyBlockedReason, StringComparison.OrdinalIgnoreCase);
     }
 
     [SkippableFact]

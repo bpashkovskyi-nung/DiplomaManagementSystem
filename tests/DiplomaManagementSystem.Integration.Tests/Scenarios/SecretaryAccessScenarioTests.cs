@@ -4,6 +4,7 @@ using DiplomaManagementSystem.Application.Secretary.Contracts;
 using DiplomaManagementSystem.Application.Secretary.Dtos;
 using DiplomaManagementSystem.Domain.Enums;
 using DiplomaManagementSystem.Integration.Tests.Support;
+
 using Microsoft.Extensions.DependencyInjection;
 
 namespace DiplomaManagementSystem.Integration.Tests.Scenarios;
@@ -38,6 +39,7 @@ public sealed class SecretaryAccessScenarioTests(PostgreSqlFixture fixture)
 
         await using AsyncServiceScope scope = fixture.CreateProvider().CreateAsyncScope();
         IServiceProvider services = scope.ServiceProvider;
+        await IntegrationDepartmentHelper.EnsureDefaultDepartmentContextAsync(services);
 
         IDefenceSessionService defenceSessionService = services.GetRequiredService<IDefenceSessionService>();
         Guid otherSessionId = await defenceSessionService.CreateAsync(

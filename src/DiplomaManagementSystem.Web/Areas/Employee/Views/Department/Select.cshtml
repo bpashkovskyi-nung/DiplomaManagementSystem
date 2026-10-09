@@ -1,0 +1,32 @@
+@model DiplomaManagementSystem.Web.Areas.Admin.Models.DepartmentSelectViewModel
+@{
+    ViewData["Title"] = AdminPageTitles.SelectDepartment;
+}
+
+<h1 class="mb-4">@ViewData["Title"]</h1>
+
+<partial name="_TempDataAlerts"/>
+
+@if (!Model.Departments.Any())
+{
+    <div class="alert alert-warning">
+        Для вашого облікового запису не призначено жодної кафедри.
+    </div>
+}
+else
+{
+    <form asp-action="Select" method="post" class="col-md-8">
+        @Html.AntiForgeryToken()
+        <div class="mb-3">
+            <label class="form-label" for="departmentId">Кафедра</label>
+            <select class="form-select" id="departmentId" name="departmentId" required>
+                <option value="">— оберіть —</option>
+                @foreach (SelectListItem department in Model.Departments)
+                {
+                    <option value="@department.Value">@department.Text</option>
+                }
+            </select>
+        </div>
+        <button type="submit" class="btn btn-primary">Продовжити</button>
+    </form>
+}

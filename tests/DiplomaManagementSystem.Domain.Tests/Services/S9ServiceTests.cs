@@ -14,7 +14,7 @@ public sealed class AdmissionWorkflowServiceOverrideTests
     {
         Diploma diploma = new() { CurrentAdmissionStep = AdmissionStep.SupervisorFeedback };
         List<DiplomaAdmissionStepAttempt> attempts = [];
-        Guid actorId = Guid.NewGuid();
+        var actorId = Guid.NewGuid();
 
         DiplomaAdmissionStepAttempt attempt = _service.RecordAttempt(
             diploma,

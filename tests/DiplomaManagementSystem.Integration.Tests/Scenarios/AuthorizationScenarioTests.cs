@@ -6,6 +6,7 @@ using DiplomaManagementSystem.Application.Secretary.Dtos;
 using DiplomaManagementSystem.Domain.Enums;
 using DiplomaManagementSystem.Domain.Exceptions;
 using DiplomaManagementSystem.Integration.Tests.Support;
+
 using Microsoft.Extensions.DependencyInjection;
 
 namespace DiplomaManagementSystem.Integration.Tests.Scenarios;

@@ -13,6 +13,7 @@ using DiplomaManagementSystem.Domain.Entities;
 using DiplomaManagementSystem.Domain.Enums;
 using DiplomaManagementSystem.Domain.Exceptions;
 using DiplomaManagementSystem.Domain.Services;
+
 using Microsoft.EntityFrameworkCore;
 
 namespace DiplomaManagementSystem.Application.Secretary;
@@ -47,7 +48,10 @@ internal sealed class SecretaryDiplomaActionService(
             sessionId,
             cancellationToken);
 
-        bool employeeExists = await userDisplayQueries.IsEmployeeAsync(request.ReviewerId, cancellationToken);
+        bool employeeExists = await userDisplayQueries.IsActiveDepartmentEmployeeAsync(
+            request.ReviewerId,
+            diploma.DefenceSession.DepartmentId,
+            cancellationToken);
 
         if (!employeeExists)
         {
@@ -104,12 +108,10 @@ internal sealed class SecretaryDiplomaActionService(
             cancellationToken);
 
         DiplomaAdmissionStatus oldStatus = diploma.AdmissionStatus;
-        DateOnly? oldDate = diploma.DefenceDate;
 
         diplomaAdmissionService.Admit(
             diploma,
             diploma.DefenceSession,
-            request.DefenceDate,
             diploma.LifecycleStatus);
 
         AuditLogEntry auditEntry = new(
@@ -117,13 +119,54 @@ internal sealed class SecretaryDiplomaActionService(
             nameof(Diploma),
             diploma.Id,
             "Admit",
-            $"{oldStatus};{oldDate}",
-            $"{diploma.AdmissionStatus};{diploma.DefenceDate}",
+            oldStatus.ToString(),
+            diploma.AdmissionStatus.ToString(),
             sessionId);
 
         await auditLogWriter.WriteAsync(auditEntry, cancellationToken);
 
         await DiplomaLifecycleHelper.RecalculateAsync(admissionStepQueries, topicVersionQueries, diplomaLifecycleService, diploma, cancellationToken);
+        await dbContext.SaveChangesAsync(cancellationToken);
+    }
+
+    public async Task ConfirmDefenceDateAsync(
+        Guid actorId,
+        Guid sessionId,
+        ConfirmDefenceDateDto request,
+        CancellationToken cancellationToken = default)
+    {
+        Diploma diploma = await GetWritableDiplomaAsync(sessionId, request.DiplomaId, cancellationToken);
+        await diplomaAuthorizationService.EnsureCanPerformAsync(
+            actorId,
+            request.DiplomaId,
+            DiplomaAction.ConfirmDefenceDate,
+            sessionId,
+            cancellationToken);
+
+        List<DefenceDateOption> availableDates = await dbContext.DefenceDateOptions
+            .AsNoTracking()
+            .Where(option => option.DefenceSessionId == sessionId)
+            .ToListAsync(cancellationToken);
+
+        DateOnly? oldDate = diploma.DefenceDate;
+
+        diplomaAdmissionService.ConfirmDefenceDate(
+            diploma,
+            diploma.DefenceSession,
+            request.DefenceDate,
+            availableDates);
+
+        AuditLogEntry auditEntry = new(
+            actorId,
+            nameof(Diploma),
+            diploma.Id,
+            "ConfirmDefenceDate",
+            oldDate?.ToString(),
+            diploma.DefenceDate?.ToString(),
+            sessionId);
+
+        await auditLogWriter.WriteAsync(auditEntry, cancellationToken);
+
         await dbContext.SaveChangesAsync(cancellationToken);
     }
 
@@ -141,7 +184,10 @@ internal sealed class SecretaryDiplomaActionService(
             sessionId,
             cancellationToken);
 
-        bool employeeExists = await userDisplayQueries.IsEmployeeAsync(request.SupervisorId, cancellationToken);
+        bool employeeExists = await userDisplayQueries.IsActiveDepartmentEmployeeAsync(
+            request.SupervisorId,
+            diploma.DefenceSession.DepartmentId,
+            cancellationToken);
 
         if (!employeeExists)
         {

@@ -23,6 +23,16 @@
 | `AntiPlagiarismOfficer` | Відповідальний за антиплагіат | — |
 | `FormattingReviewer` | Нормоконтролер | `NormController`, `NormControl` |
 
+## Склад екзаменаційної комісії
+
+| Код | UI (українська) | Примітка |
+|-----|-----------------|----------|
+| `ExaminationCommissionParticipant` | Учасник ЕК | Session-scoped snapshot; не `AnnualRoleAssignment` |
+| `ExaminationCommissionRole.Chair` | Голова ЕК | Рівно 1 на сесію |
+| `ExaminationCommissionRole.Member` | Член ЕК | Мінімум 3 на сесію |
+| `EmployeeId` (nullable) | — | `null` = зовнішня особа; інакше працівник кафедри |
+| `FullName` / `Position` | ПІБ / Посада | Snapshot на момент збереження |
+
 ## Вимоги на допуск (`AdmissionCheckpointType`)
 
 | Код | UI (українська) |

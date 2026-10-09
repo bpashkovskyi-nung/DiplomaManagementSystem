@@ -103,18 +103,44 @@
                     @Html.AntiForgeryToken()
                     <input type="hidden" name="DiplomaId" value="@Model.Id"/>
                     <div class="col-md-4">
-                        <label class="form-label">Дата захисту</label>
-                        <input class="form-control" type="date" name="DefenceDate" required/>
-                    </div>
-                    <div class="col-md-4">
                         <button type="submit" class="btn btn-success">Допустити</button>
                     </div>
                 </form>
+                <div class="form-text mt-2">Дату захисту можна підтвердити після допуску окремо.</div>
             }
             else if (!string.IsNullOrWhiteSpace(Model.AdmitBlockedReason))
             {
                 <div class="alert alert-info mb-0">@Model.AdmitBlockedReason</div>
             }
+        </div>
+    </div>
+}
+
+@if (Model.AdmissionStatus == DiplomaAdmissionStatus.Admitted)
+{
+    <div class="card mb-4">
+        <div class="card-header">Дата захисту</div>
+        <div class="card-body">
+            @if (Model.DefenceDate.HasValue)
+            {
+                <p class="mb-2">Підтверджена дата: <strong>@Model.DefenceDate.Value.ToString("d")</strong></p>
+            }
+            else
+            {
+                <p class="mb-2 text-muted">Фінальну дату ще не підтверджено.</p>
+            }
+            <form asp-action="ConfirmDefenceDate" method="post" class="row g-2 align-items-end">
+                @Html.AntiForgeryToken()
+                <input type="hidden" name="DiplomaId" value="@Model.Id"/>
+                <div class="col-md-4">
+                    <label class="form-label">@(Model.DefenceDate.HasValue ? "Змінити дату" : "Підтвердити дату")</label>
+                    <input class="form-control" type="date" name="DefenceDate" value="@(Model.DefenceDate?.ToString("yyyy-MM-dd"))" required/>
+                </div>
+                <div class="col-md-4">
+                    <button type="submit" class="btn btn-primary">Зберегти дату</button>
+                </div>
+            </form>
+            <div class="form-text mt-2">Обирайте лише з доступних дат сесії (налаштування сесії).</div>
         </div>
     </div>
 }

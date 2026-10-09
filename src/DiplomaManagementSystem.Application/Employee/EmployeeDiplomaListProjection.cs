@@ -20,7 +20,7 @@ internal static class EmployeeDiplomaListProjection
             return [];
         }
 
-        HashSet<Guid> studentIds = diplomas.Select(diploma => diploma.StudentId).ToHashSet();
+        var studentIds = diplomas.Select(diploma => diploma.StudentId).ToHashSet();
         Dictionary<Guid, StudentDisplayInfo> displays = await userDisplayQueries.LoadStudentDisplaysAsync(
             studentIds,
             cancellationToken);
@@ -67,12 +67,12 @@ internal static class EmployeeDiplomaListProjection
         IReadOnlyDictionary<Guid, DiplomaDocumentDto> latestStudentWorkByDiplomaId,
         CancellationToken cancellationToken)
     {
-        HashSet<Guid> studentIds = diplomas.Select(diploma => diploma.StudentId).ToHashSet();
+        var studentIds = diplomas.Select(diploma => diploma.StudentId).ToHashSet();
         Dictionary<Guid, StudentDisplayInfo> displays = await userDisplayQueries.LoadStudentDisplaysAsync(
             studentIds,
             cancellationToken);
 
-        HashSet<Guid> diplomaIds = diplomas.Select(diploma => diploma.Id).ToHashSet();
+        var diplomaIds = diplomas.Select(diploma => diploma.Id).ToHashSet();
         Dictionary<Guid, string> topicTitles = await topicVersionQueries.GetApprovedTitlesAsync(
             diplomaIds,
             cancellationToken);
@@ -108,12 +108,12 @@ internal static class EmployeeDiplomaListProjection
             return [];
         }
 
-        HashSet<Guid> studentIds = diplomas.Select(diploma => diploma.StudentId).ToHashSet();
+        var studentIds = diplomas.Select(diploma => diploma.StudentId).ToHashSet();
         Dictionary<Guid, StudentDisplayInfo> displays = await userDisplayQueries.LoadStudentDisplaysAsync(
             studentIds,
             cancellationToken);
 
-        HashSet<Guid> diplomaIds = diplomas.Select(diploma => diploma.Id).ToHashSet();
+        var diplomaIds = diplomas.Select(diploma => diploma.Id).ToHashSet();
         Dictionary<Guid, string> topicTitles = await topicVersionQueries.GetApprovedTitlesAsync(
             diplomaIds,
             cancellationToken);
@@ -152,12 +152,12 @@ internal static class EmployeeDiplomaListProjection
             return [];
         }
 
-        HashSet<Guid> studentIds = versions.Select(version => version.Diploma.StudentId).ToHashSet();
+        var studentIds = versions.Select(version => version.Diploma.StudentId).ToHashSet();
         Dictionary<Guid, string> studentNames = await userDisplayQueries.LoadFullNamesAsync(
             studentIds,
             cancellationToken);
 
-        HashSet<Guid> supervisorIds = versions
+        var supervisorIds = versions
             .Select(version => version.Diploma.SupervisorId)
             .Where(supervisorId => supervisorId.HasValue)
             .Select(supervisorId => supervisorId!.Value)
@@ -169,7 +169,7 @@ internal static class EmployeeDiplomaListProjection
         return versions
             .Select(version =>
             {
-                string? supervisorFullName = version.Diploma.SupervisorId is Guid supervisorId
+                string? supervisorFullName = version.Diploma.SupervisorId is { } supervisorId
                     ? supervisorNames.GetValueOrDefault(supervisorId, MissingLabel)
                     : null;
 

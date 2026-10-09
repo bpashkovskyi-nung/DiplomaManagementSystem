@@ -117,7 +117,7 @@ public sealed class DefenceWorkLabelTests
     [InlineData(nameof(DefenceWorkLabel.GenitivePlural))]
     public void Methods_InvalidType_Throw(string methodName)
     {
-        DefenceSessionType invalid = (DefenceSessionType)99;
+        var invalid = (DefenceSessionType)99;
 
         Action action = methodName switch
         {

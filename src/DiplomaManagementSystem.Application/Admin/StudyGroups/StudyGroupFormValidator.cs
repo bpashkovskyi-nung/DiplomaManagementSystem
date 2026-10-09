@@ -11,6 +11,13 @@ public sealed class StudyGroupFormValidator : AbstractValidator<StudyGroupFormDt
         RuleFor(dto => dto.DefenceSessionId)
             .NotEmpty();
 
+        RuleFor(dto => dto.SpecialtyId)
+            .NotEmpty();
+
+        RuleFor(dto => dto.StudyForm)
+            .NotEmpty()
+            .MaximumLength(128);
+
         RuleFor(dto => dto.Name)
             .NotEmpty()
             .MaximumLength(50);

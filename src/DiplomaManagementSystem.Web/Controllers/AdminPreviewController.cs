@@ -1,5 +1,7 @@
 using DiplomaManagementSystem.Application.AdminPreview.Contracts;
 using DiplomaManagementSystem.Application.Constants;
+using DiplomaManagementSystem.Application.Departments.Contracts;
+using DiplomaManagementSystem.Application.Persistence.Contracts;
 using DiplomaManagementSystem.Application.Secretary.Contracts;
 using DiplomaManagementSystem.Domain.Enums;
 using DiplomaManagementSystem.Web.AdminPreview;
@@ -7,15 +9,19 @@ using DiplomaManagementSystem.Web.Models;
 
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 
 namespace DiplomaManagementSystem.Web.Controllers;
 
-[Authorize(Roles = RoleNames.Admin)]
+[Authorize(Roles = RoleNames.SuperAdmin)]
 public sealed class AdminPreviewController(
     IAdminPreviewService adminPreviewService,
     IAdminPreviewUserPickerService userPickerService,
     IAdminPreviewUserLookup adminPreviewUserLookup,
-    ISecretaryAccessService secretaryAccessService) : Controller
+    ISecretaryAccessService secretaryAccessService,
+    IUserDisplayQueries userDisplayQueries,
+    IDepartmentContext departmentContext,
+    IApplicationDbContext dbContext) : Controller
 {
     [HttpPost]
     [ValidateAntiForgeryToken]
@@ -56,6 +62,21 @@ public sealed class AdminPreviewController(
 
         UserKind userKind = normalizedMode == AdminPreviewMode.Student ? UserKind.Student : UserKind.Employee;
         IReadOnlyList<AdminPreviewUserOption> users = await userPickerService.GetUsersAsync(userKind, cancellationToken);
+
+        if (normalizedMode == AdminPreviewMode.Secretary)
+        {
+            users = users
+                .Where(user => user.Subtitle is not null
+                               && user.Subtitle.Contains("Секретар", StringComparison.Ordinal))
+                .ToList();
+        }
+        else if (normalizedMode == AdminPreviewMode.Employee)
+        {
+            users = users
+                .Where(user => user.Subtitle is null
+                               || !user.Subtitle.Contains("Секретар", StringComparison.Ordinal))
+                .ToList();
+        }
 
         AdminPreviewSelectUserViewModel model = new()
         {
@@ -98,6 +119,46 @@ public sealed class AdminPreviewController(
             return RedirectToAction(nameof(SelectUser), new { mode, returnUrl });
         }
 
+        Guid? scopedDepartmentId = departmentContext.CurrentDepartmentId;
+        if (scopedDepartmentId is not Guid departmentId)
+        {
+            TempData["Error"] = "Оберіть кафедру перед impersonation.";
+            return RedirectToAction(nameof(SelectUser), new { mode, returnUrl });
+        }
+
+        if (expectedKind == UserKind.Employee
+            && !await userDisplayQueries.IsActiveDepartmentEmployeeAsync(userId, departmentId, cancellationToken))
+        {
+            TempData["Error"] = "Обрано викладача з іншої кафедри.";
+            return RedirectToAction(nameof(SelectUser), new { mode, returnUrl });
+        }
+
+        if (expectedKind == UserKind.Student
+            && !await dbContext.Users.AsNoTracking().AnyAsync(
+                item => item.Id == userId
+                        && item.UserKind == UserKind.Student
+                        && item.DefenceSession != null
+                        && item.DefenceSession.DepartmentId == departmentId,
+                cancellationToken))
+        {
+            TempData["Error"] = "Обрано студента з іншої кафедри.";
+            return RedirectToAction(nameof(SelectUser), new { mode, returnUrl });
+        }
+
+        if (mode == AdminPreviewMode.Secretary
+            && !await secretaryAccessService.IsSecretaryAsync(userId, cancellationToken))
+        {
+            TempData["Error"] = "Обрано користувача без ролі секретаря для цього режиму перегляду.";
+            return RedirectToAction(nameof(SelectUser), new { mode, returnUrl });
+        }
+
+        if (mode == AdminPreviewMode.Employee
+            && await secretaryAccessService.IsSecretaryAsync(userId, cancellationToken))
+        {
+            TempData["Error"] = "Обрано секретаря для режиму перегляду викладача.";
+            return RedirectToAction(nameof(SelectUser), new { mode, returnUrl });
+        }
+
         adminPreviewService.SetImpersonatedUserId(HttpContext, userId);
         return await RedirectToLocalAsync(ResolveReturnUrl(returnUrl, mode), mode, cancellationToken);
     }
@@ -125,16 +186,18 @@ public sealed class AdminPreviewController(
         }
 
         AdminPreviewMode effectiveMode = mode ?? adminPreviewService.GetMode(HttpContext);
-        if (AdminPreviewModeRules.IsEmployeeSurface(effectiveMode)
-            && adminPreviewService.GetImpersonatedUserId(HttpContext) is Guid employeeId
-            && await secretaryAccessService.IsSecretaryAsync(employeeId, cancellationToken))
+        if (AdminPreviewModeRules.IsSecretaryPreviewMode(effectiveMode)
+            && adminPreviewService.GetImpersonatedUserId(HttpContext) is Guid secretaryId
+            && await secretaryAccessService.IsSecretaryAsync(secretaryId, cancellationToken))
         {
             return RedirectToAction("Index", "Dashboard", new { area = "Secretary" });
         }
 
         return AdminPreviewModeRules.Normalize(effectiveMode) switch
         {
+            AdminPreviewMode.SuperAdmin => RedirectToAction("Index", "Home", new { area = "SuperAdmin" }),
             AdminPreviewMode.Student => RedirectToAction("Index", "Diploma", new { area = "Student" }),
+            AdminPreviewMode.Secretary => RedirectToAction("Index", "Dashboard", new { area = "Secretary" }),
             AdminPreviewMode.Employee => RedirectToAction("Index", "Home", new { area = "Employee" }),
             _ => RedirectToAction("Index", "Home", new { area = "Admin" }),
         };

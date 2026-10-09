@@ -1,8 +1,9 @@
 using System.Net;
+
 using DiplomaManagementSystem.Application.Secretary.Contracts;
 using DiplomaManagementSystem.Application.Secretary.Dtos;
-using DiplomaManagementSystem.Domain.Enums;
 using DiplomaManagementSystem.Integration.Tests.Support;
+
 using Microsoft.Extensions.DependencyInjection;
 
 namespace DiplomaManagementSystem.Integration.Tests.Web;
@@ -34,7 +35,6 @@ public sealed class SecretaryAdmitEndpointTests(PostgreSqlFixture fixture)
         {
             ["__RequestVerificationToken"] = token,
             ["DiplomaId"] = scenario.DiplomaId.ToString(),
-            ["DefenceDate"] = "2026-06-20",
         });
 
         HttpResponseMessage postResponse = await client.PostAsync("/Secretary/Diplomas/Admit", form);
@@ -52,6 +52,6 @@ public sealed class SecretaryAdmitEndpointTests(PostgreSqlFixture fixture)
 
         Assert.NotNull(details);
         IntegrationScenarioAssertions.AssertAdmitted(details);
-        Assert.Equal(new DateOnly(2026, 6, 20), details.State.DefenceDate);
+        Assert.Null(details.State.DefenceDate);
     }
 }

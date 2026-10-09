@@ -5,6 +5,7 @@ using DiplomaManagementSystem.Application.Secretary.Dtos;
 using DiplomaManagementSystem.Application.Student.Contracts;
 using DiplomaManagementSystem.Application.Student.Dtos;
 using DiplomaManagementSystem.Domain.Enums;
+
 using Microsoft.Extensions.DependencyInjection;
 
 namespace DiplomaManagementSystem.Integration.Tests.Support;
@@ -69,6 +70,19 @@ internal static class WorkflowScenarioRunner
             cancellationToken);
     }
 
+    public static async Task AssignReviewerAsync(
+        IServiceProvider services,
+        IntegrationScenario scenario,
+        CancellationToken cancellationToken = default)
+    {
+        ISecretaryDiplomaActionService secretaryActions = services.GetRequiredService<ISecretaryDiplomaActionService>();
+        await secretaryActions.AssignReviewerAsync(
+            scenario.SecretaryId,
+            scenario.SessionId,
+            new AssignReviewerDto(scenario.DiplomaId, scenario.ReviewerId),
+            cancellationToken);
+    }
+
     public static async Task UploadStudentWorkAsync(
         IServiceProvider services,
         IntegrationScenario scenario,
@@ -82,12 +96,21 @@ internal static class WorkflowScenarioRunner
             cancellationToken);
     }
 
-    public static async Task RunUpToSupervisorFeedbackStepAsync(
+    public static async Task RunUpToReviewerAssignedAsync(
         IServiceProvider services,
         IntegrationScenario scenario,
         CancellationToken cancellationToken = default)
     {
         await RunTopicApprovalAsync(services, scenario, cancellationToken);
+        await AssignReviewerAsync(services, scenario, cancellationToken);
+    }
+
+    public static async Task RunUpToSupervisorFeedbackStepAsync(
+        IServiceProvider services,
+        IntegrationScenario scenario,
+        CancellationToken cancellationToken = default)
+    {
+        await RunUpToReviewerAssignedAsync(services, scenario, cancellationToken);
         await UploadStudentWorkAsync(services, scenario, cancellationToken);
 
         IStudentDiplomaService studentService = services.GetRequiredService<IStudentDiplomaService>();
@@ -106,7 +129,20 @@ internal static class WorkflowScenarioRunner
         await secretaryActions.AdmitAsync(
             scenario.SecretaryId,
             scenario.SessionId,
-            new AdmitDiplomaDto(scenario.DiplomaId, new DateOnly(2026, 6, 20)),
+            new AdmitDiplomaDto(scenario.DiplomaId),
+            cancellationToken);
+
+        ISessionSetupService sessionSetup = services.GetRequiredService<ISessionSetupService>();
+        DateOnly defenceDate = new(2026, 6, 20);
+        await sessionSetup.SaveDefenceDatesAsync(
+            scenario.SessionId,
+            new SaveDefenceDatesDto([defenceDate]),
+            cancellationToken);
+
+        await secretaryActions.ConfirmDefenceDateAsync(
+            scenario.SecretaryId,
+            scenario.SessionId,
+            new ConfirmDefenceDateDto(scenario.DiplomaId, defenceDate),
             cancellationToken);
     }
 
@@ -116,7 +152,6 @@ internal static class WorkflowScenarioRunner
         CancellationToken cancellationToken = default)
     {
         IAdmissionReviewService admissionReviewService = services.GetRequiredService<IAdmissionReviewService>();
-        ISecretaryDiplomaActionService secretaryActions = services.GetRequiredService<ISecretaryDiplomaActionService>();
 
         await admissionReviewService.CompleteSupervisorFeedbackAsync(
             scenario.SupervisorId,
@@ -133,12 +168,6 @@ internal static class WorkflowScenarioRunner
             scenario.AntiPlagiarismId,
             new CompleteCheckpointDto(scenario.DiplomaId, CheckpointOutcome.Approved, null),
             IntegrationTestDocuments.CreatePdf("anti-plagiarism.pdf"),
-            cancellationToken);
-
-        await secretaryActions.AssignReviewerAsync(
-            scenario.SecretaryId,
-            scenario.SessionId,
-            new AssignReviewerDto(scenario.DiplomaId, scenario.ReviewerId),
             cancellationToken);
 
         await admissionReviewService.CompleteExternalReviewAsync(
@@ -184,19 +213,15 @@ internal static class WorkflowScenarioRunner
             cancellationToken);
     }
 
+    /// <summary>
+    /// Stops after topic approval so the secretary can assign a reviewer.
+    /// </summary>
     public static async Task RunUpToReviewerAssignmentStepAsync(
         IServiceProvider services,
         IntegrationScenario scenario,
         CancellationToken cancellationToken = default)
     {
-        await RunUpToAntiPlagiarismStepAsync(services, scenario, cancellationToken);
-
-        IAdmissionReviewService admissionReviewService = services.GetRequiredService<IAdmissionReviewService>();
-        await admissionReviewService.CompleteAntiPlagiarismAsync(
-            scenario.AntiPlagiarismId,
-            new CompleteCheckpointDto(scenario.DiplomaId, CheckpointOutcome.Approved, null),
-            IntegrationTestDocuments.CreatePdf("anti-plagiarism.pdf"),
-            cancellationToken);
+        await RunTopicApprovalAsync(services, scenario, cancellationToken);
     }
 
     public static async Task RunUpToExternalReviewStepAsync(
@@ -204,26 +229,14 @@ internal static class WorkflowScenarioRunner
         IntegrationScenario scenario,
         CancellationToken cancellationToken = default)
     {
-        ISecretaryDiplomaActionService secretaryActions = services.GetRequiredService<ISecretaryDiplomaActionService>();
         IAdmissionReviewService admissionReviewService = services.GetRequiredService<IAdmissionReviewService>();
 
-        await RunUpToFormattingReviewStepAsync(services, scenario, cancellationToken);
-
-        await admissionReviewService.CompleteFormattingReviewAsync(
-            scenario.FormattingId,
-            new CompleteCheckpointDto(scenario.DiplomaId, CheckpointOutcome.Approved, null),
-            cancellationToken);
+        await RunUpToAntiPlagiarismStepAsync(services, scenario, cancellationToken);
 
         await admissionReviewService.CompleteAntiPlagiarismAsync(
             scenario.AntiPlagiarismId,
             new CompleteCheckpointDto(scenario.DiplomaId, CheckpointOutcome.Approved, null),
             IntegrationTestDocuments.CreatePdf("anti-plagiarism.pdf"),
-            cancellationToken);
-
-        await secretaryActions.AssignReviewerAsync(
-            scenario.SecretaryId,
-            scenario.SessionId,
-            new AssignReviewerDto(scenario.DiplomaId, scenario.ReviewerId),
             cancellationToken);
     }
 

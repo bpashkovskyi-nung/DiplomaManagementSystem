@@ -4,6 +4,7 @@ using DiplomaManagementSystem.Application.Secretary.Dtos;
 using DiplomaManagementSystem.Application.Student.Contracts;
 using DiplomaManagementSystem.Domain.Exceptions;
 using DiplomaManagementSystem.Integration.Tests.Support;
+
 using Microsoft.Extensions.DependencyInjection;
 
 namespace DiplomaManagementSystem.Integration.Tests.Scenarios;

@@ -1,5 +1,3 @@
-using DiplomaManagementSystem.Application;
-
 namespace DiplomaManagementSystem.Application.Tests;
 
 public sealed class DiplomaWorkflowStateTests

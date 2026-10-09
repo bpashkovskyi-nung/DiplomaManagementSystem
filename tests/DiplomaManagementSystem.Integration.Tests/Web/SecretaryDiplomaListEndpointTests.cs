@@ -1,5 +1,4 @@
 using System.Net;
-using DiplomaManagementSystem.Integration.Tests.Web;
 
 namespace DiplomaManagementSystem.Integration.Tests.Web;
 

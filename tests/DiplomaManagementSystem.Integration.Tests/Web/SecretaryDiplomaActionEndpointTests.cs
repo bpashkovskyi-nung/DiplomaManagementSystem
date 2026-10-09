@@ -1,10 +1,12 @@
 using System.Net;
+
 using DiplomaManagementSystem.Application.Identity;
 using DiplomaManagementSystem.Application.Identity.Contracts;
 using DiplomaManagementSystem.Application.Secretary.Contracts;
 using DiplomaManagementSystem.Application.Secretary.Dtos;
 using DiplomaManagementSystem.Domain.Enums;
 using DiplomaManagementSystem.Integration.Tests.Support;
+
 using Microsoft.Extensions.DependencyInjection;
 
 namespace DiplomaManagementSystem.Integration.Tests.Web;
@@ -53,7 +55,9 @@ public sealed class SecretaryDiplomaActionEndpointTests(PostgreSqlFixture fixtur
 
         Assert.NotNull(details);
         Assert.Equal(scenario.ReviewerId, details.Assignments.ReviewerId);
-        Assert.Equal(AdmissionStep.ExternalReview, details.State.CurrentAdmissionStep);
+        Assert.Equal(DiplomaLifecycleStatus.WorkInProgressByStudent, details.State.LifecycleStatus);
+        Assert.Null(details.State.CurrentAdmissionStep);
+        Assert.Equal(ReviewAssignmentStatus.Assigned, details.Assignments.ReviewAssignmentStatus);
     }
 
     [SkippableFact]
@@ -110,6 +114,10 @@ public sealed class SecretaryDiplomaActionEndpointTests(PostgreSqlFixture fixtur
         ApplicationUser replacementSupervisor = await userProvisioningService.CreateEmployeeAsync(
             "Supervisor HTTP",
             $"supervisor.http.{suffix}@test.local");
+        await IntegrationDepartmentHelper.AssignEmployeeAsync(
+            setupScope.ServiceProvider,
+            replacementSupervisor.Id,
+            replacementSupervisor.FullName);
 
         await using DiplomaManagementSystemWebApplicationFactory factory = fixture.CreateWebFactory();
         HttpClient client = IntegrationTestWebClient.CreateClient(factory, scenario.SecretaryId);

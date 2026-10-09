@@ -1,8 +1,10 @@
 using System.Net;
+
 using DiplomaManagementSystem.Application.Documents.Contracts;
 using DiplomaManagementSystem.Application.Documents.Dtos;
 using DiplomaManagementSystem.Infrastructure.Storage;
 using DiplomaManagementSystem.Integration.Tests.Support;
+
 using Microsoft.Extensions.DependencyInjection;
 
 namespace DiplomaManagementSystem.Integration.Tests.Web;
@@ -18,7 +20,7 @@ public sealed class DocumentDownloadEndpointTests(PostgreSqlFixture fixture)
             .SeedFullScenarioAsync();
 
         await using AsyncServiceScope setupScope = fixture.CreateProvider().CreateAsyncScope();
-        await WorkflowScenarioRunner.RunTopicApprovalAsync(setupScope.ServiceProvider, scenario);
+        await WorkflowScenarioRunner.RunUpToReviewerAssignedAsync(setupScope.ServiceProvider, scenario);
         await WorkflowScenarioRunner.UploadStudentWorkAsync(setupScope.ServiceProvider, scenario);
 
         IDiplomaDocumentService documentService = setupScope.ServiceProvider.GetRequiredService<IDiplomaDocumentService>();
@@ -51,7 +53,7 @@ public sealed class DocumentDownloadEndpointTests(PostgreSqlFixture fixture)
             .SeedFullScenarioAsync();
 
         await using AsyncServiceScope setupScope = fixture.CreateProvider().CreateAsyncScope();
-        await WorkflowScenarioRunner.RunTopicApprovalAsync(setupScope.ServiceProvider, scenario);
+        await WorkflowScenarioRunner.RunUpToReviewerAssignedAsync(setupScope.ServiceProvider, scenario);
         await WorkflowScenarioRunner.UploadStudentWorkAsync(setupScope.ServiceProvider, scenario);
 
         IDiplomaDocumentService documentService = setupScope.ServiceProvider.GetRequiredService<IDiplomaDocumentService>();

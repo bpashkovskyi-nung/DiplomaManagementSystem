@@ -311,7 +311,8 @@ services:
   nginx:     # reverse proxy
 ```
 
-Health: `/health` (DB).  
+Health: `/healthchecks` (all registered health checks, including the database).
+
 Backups: `pg_dump` + Drive metadata у БД.
 
 ---

@@ -4,9 +4,12 @@
 
 | Документ | Опис |
 |----------|------|
+| [coding-style.md](coding-style.md) | Канонічний coding style, analyzers, coverage ratchet |
 | [features/feature1.md](features/feature1.md) | Feature 1: список студентів рецензента |
 | [features/feature2.md](features/feature2.md) | Feature 2: ліміти керівника/рецензента в сесії |
 | [features/feature3.md](features/feature3.md) | Feature 3: генерація документів (MVP — наказ на теми, DOCX) |
+| [features/feature6.md](features/feature6.md) | Feature 6: призначення рецензента (після теми, можна пізніше) |
+| [features/feature8.md](features/feature8.md) | Feature 8: майлстоуни прогресу та дати захисту |
 | [Implementation plan](implementation-plan.md) | Детальний план розробки ASP.NET Core MVC + PostgreSQL |
 | [Словник імен (код ↔ UI)](naming-glossary.md) | Англійські імена в коді та українські підписи в UI |
 | [Routing table](routing-table.md) | Маршрути Controller/Action по Areas |

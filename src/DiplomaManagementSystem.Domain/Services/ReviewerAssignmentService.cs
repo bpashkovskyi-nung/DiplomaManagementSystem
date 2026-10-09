@@ -35,7 +35,6 @@ public sealed class ReviewerAssignmentService
         }
 
         diploma.ReviewerId = reviewerId;
-
         diploma.ReviewAssignmentStatus = ReviewAssignmentStatus.Assigned;
 
         if (AdmissionStepSequence.IsReadyForReviewerAssignment(attempts))

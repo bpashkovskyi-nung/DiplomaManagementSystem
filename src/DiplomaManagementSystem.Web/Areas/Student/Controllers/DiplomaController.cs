@@ -1,6 +1,9 @@
 using System.Security.Claims;
+
 using DiplomaManagementSystem.Application;
 using DiplomaManagementSystem.Application.Constants;
+using DiplomaManagementSystem.Application.Employee.Contracts;
+using DiplomaManagementSystem.Application.Employee.Dtos;
 using DiplomaManagementSystem.Application.Storage;
 using DiplomaManagementSystem.Application.Student.Contracts;
 using DiplomaManagementSystem.Application.Student.Dtos;
@@ -8,7 +11,9 @@ using DiplomaManagementSystem.Domain.Exceptions;
 using DiplomaManagementSystem.Web.Areas.Student.Models;
 using DiplomaManagementSystem.Web.Mapping;
 using DiplomaManagementSystem.Web.Storage;
+
 using FluentValidation;
+
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -18,8 +23,10 @@ namespace DiplomaManagementSystem.Web.Areas.Student.Controllers;
 [Authorize(Roles = RoleNames.Student)]
 public sealed class DiplomaController(
     IStudentDiplomaService studentDiplomaService,
+    IDefenceDateRequestService defenceDateRequestService,
     IValidator<SelectSupervisorDto> selectSupervisorValidator,
-    IValidator<SubmitTopicDto> submitTopicValidator) : Controller
+    IValidator<SubmitTopicDto> submitTopicValidator,
+    IValidator<RequestDefenceDateDto> defenceDateRequestValidator) : Controller
 {
     [HttpGet]
     public async Task<IActionResult> Index(CancellationToken cancellationToken)
@@ -27,7 +34,36 @@ public sealed class DiplomaController(
         Guid studentId = GetUserId();
         MyDiplomaDto dto = await studentDiplomaService.GetMyDiplomaAsync(studentId, cancellationToken);
         MyDiplomaViewModel model = StudentDiplomaViewModelMapper.Map(dto);
+        model.DefenceDateRequest =
+            await defenceDateRequestService.GetFormForStudentAsync(studentId, cancellationToken);
         return View(model);
+    }
+
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> RequestDefenceDate(
+        RequestDefenceDateDto request,
+        CancellationToken cancellationToken)
+    {
+        FluentValidation.Results.ValidationResult validation =
+            await defenceDateRequestValidator.ValidateAsync(request, cancellationToken);
+        if (!validation.IsValid)
+        {
+            TempData["Error"] = string.Join(" ", validation.Errors.Select(error => error.ErrorMessage));
+            return RedirectToAction(nameof(Index));
+        }
+
+        try
+        {
+            await defenceDateRequestService.RequestAsStudentAsync(GetUserId(), request, cancellationToken);
+            TempData["Success"] = "Побажання щодо дати захисту надіслано.";
+        }
+        catch (DomainException ex)
+        {
+            TempData["Error"] = ex.Message;
+        }
+
+        return RedirectToAction(nameof(Index));
     }
 
     [HttpPost]

@@ -1,0 +1,29 @@
+@model SuperAdminHomeViewModel
+@{
+    ViewData["Title"] = SuperAdminPageTitles.Home;
+}
+
+<h1 class="mb-4">@ViewData["Title"]</h1>
+
+<partial name="_TempDataAlerts"/>
+
+<div class="row g-3">
+    <div class="col-md-6">
+        <div class="card h-100">
+            <div class="card-body">
+                <h5 class="card-title">@SuperAdminPageTitles.Faculties</h5>
+                <p class="card-text text-muted small">@Model.FacultyCount факультетів</p>
+                <a class="btn btn-primary btn-sm" asp-controller="Faculties" asp-action="Index">Керувати</a>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-6">
+        <div class="card h-100">
+            <div class="card-body">
+                <h5 class="card-title">@SuperAdminPageTitles.OrganizationImport</h5>
+                <p class="card-text text-muted small">JSON: факультети → кафедри</p>
+                <a class="btn btn-outline-primary btn-sm" asp-controller="OrganizationImport" asp-action="Index">Імпорт</a>
+            </div>
+        </div>
+    </div>
+</div>

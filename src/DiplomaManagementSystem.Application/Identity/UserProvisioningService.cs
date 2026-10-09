@@ -4,6 +4,7 @@ using DiplomaManagementSystem.Application.Persistence.Contracts;
 using DiplomaManagementSystem.Domain.Entities;
 using DiplomaManagementSystem.Domain.Enums;
 using DiplomaManagementSystem.Domain.Exceptions;
+
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 
@@ -45,7 +46,10 @@ internal sealed class UserProvisioningService(
         string name,
         CancellationToken cancellationToken = default)
     {
-        await EnsureSessionExistsAsync(defenceSessionId, cancellationToken);
+        DefenceSession session = await dbContext.DefenceSessions
+            .AsNoTracking()
+            .FirstOrDefaultAsync(defenceSession => defenceSession.Id == defenceSessionId, cancellationToken)
+            ?? throw new DomainException("Defence session not found.");
 
         StudyGroup? group = dbContext.StudyGroups.Local
             .FirstOrDefault(
@@ -64,11 +68,26 @@ internal sealed class UserProvisioningService(
             return group;
         }
 
+        Guid specialtyId = await dbContext.Specialties
+            .AsNoTracking()
+            .Where(specialty => specialty.DepartmentId == session.DepartmentId && specialty.IsActive)
+            .OrderBy(specialty => specialty.CreatedAt)
+            .ThenBy(specialty => specialty.Id)
+            .Select(specialty => specialty.Id)
+            .FirstOrDefaultAsync(cancellationToken);
+
+        if (specialtyId == Guid.Empty)
+        {
+            throw new DomainException("Department has no active specialties. Add a specialty before importing students.");
+        }
+
         group = new StudyGroup
         {
             Id = Guid.NewGuid(),
             Name = name,
             DefenceSessionId = defenceSessionId,
+            SpecialtyId = specialtyId,
+            StudyForm = "очної форми навчання",
             CreatedAt = DateTimeOffset.UtcNow,
         };
 
@@ -131,17 +150,6 @@ internal sealed class UserProvisioningService(
         if (group.DefenceSessionId != defenceSessionId)
         {
             throw new DomainException("Study group does not belong to the selected defence session.");
-        }
-    }
-
-    private async Task EnsureSessionExistsAsync(Guid defenceSessionId, CancellationToken cancellationToken)
-    {
-        bool exists = await dbContext.DefenceSessions
-            .AnyAsync(session => session.Id == defenceSessionId, cancellationToken);
-
-        if (!exists)
-        {
-            throw new DomainException("Defence session not found.");
         }
     }
 

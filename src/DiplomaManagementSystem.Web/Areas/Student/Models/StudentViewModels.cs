@@ -1,3 +1,4 @@
+using DiplomaManagementSystem.Application.Employee.Dtos;
 using DiplomaManagementSystem.Domain.Enums;
 using DiplomaManagementSystem.Web.Models.Shared;
 
@@ -72,6 +73,8 @@ public sealed class MyDiplomaViewModel
     public IReadOnlyList<SelectListItem> SupervisorPool { get; set; } = [];
 
     public Guid? SelectedSupervisorId { get; set; }
+
+    public DefenceDateRequestFormDto? DefenceDateRequest { get; set; }
 }
 
 public sealed class SelectSupervisorViewModel

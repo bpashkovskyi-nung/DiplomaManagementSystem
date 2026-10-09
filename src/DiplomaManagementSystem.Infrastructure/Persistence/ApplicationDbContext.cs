@@ -1,6 +1,7 @@
 using DiplomaManagementSystem.Application.Identity;
 using DiplomaManagementSystem.Application.Persistence.Contracts;
 using DiplomaManagementSystem.Domain.Entities;
+
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
@@ -11,13 +12,30 @@ namespace DiplomaManagementSystem.Infrastructure.Persistence;
 public sealed partial class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options)
     : IdentityDbContext<ApplicationUser, IdentityRole<Guid>, Guid>(options), IApplicationDbContext
 {
+    public DbSet<Faculty> Faculties => Set<Faculty>();
+
+    public DbSet<Department> Departments => Set<Department>();
+
+    public DbSet<Specialty> Specialties => Set<Specialty>();
+
+    public DbSet<DepartmentAdminAssignment> DepartmentAdminAssignments => Set<DepartmentAdminAssignment>();
+
+    public DbSet<DepartmentEmployee> DepartmentEmployees => Set<DepartmentEmployee>();
+
     public DbSet<StudyGroup> StudyGroups => Set<StudyGroup>();
 
     public DbSet<DefenceSession> DefenceSessions => Set<DefenceSession>();
 
     public DbSet<AnnualRoleAssignment> AnnualRoleAssignments => Set<AnnualRoleAssignment>();
 
+    public DbSet<ExaminationCommissionParticipant> ExaminationCommissionParticipants =>
+        Set<ExaminationCommissionParticipant>();
+
     public DbSet<EmployeeSessionWorkloadLimit> EmployeeSessionWorkloadLimits => Set<EmployeeSessionWorkloadLimit>();
+
+    public DbSet<DefenceSessionMilestone> DefenceSessionMilestones => Set<DefenceSessionMilestone>();
+
+    public DbSet<DefenceDateOption> DefenceDateOptions => Set<DefenceDateOption>();
 
     public DbSet<Diploma> Diplomas => Set<Diploma>();
 
@@ -28,6 +46,10 @@ public sealed partial class ApplicationDbContext(DbContextOptions<ApplicationDbC
     public DbSet<DiplomaDocument> DiplomaDocuments => Set<DiplomaDocument>();
 
     public DbSet<DiplomaComment> DiplomaComments => Set<DiplomaComment>();
+
+    public DbSet<DiplomaMilestoneProgress> DiplomaMilestoneProgressEntries => Set<DiplomaMilestoneProgress>();
+
+    public DbSet<DefenceDatePreference> DefenceDatePreferences => Set<DefenceDatePreference>();
 
     public DbSet<AuditLog> AuditLogs => Set<AuditLog>();
 

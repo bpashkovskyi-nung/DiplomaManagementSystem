@@ -1,5 +1,6 @@
 using DiplomaManagementSystem.Domain.Entities;
 using DiplomaManagementSystem.Domain.Services;
+
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 
@@ -62,14 +63,14 @@ public sealed partial class ApplicationDbContext
 
     private IReadOnlyList<DiplomaTopicVersion> ResolveTopicVersionsForValidation(Guid diplomaId)
     {
-        List<DiplomaTopicVersion> trackedVersions = ChangeTracker.Entries<DiplomaTopicVersion>()
+        var trackedVersions = ChangeTracker.Entries<DiplomaTopicVersion>()
             .Where(entry => entry.Entity.DiplomaId == diplomaId && entry.State != EntityState.Deleted)
             .Select(entry => entry.Entity)
             .ToList();
 
-        HashSet<Guid> trackedVersionIds = trackedVersions.Select(version => version.Id).ToHashSet();
+        var trackedVersionIds = trackedVersions.Select(version => version.Id).ToHashSet();
 
-        List<DiplomaTopicVersion> persistedVersions = DiplomaTopicVersions
+        var persistedVersions = DiplomaTopicVersions
             .AsNoTracking()
             .Where(version => version.DiplomaId == diplomaId && !trackedVersionIds.Contains(version.Id))
             .ToList();

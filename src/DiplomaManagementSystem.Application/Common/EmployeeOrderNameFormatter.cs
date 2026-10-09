@@ -1,5 +1,4 @@
 using DiplomaManagementSystem.Application.Identity;
-using DiplomaManagementSystem.Domain.Enums;
 
 namespace DiplomaManagementSystem.Application.Common;
 
@@ -11,7 +10,7 @@ public static class EmployeeOrderNameFormatter
             ? AcademicNameFormatter.ToShortDisplayName(employee.FullName)
             : employee.ShortDisplayName.Trim();
 
-        if (employee.AcademicRank is not EmployeeAcademicRank rank)
+        if (employee.AcademicRank is not { } rank)
         {
             return shortName;
         }

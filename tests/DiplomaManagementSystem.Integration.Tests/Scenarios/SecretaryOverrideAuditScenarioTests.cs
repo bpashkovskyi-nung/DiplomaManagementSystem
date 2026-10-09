@@ -3,6 +3,7 @@ using DiplomaManagementSystem.Application.Identity.Contracts;
 using DiplomaManagementSystem.Application.Secretary.Contracts;
 using DiplomaManagementSystem.Application.Secretary.Dtos;
 using DiplomaManagementSystem.Integration.Tests.Support;
+
 using Microsoft.Extensions.DependencyInjection;
 
 namespace DiplomaManagementSystem.Integration.Tests.Scenarios;
@@ -27,6 +28,10 @@ public sealed class SecretaryOverrideAuditScenarioTests(PostgreSqlFixture fixtur
         ApplicationUser replacementSupervisor = await userProvisioningService.CreateEmployeeAsync(
             "Supervisor Two",
             $"supervisor2.{suffix}@test.local");
+        await IntegrationDepartmentHelper.AssignEmployeeAsync(
+            services,
+            replacementSupervisor.Id,
+            replacementSupervisor.FullName);
 
         ISecretaryDiplomaActionService secretaryActions = services.GetRequiredService<ISecretaryDiplomaActionService>();
         await secretaryActions.OverrideSupervisorAsync(

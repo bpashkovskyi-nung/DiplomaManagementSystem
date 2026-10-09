@@ -53,7 +53,7 @@
 | ID | Case | Input | Expected | Status | Test |
 |----|------|-------|----------|--------|------|
 | TC-DOM-SOP-001 | AllowsLifecycle before work in progress | `AwaitingSupervisor` | `true` | implemented | `AllowsLifecycle_BeforeWorkInProgress_ReturnsTrue` |
-| TC-DOM-SOP-002 | AllowsLifecycle after topic approved | `WorkInProgressByStudent` | `false` | implemented | `AllowsLifecycle_AfterTopicApproved_ReturnsFalse` |
+| TC-DOM-SOP-002 | AllowsLifecycle after work in progress | `WorkInProgressByStudent` | `false` | implemented | `AllowsLifecycle_AfterTopicApproved_ReturnsFalse` |
 | TC-DOM-SOP-003 | AllowsAdmission when not admitted | `NotAdmitted` | `true` | implemented | `AllowsAdmission_NotAdmitted_ReturnsTrue` |
 | TC-DOM-SOP-004 | AllowsAdmission when admitted | `Admitted` | `false` | implemented | `AllowsAdmission_Admitted_ReturnsFalse` |
 | TC-DOM-SOP-005 | EnsureCanOverride archived session | archived | `DomainException` session archived | implemented | `EnsureCanOverride_ArchivedSession_Throws` |
@@ -75,7 +75,7 @@
 | TC-DOM-DLS-001 | Admitted status wins | `AdmissionStatus=Admitted` | `Admitted` lifecycle | implemented | `Recalculate_Admitted_ReturnsAdmitted` |
 | TC-DOM-DLS-002 | Ready for admission | all checks pass | `ReadyForAdmission` | implemented | `Recalculate_ReadyForAdmission_ReturnsReady` |
 | TC-DOM-DLS-003 | Documents in progress | attempts exist | `DocumentsInProgress` | implemented | `Recalculate_WithAttempts_ReturnsDocumentsInProgress` |
-| TC-DOM-DLS-004 | Work in progress | approved topic, no attempts | `WorkInProgressByStudent` | implemented | `Recalculate_ApprovedTopic_ReturnsWorkInProgress` |
+| TC-DOM-DLS-004 | Topic approved without reviewer | approved topic, no reviewer | `TopicApproved` | implemented | `Recalculate_ApprovedTopicWithoutReviewer_ReturnsTopicApproved` |
 | TC-DOM-DLS-005 | Topic in review | pending topic | `TopicInReview` | implemented | `Recalculate_PendingTopic_ReturnsTopicInReview` |
 | TC-DOM-DLS-006 | Supervisor confirmed | confirmed, no topic | `SupervisorConfirmed` | implemented | `Recalculate_SupervisorConfirmed_ReturnsSupervisorConfirmed` |
 | TC-DOM-DLS-007 | Awaiting supervisor | default | `AwaitingSupervisor` | implemented | `Recalculate_Default_ReturnsAwaitingSupervisor` |
@@ -145,6 +145,17 @@
 | TC-APP-AUTH-034 | ApproveTopicAsDepartmentHead — head | has role | success | implemented | `DepartmentHeadTopicAction_WithRole_Succeeds` |
 | TC-APP-AUTH-035 | ApproveTopicAsDepartmentHead — no role | | NotDepartmentHead | implemented | `DepartmentHeadTopicAction_NoRole_Throws` |
 | TC-APP-AUTH-036 | RejectTopicAsDepartmentHead — via version | head on version | success | implemented | `RejectTopicAsDepartmentHead_OnVersion_Succeeds` |
+
+### 2.4.1 Examination commission roster
+
+| ID | Case | Input | Expected | Status | Test |
+|----|------|-------|----------|--------|------|
+| TC-APP-EK-001 | Save roster — internal chair + 3 members | valid | persisted snapshots | implemented | `ExaminationCommissionServiceTests` |
+| TC-APP-EK-002 | Save roster — fewer than 3 members | 2 members | validation/domain error | implemented | `ExaminationCommissionServiceTests` |
+| TC-APP-EK-003 | Save roster — internal without rank | rank null | domain error | implemented | `ExaminationCommissionServiceTests` |
+| TC-APP-EK-004 | Save roster — external requires name/position | blank | validation error | implemented | `SaveExaminationCommissionValidator` |
+| TC-APP-EK-005 | Snapshot stable after employee rename | rename user | roster FullName unchanged | implemented | `ExaminationCommissionServiceTests` |
+| TC-APP-EK-006 | HTTP SaveCommission persists roster | form post | reload shows names | implemented | `AdminAnnualRolesEndpointTests` |
 
 ### 2.5 Secretary
 

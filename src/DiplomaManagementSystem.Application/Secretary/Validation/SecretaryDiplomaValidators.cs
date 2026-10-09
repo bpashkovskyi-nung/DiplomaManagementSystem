@@ -19,6 +19,14 @@ public sealed class AdmitDiplomaValidator : AbstractValidator<AdmitDiplomaDto>
     public AdmitDiplomaValidator()
     {
         RuleFor(dto => dto.DiplomaId).NotEmpty();
+    }
+}
+
+public sealed class ConfirmDefenceDateValidator : AbstractValidator<ConfirmDefenceDateDto>
+{
+    public ConfirmDefenceDateValidator()
+    {
+        RuleFor(dto => dto.DiplomaId).NotEmpty();
         RuleFor(dto => dto.DefenceDate).NotEmpty();
     }
 }

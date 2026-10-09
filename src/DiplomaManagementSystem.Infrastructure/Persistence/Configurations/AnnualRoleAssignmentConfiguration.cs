@@ -1,5 +1,6 @@
 using DiplomaManagementSystem.Application.Identity;
 using DiplomaManagementSystem.Domain.Entities;
+
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 

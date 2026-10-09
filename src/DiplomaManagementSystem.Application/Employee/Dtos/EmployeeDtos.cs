@@ -1,7 +1,7 @@
-namespace DiplomaManagementSystem.Application.Employee.Dtos;
 
 using DiplomaManagementSystem.Application.Secretary.Dtos;
-using DiplomaManagementSystem.Domain.Enums;
+
+namespace DiplomaManagementSystem.Application.Employee.Dtos;
 
 public sealed record EmployeeHomeDto(IReadOnlyList<EmployeeRoleCardDto> Roles);
 

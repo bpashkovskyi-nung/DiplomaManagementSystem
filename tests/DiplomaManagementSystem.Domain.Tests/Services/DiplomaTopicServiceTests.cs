@@ -36,7 +36,7 @@ public sealed class DiplomaTopicServiceTests
     [Fact]
     public void CreateVersion_TrimsTitle()
     {
-        Guid diplomaId = Guid.NewGuid();
+        var diplomaId = Guid.NewGuid();
         DiplomaTopicVersion version = _service.CreateVersion(diplomaId, "  Тема роботи  ", 1);
 
         Assert.Equal("Тема роботи", version.Title);

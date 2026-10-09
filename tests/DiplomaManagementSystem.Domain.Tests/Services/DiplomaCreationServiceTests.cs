@@ -13,8 +13,8 @@ public sealed class DiplomaCreationServiceTests
     [Fact]
     public void CreateForStudents_NewStudent_CreatesDiploma()
     {
-        Guid sessionId = Guid.NewGuid();
-        Guid studentId = Guid.NewGuid();
+        var sessionId = Guid.NewGuid();
+        var studentId = Guid.NewGuid();
 
         IReadOnlyList<Diploma> diplomas = _service.CreateForStudents(
             [new DiplomaStudentCandidate(studentId, UserKind.Student)],
@@ -34,7 +34,7 @@ public sealed class DiplomaCreationServiceTests
     [Fact]
     public void CreateForStudents_ExistingStudent_Skips()
     {
-        Guid studentId = Guid.NewGuid();
+        var studentId = Guid.NewGuid();
 
         IReadOnlyList<Diploma> diplomas = _service.CreateForStudents(
             [new DiplomaStudentCandidate(studentId, UserKind.Student)],
@@ -61,7 +61,7 @@ public sealed class DiplomaCreationServiceTests
     [Fact]
     public void CreateForStudents_Multiple_CreatesAll()
     {
-        Guid sessionId = Guid.NewGuid();
+        var sessionId = Guid.NewGuid();
 
         IReadOnlyList<Diploma> diplomas = _service.CreateForStudents(
         [

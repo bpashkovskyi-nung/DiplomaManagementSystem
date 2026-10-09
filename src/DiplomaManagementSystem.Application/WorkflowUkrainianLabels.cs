@@ -58,4 +58,11 @@ public static class WorkflowUkrainianLabels
         AnnualRoleType.FormattingReviewer => "Нормоконтролер",
         _ => roleType.ToString(),
     };
+
+    public static string FormatExaminationCommissionRole(ExaminationCommissionRole role) => role switch
+    {
+        ExaminationCommissionRole.Chair => "Голова ЕК",
+        ExaminationCommissionRole.Member => "Член ЕК",
+        _ => role.ToString(),
+    };
 }

@@ -23,7 +23,7 @@ public sealed class DiplomaLifecycleServiceTests
     [Fact]
     public void Recalculate_ReadyForAdmission_ReturnsReady()
     {
-        Guid diplomaId = Guid.NewGuid();
+        var diplomaId = Guid.NewGuid();
         DateTimeOffset now = DateTimeOffset.UtcNow;
         DiplomaTopicVersion topic = new()
         {
@@ -58,7 +58,7 @@ public sealed class DiplomaLifecycleServiceTests
     [Fact]
     public void Recalculate_WithAttempts_ReturnsDocumentsInProgress()
     {
-        Guid diplomaId = Guid.NewGuid();
+        var diplomaId = Guid.NewGuid();
         Diploma diploma = new()
         {
             Id = diplomaId,
@@ -77,25 +77,39 @@ public sealed class DiplomaLifecycleServiceTests
 
     // TC-DOM-DLS-004
     [Fact]
-    public void Recalculate_ApprovedTopic_ReturnsWorkInProgress()
+    public void Recalculate_ApprovedTopicWithoutReviewer_ReturnsWorkInProgress()
     {
-        Guid diplomaId = Guid.NewGuid();
-        Guid supervisorId = Guid.NewGuid();
-        DiplomaTopicVersion topic = new()
-        {
-            DiplomaId = diplomaId,
-            Status = TopicVersionStatus.Approved,
-            VersionNumber = 1,
-            SubmittedAt = DateTimeOffset.UtcNow,
-            SupervisorReviewedById = supervisorId,
-            SupervisorReviewedAt = DateTimeOffset.UtcNow,
-        };
+        var diplomaId = Guid.NewGuid();
+        var supervisorId = Guid.NewGuid();
+        DiplomaTopicVersion topic = CreateApprovedTopic(diplomaId, supervisorId);
 
         Diploma diploma = new()
         {
             Id = diplomaId,
             SupervisorId = supervisorId,
             SupervisorAssignmentStatus = SupervisorAssignmentStatus.Confirmed,
+            ReviewAssignmentStatus = ReviewAssignmentStatus.NotAssigned,
+        };
+
+        DiplomaLifecycleStatus status = _service.Recalculate(diploma, topic, attempts: []);
+
+        Assert.Equal(DiplomaLifecycleStatus.WorkInProgressByStudent, status);
+    }
+
+    [Fact]
+    public void Recalculate_ApprovedTopicWithReviewer_ReturnsWorkInProgress()
+    {
+        var diplomaId = Guid.NewGuid();
+        var supervisorId = Guid.NewGuid();
+        DiplomaTopicVersion topic = CreateApprovedTopic(diplomaId, supervisorId);
+
+        Diploma diploma = new()
+        {
+            Id = diplomaId,
+            SupervisorId = supervisorId,
+            SupervisorAssignmentStatus = SupervisorAssignmentStatus.Confirmed,
+            ReviewerId = Guid.NewGuid(),
+            ReviewAssignmentStatus = ReviewAssignmentStatus.Assigned,
         };
 
         DiplomaLifecycleStatus status = _service.Recalculate(diploma, topic, attempts: []);
@@ -107,7 +121,7 @@ public sealed class DiplomaLifecycleServiceTests
     [Fact]
     public void Recalculate_PendingTopic_ReturnsTopicInReview()
     {
-        Guid diplomaId = Guid.NewGuid();
+        var diplomaId = Guid.NewGuid();
         DiplomaTopicVersion topic = new()
         {
             DiplomaId = diplomaId,
@@ -176,6 +190,41 @@ public sealed class DiplomaLifecycleServiceTests
 
         Assert.False(canStart);
     }
+
+    [Fact]
+    public void CanStartAdmissionReview_TopicApproved_ReturnsFalse()
+    {
+        bool canStart = _service.CanStartAdmissionReview(
+            DiplomaLifecycleStatus.TopicApproved,
+            latestTopicVersion: new DiplomaTopicVersion { Status = TopicVersionStatus.Approved },
+            attemptCount: 0,
+            currentAdmissionStep: null);
+
+        Assert.False(canStart);
+    }
+
+    [Fact]
+    public void CanStartAdmissionReview_WorkInProgress_ReturnsTrue()
+    {
+        bool canStart = _service.CanStartAdmissionReview(
+            DiplomaLifecycleStatus.WorkInProgressByStudent,
+            latestTopicVersion: new DiplomaTopicVersion { Status = TopicVersionStatus.Approved },
+            attemptCount: 0,
+            currentAdmissionStep: null);
+
+        Assert.True(canStart);
+    }
+
+    private static DiplomaTopicVersion CreateApprovedTopic(Guid diplomaId, Guid supervisorId) =>
+        new()
+        {
+            DiplomaId = diplomaId,
+            Status = TopicVersionStatus.Approved,
+            VersionNumber = 1,
+            SubmittedAt = DateTimeOffset.UtcNow,
+            SupervisorReviewedById = supervisorId,
+            SupervisorReviewedAt = DateTimeOffset.UtcNow,
+        };
 
     private static DiplomaAdmissionStepAttempt CreatePassingAttempt(Guid diplomaId, AdmissionStep step) =>
         new()

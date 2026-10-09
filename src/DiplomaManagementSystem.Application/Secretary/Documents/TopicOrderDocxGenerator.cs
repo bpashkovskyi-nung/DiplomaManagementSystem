@@ -1,9 +1,12 @@
 using System.Reflection;
+
+using DiplomaManagementSystem.Application.Options;
+using DiplomaManagementSystem.Application.Secretary.Documents.Dtos;
+
 using DocumentFormat.OpenXml;
 using DocumentFormat.OpenXml.Packaging;
 using DocumentFormat.OpenXml.Wordprocessing;
-using DiplomaManagementSystem.Application.Options;
-using DiplomaManagementSystem.Application.Secretary.Documents.Dtos;
+
 using Microsoft.Extensions.Options;
 
 namespace DiplomaManagementSystem.Application.Secretary.Documents;
@@ -25,14 +28,14 @@ internal sealed class TopicOrderDocxGenerator(IOptions<OrganizationOptions> orga
 
         outputStream.Position = 0;
 
-        using (WordprocessingDocument wordDocument = WordprocessingDocument.Open(outputStream, true))
+        using (var wordDocument = WordprocessingDocument.Open(outputStream, true))
         {
             Body body = wordDocument.MainDocumentPart!.Document!.Body!;
             FillHeader(body, document);
             FillStudentTable(body, document.Students);
             FillReviewers(body, document.Reviewers);
             FillFormattingReviewer(body, document.FormattingReviewerLine);
-            FillDepartmentHead(body, document.DepartmentHeadLine);
+            FillDepartmentHead(body, document.DepartmentHeadLine, document.DepartmentInfo.DepartmentName);
             FillRector(body);
             wordDocument.MainDocumentPart.Document.Save();
         }
@@ -59,7 +62,7 @@ internal sealed class TopicOrderDocxGenerator(IOptions<OrganizationOptions> orga
             ? body.Elements<Paragraph>()
             : body.Elements().TakeWhile(element => element is not Table).OfType<Paragraph>();
 
-        List<Paragraph> paragraphs = headerParagraphs.ToList();
+        var paragraphs = headerParagraphs.ToList();
 
         ReplaceParagraph(paragraphs, "МІНІСТЕРСТВО", _organization.MinistryName);
         ReplaceParagraph(paragraphs, "НАЦІОНАЛЬНИЙ", _organization.UniversityName);
@@ -75,27 +78,31 @@ internal sealed class TopicOrderDocxGenerator(IOptions<OrganizationOptions> orga
                 $"№ {document.OrderNumber}");
         }
 
+        TopicOrderDepartmentInfoDto departmentInfo = document.DepartmentInfo;
         ReplaceParagraph(
             paragraphs,
             "спеціальності",
-            $"спеціальності {_organization.SpecialtyCode} - \"{_organization.SpecialtyName}\"");
-        ReplaceParagraph(paragraphs, "факультету", FormatFacultyTitleLine(_organization.FacultyName));
-        ReplaceParagraph(paragraphs, "студентів", $"студентів {_organization.StudyForm}");
+            $"спеціальності {departmentInfo.SpecialtyCode} - \"{departmentInfo.SpecialtyName}\"");
+        ReplaceParagraph(paragraphs, "факультету", FormatFacultyTitleLine(departmentInfo.FacultyName));
+        ReplaceParagraph(paragraphs, "студентів", $"студентів {departmentInfo.StudyForm}");
         ReplaceParagraph(
             paragraphs,
             "Нижчезазначених",
             BuildPreamble(document));
     }
 
-    private string BuildPreamble(TopicOrderDocumentDto document) =>
-        $"Нижчезазначених студентів {document.SessionLevelPhrase} " +
-        $"спеціальності - \"{_organization.SpecialtyName}\" груп {document.GroupsPhrase} " +
-        $"{_organization.FacultyName} {_organization.StudyForm} {document.CoursePhrase},";
+    private string BuildPreamble(TopicOrderDocumentDto document)
+    {
+        TopicOrderDepartmentInfoDto departmentInfo = document.DepartmentInfo;
+        return $"Нижчезазначених студентів {document.SessionLevelPhrase} " +
+               $"спеціальності - \"{departmentInfo.SpecialtyName}\" груп {document.GroupsPhrase} " +
+               $"{departmentInfo.FacultyName} {departmentInfo.StudyForm} {document.CoursePhrase},";
+    }
 
     private static void FillStudentTable(Body body, IReadOnlyList<TopicOrderStudentRowDto> students)
     {
         Table table = body.Elements<Table>().First();
-        List<TableRow> rows = table.Elements<TableRow>().ToList();
+        var rows = table.Elements<TableRow>().ToList();
         if (rows.Count < 2)
         {
             return;
@@ -117,7 +124,7 @@ internal sealed class TopicOrderDocxGenerator(IOptions<OrganizationOptions> orga
         TableRow lastRow = templateRow;
         for (int studentIndex = 1; studentIndex < students.Count; studentIndex++)
         {
-            TableRow newRow = (TableRow)templateRow.CloneNode(true);
+            var newRow = (TableRow)templateRow.CloneNode(true);
             FillStudentRow(newRow, studentIndex + 1, students[studentIndex]);
             lastRow.InsertAfterSelf(newRow);
             lastRow = newRow;
@@ -196,7 +203,7 @@ internal sealed class TopicOrderDocxGenerator(IOptions<OrganizationOptions> orga
         Paragraph lastParagraph = templateParagraph;
         for (int index = 1; index < reviewers.Count; index++)
         {
-            Paragraph newParagraph = (Paragraph)templateParagraph.CloneNode(true);
+            var newParagraph = (Paragraph)templateParagraph.CloneNode(true);
             FillReviewerParagraph(newParagraph, index + 1, reviewers[index]);
             lastParagraph.InsertAfterSelf(newParagraph);
             lastParagraph = newParagraph;
@@ -231,7 +238,7 @@ internal sealed class TopicOrderDocxGenerator(IOptions<OrganizationOptions> orga
         DocxTextHelper.SetParagraphText(detailParagraph, $"3.1. {formattingReviewerLine}");
     }
 
-    private void FillDepartmentHead(Body body, string? departmentHeadLine)
+    private void FillDepartmentHead(Body body, string? departmentHeadLine, string departmentName)
     {
         Paragraph? paragraph = DocxTextHelper.FindParagraphContaining(body, "4. Контроль за виконанням");
         if (paragraph is null)
@@ -243,13 +250,13 @@ internal sealed class TopicOrderDocxGenerator(IOptions<OrganizationOptions> orga
         {
             DocxTextHelper.SetParagraphText(
                 paragraph,
-                $"4. Контроль за виконанням наказу покласти на завідувача {_organization.DepartmentName}");
+                $"4. Контроль за виконанням наказу покласти на завідувача {departmentName}");
             return;
         }
 
         DocxTextHelper.SetParagraphText(
             paragraph,
-            $"4. Контроль за виконанням наказу покласти на завідувача {_organization.DepartmentName} {departmentHeadLine}");
+            $"4. Контроль за виконанням наказу покласти на завідувача {departmentName} {departmentHeadLine}");
     }
 
     private void FillRector(Body body)

@@ -28,7 +28,7 @@ internal sealed class SecretaryDiplomaListService(
         List<StudyGroupOption> studyGroupOptions = await studyGroupQueries.ListOptionsForSessionAsync(
             sessionId,
             cancellationToken);
-        List<StudyGroupFilterOptionDto> studyGroups = studyGroupOptions
+        var studyGroups = studyGroupOptions
             .Select(option => new StudyGroupFilterOptionDto(option.Id, option.Name))
             .ToList();
 
@@ -38,14 +38,14 @@ internal sealed class SecretaryDiplomaListService(
             return new DiplomaListPageDto(sessionId, sessionType.Value, [], filter, studyGroups);
         }
 
-        HashSet<Guid> userIds = diplomas
+        var userIds = diplomas
             .Select(diploma => diploma.StudentId)
             .Concat(diplomas.Where(diploma => diploma.SupervisorId.HasValue).Select(diploma => diploma.SupervisorId!.Value))
             .ToHashSet();
 
         Dictionary<Guid, ApplicationUser> users = await userDisplayQueries.LoadUsersAsync(userIds, cancellationToken);
 
-        HashSet<Guid> studyGroupIds = users.Values
+        var studyGroupIds = users.Values
             .Where(user => user.StudyGroupId.HasValue)
             .Select(user => user.StudyGroupId!.Value)
             .ToHashSet();

@@ -1,4 +1,6 @@
 using DiplomaManagementSystem.Application.AdminPreview.Contracts;
+using DiplomaManagementSystem.Application.Constants;
+using DiplomaManagementSystem.Application.Departments.Contracts;
 using DiplomaManagementSystem.Web.AdminPreview;
 using DiplomaManagementSystem.Web.Models;
 
@@ -8,7 +10,8 @@ namespace DiplomaManagementSystem.Web.ViewComponents;
 
 public sealed class AdminPreviewViewComponent(
     IAdminPreviewService adminPreviewService,
-    IAdminPreviewUserLookup adminPreviewUserLookup) : ViewComponent
+    IAdminPreviewUserLookup adminPreviewUserLookup,
+    IDepartmentContext departmentContext) : ViewComponent
 {
     public async Task<IViewComponentResult> InvokeAsync(string part = "switcher")
     {
@@ -20,9 +23,11 @@ public sealed class AdminPreviewViewComponent(
         AdminPreviewMode currentMode = adminPreviewService.GetMode(HttpContext);
         AdminPreviewMode[] modes =
         [
+            AdminPreviewMode.SuperAdmin,
             AdminPreviewMode.Admin,
-            AdminPreviewMode.Student,
+            AdminPreviewMode.Secretary,
             AdminPreviewMode.Employee,
+            AdminPreviewMode.Student,
         ];
 
         string? impersonatedDisplay = null;
@@ -34,6 +39,10 @@ public sealed class AdminPreviewViewComponent(
             impersonatedEmail = impersonatedUser?.Email;
         }
 
+        bool needsDepartmentSelection = currentMode == AdminPreviewMode.Admin
+                                        && UserClaimsPrincipal.IsInRole(RoleNames.SuperAdmin)
+                                        && !departmentContext.IsSuperAdminImpersonating;
+
         AdminPreviewViewModel model = new()
         {
             CurrentMode = currentMode,
@@ -42,6 +51,7 @@ public sealed class AdminPreviewViewComponent(
             ImpersonatedUserDisplay = impersonatedDisplay,
             ImpersonatedUserEmail = impersonatedEmail,
             RequiresUserSelection = adminPreviewService.RequiresImpersonation(currentMode),
+            NeedsDepartmentSelection = needsDepartmentSelection,
             SelectUserMode = adminPreviewService.RequiresImpersonation(currentMode) ? currentMode : null,
             ReturnUrl = AdminPreviewReturnUrl.Build(HttpContext),
             Options = modes

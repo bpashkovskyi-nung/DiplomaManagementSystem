@@ -1,17 +1,23 @@
 using System.Security.Claims;
 
+using DiplomaManagementSystem.Application.Constants;
 using DiplomaManagementSystem.Application.Employee.Dtos;
 using DiplomaManagementSystem.Application.Storage;
 using DiplomaManagementSystem.Domain.Exceptions;
 using DiplomaManagementSystem.Web.Areas.Employee.Models;
+using DiplomaManagementSystem.Web.Departments;
 using DiplomaManagementSystem.Web.Storage;
 
 using FluentValidation;
 
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace DiplomaManagementSystem.Web.Areas.Employee.Controllers;
 
+[Area("Employee")]
+[Authorize(Roles = RoleNames.Employee)]
+[ServiceFilter(typeof(EmployeeDepartmentContextFilter))]
 public abstract class EmployeeControllerBase : Controller
 {
     protected Guid GetUserId()

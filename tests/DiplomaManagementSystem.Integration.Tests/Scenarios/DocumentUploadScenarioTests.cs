@@ -1,6 +1,7 @@
 using DiplomaManagementSystem.Application.Student.Contracts;
 using DiplomaManagementSystem.Domain.Exceptions;
 using DiplomaManagementSystem.Integration.Tests.Support;
+
 using Microsoft.Extensions.DependencyInjection;
 
 namespace DiplomaManagementSystem.Integration.Tests.Scenarios;
@@ -18,7 +19,7 @@ public sealed class DocumentUploadScenarioTests(PostgreSqlFixture fixture)
         await using AsyncServiceScope scope = fixture.CreateProvider().CreateAsyncScope();
         IServiceProvider services = scope.ServiceProvider;
 
-        await WorkflowScenarioRunner.RunTopicApprovalAsync(services, scenario);
+        await WorkflowScenarioRunner.RunUpToReviewerAssignedAsync(services, scenario);
 
         IStudentDiplomaService studentService = services.GetRequiredService<IStudentDiplomaService>();
         DomainException exception = await Assert.ThrowsAsync<DomainException>(() =>

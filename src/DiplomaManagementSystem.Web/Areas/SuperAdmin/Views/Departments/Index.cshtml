@@ -1,0 +1,98 @@
+@model DepartmentListViewModel
+
+@{
+
+    ViewData["Title"] = $"{SuperAdminPageTitles.Departments}: {Model.FacultyName}";
+
+}
+
+
+
+<h1 class="mb-4">@Model.FacultyName</h1>
+
+
+
+<partial name="_TempDataAlerts"/>
+
+<partial name="_SuperAdminNavLinks" model="SuperAdminNavigation.FacultyDepartmentsBack()"/>
+
+
+
+<p>
+
+    <a class="btn btn-primary" asp-action="Create" asp-route-facultyId="@Model.FacultyId">Нова кафедра</a>
+
+</p>
+
+
+
+<table class="table table-striped align-middle">
+
+    <thead>
+
+    <tr>
+
+        <th>Кафедра</th>
+
+        <th>Спеціальностей</th>
+
+        <th></th>
+
+    </tr>
+
+    </thead>
+
+    <tbody>
+
+    @foreach (DepartmentListItemViewModel item in Model.Items)
+
+    {
+
+        <tr class="@(item.IsActive ? null : "table-secondary")">
+
+            <td>@item.Name</td>
+
+            <td>@item.SpecialtyCount</td>
+
+            <td class="text-end text-nowrap">
+
+                <form asp-action="Enter" method="post" class="d-inline">
+
+                    @Html.AntiForgeryToken()
+
+                    <input type="hidden" name="id" value="@item.Id"/>
+
+                    <button type="submit" class="btn btn-sm btn-primary">@SuperAdminPageTitles.EnterDepartment</button>
+
+                </form>
+
+                <a class="btn btn-sm btn-outline-secondary" asp-action="Edit" asp-route-id="@item.Id">Редагувати</a>
+
+                @if (item.IsActive)
+
+                {
+
+                    <form asp-action="Deactivate" method="post" class="d-inline">
+
+                        @Html.AntiForgeryToken()
+
+                        <input type="hidden" name="id" value="@item.Id"/>
+
+                        <input type="hidden" name="facultyId" value="@Model.FacultyId"/>
+
+                        <button type="submit" class="btn btn-sm btn-outline-danger">Деактивувати</button>
+
+                    </form>
+
+                }
+
+            </td>
+
+        </tr>
+
+    }
+
+    </tbody>
+
+</table>
+

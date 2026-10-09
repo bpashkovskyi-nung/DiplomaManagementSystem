@@ -6,6 +6,7 @@ using DiplomaManagementSystem.Application.Identity.Contracts;
 using DiplomaManagementSystem.Application.Import.Contracts;
 using DiplomaManagementSystem.Application.Import.Models;
 using DiplomaManagementSystem.Integration.Tests.Support;
+
 using Microsoft.Extensions.DependencyInjection;
 
 namespace DiplomaManagementSystem.Integration.Tests.Admin;

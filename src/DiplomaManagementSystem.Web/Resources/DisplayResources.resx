@@ -66,11 +66,14 @@
   <data name="AnnualRoleType_ExamCommissionSecretary" xml:space="preserve"><value>Секретар ДЕК</value></data>
   <data name="AnnualRoleType_AntiPlagiarismOfficer" xml:space="preserve"><value>Відповідальний за антиплагіат</value></data>
   <data name="AnnualRoleType_FormattingReviewer" xml:space="preserve"><value>Нормоконтролер</value></data>
+  <data name="ExaminationCommissionRole_Chair" xml:space="preserve"><value>Голова ЕК</value></data>
+  <data name="ExaminationCommissionRole_Member" xml:space="preserve"><value>Член ЕК</value></data>
+  <data name="ExaminationCommission_SectionTitle" xml:space="preserve"><value>Екзаменаційна комісія</value></data>
   <data name="DiplomaLifecycleStatus_AwaitingSupervisor" xml:space="preserve"><value>Очікує керівника</value></data>
   <data name="DiplomaLifecycleStatus_SupervisorConfirmed" xml:space="preserve"><value>Керівник підтверджено</value></data>
   <data name="DiplomaLifecycleStatus_TopicInReview" xml:space="preserve"><value>Тема на розгляді</value></data>
   <data name="DiplomaLifecycleStatus_TopicApproved" xml:space="preserve"><value>Тема затверджена</value></data>
-  <data name="DiplomaLifecycleStatus_WorkInProgressByStudent" xml:space="preserve"><value>Робота виконується</value></data>
+  <data name="DiplomaLifecycleStatus_WorkInProgressByStudent" xml:space="preserve"><value>Робота в процесі</value></data>
   <data name="DiplomaLifecycleStatus_DocumentsInProgress" xml:space="preserve"><value>Документи в роботі</value></data>
   <data name="DiplomaLifecycleStatus_ReadyForAdmission" xml:space="preserve"><value>Готово до допуску</value></data>
   <data name="DiplomaLifecycleStatus_Admitted" xml:space="preserve"><value>Допущено</value></data>

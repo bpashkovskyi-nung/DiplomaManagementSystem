@@ -1,6 +1,8 @@
 using DiplomaManagementSystem.Application.Admin.DefenceSessions.Contracts;
 using DiplomaManagementSystem.Application.Admin.StudyGroups.Contracts;
 using DiplomaManagementSystem.Application.Admin.StudyGroups.Dtos;
+using DiplomaManagementSystem.Application.SuperAdmin.Specialties.Contracts;
+using DiplomaManagementSystem.Application.SuperAdmin.Specialties.Dtos;
 using DiplomaManagementSystem.Domain.Exceptions;
 using DiplomaManagementSystem.Web.Areas.Admin.Models;
 using DiplomaManagementSystem.Web.Extensions;
@@ -13,6 +15,7 @@ namespace DiplomaManagementSystem.Web.Areas.Admin.Controllers;
 
 public sealed class StudyGroupsController(
     IStudyGroupAdminService studyGroupAdminService,
+    ISpecialtyAdminService specialtyAdminService,
     IDefenceSessionService defenceSessionService,
     IValidator<StudyGroupFormDto> validator) : AdminControllerBase(defenceSessionService)
 {
@@ -25,10 +28,14 @@ public sealed class StudyGroupsController(
             return NotFound();
         }
 
+        IReadOnlyList<StudyGroupSpecialtyOptionViewModel> specialtyOptions =
+            await LoadSpecialtyOptionsAsync(defenceSessionId, cancellationToken);
+
         return View("Form", new StudyGroupFormViewModel
         {
             DefenceSessionId = defenceSessionId,
             SessionLabel = sessionLabel,
+            SpecialtyOptions = specialtyOptions,
         });
     }
 
@@ -40,6 +47,7 @@ public sealed class StudyGroupsController(
         if (!await this.TryValidateFormAsync(validator, dto, cancellationToken))
         {
             model.SessionLabel = await GetSessionLabelAsync(model.DefenceSessionId, cancellationToken) ?? model.SessionLabel;
+            model.SpecialtyOptions = await LoadSpecialtyOptionsAsync(model.DefenceSessionId, cancellationToken);
             return View("Form", model);
         }
 
@@ -52,6 +60,7 @@ public sealed class StudyGroupsController(
         {
             ModelState.AddModelError(string.Empty, ex.Message);
             model.SessionLabel = await GetSessionLabelAsync(model.DefenceSessionId, cancellationToken) ?? model.SessionLabel;
+            model.SpecialtyOptions = await LoadSpecialtyOptionsAsync(model.DefenceSessionId, cancellationToken);
             return View("Form", model);
         }
     }
@@ -72,6 +81,7 @@ public sealed class StudyGroupsController(
         if (!await this.TryValidateFormAsync(validator, dto, cancellationToken))
         {
             model.SessionLabel = await GetSessionLabelAsync(model.DefenceSessionId, cancellationToken) ?? model.SessionLabel;
+            model.SpecialtyOptions = await LoadSpecialtyOptionsAsync(model.DefenceSessionId, cancellationToken);
             return View("Form", model);
         }
 
@@ -84,6 +94,7 @@ public sealed class StudyGroupsController(
         {
             ModelState.AddModelError(string.Empty, ex.Message);
             model.SessionLabel = await GetSessionLabelAsync(model.DefenceSessionId, cancellationToken) ?? model.SessionLabel;
+            model.SpecialtyOptions = await LoadSpecialtyOptionsAsync(model.DefenceSessionId, cancellationToken);
             return View("Form", model);
         }
     }
@@ -136,6 +147,9 @@ public sealed class StudyGroupsController(
             }
         }
 
+        IReadOnlyList<StudyGroupSpecialtyOptionViewModel> specialtyOptions =
+            await LoadSpecialtyOptionsAsync(dto.DefenceSessionId, cancellationToken);
+
         return new StudyGroupFormViewModel
         {
             Id = dto.Id,
@@ -143,7 +157,26 @@ public sealed class StudyGroupsController(
             Course = dto.Course,
             DefenceSessionId = dto.DefenceSessionId,
             SessionLabel = sessionLabel,
+            SpecialtyId = dto.SpecialtyId,
+            StudyForm = dto.StudyForm,
+            SpecialtyOptions = specialtyOptions,
         };
+    }
+
+    private async Task<IReadOnlyList<StudyGroupSpecialtyOptionViewModel>> LoadSpecialtyOptionsAsync(
+        Guid defenceSessionId,
+        CancellationToken cancellationToken)
+    {
+        IReadOnlyList<SpecialtyOptionDto> options =
+            await specialtyAdminService.GetActiveOptionsForSessionAsync(defenceSessionId, cancellationToken);
+
+        return options
+            .Select(option => new StudyGroupSpecialtyOptionViewModel
+            {
+                Id = option.Id,
+                Label = option.Label,
+            })
+            .ToList();
     }
 
     private async Task<StudyGroupDeleteViewModel?> BuildDeleteViewModelAsync(Guid id, CancellationToken cancellationToken)
@@ -166,5 +199,5 @@ public sealed class StudyGroupsController(
         RedirectToAction("Details", "DefenceSessions", new { id = defenceSessionId });
 
     private static StudyGroupFormDto ToDto(StudyGroupFormViewModel model) =>
-        new(model.Id, model.DefenceSessionId, model.Name, model.Course);
+        new(model.Id, model.DefenceSessionId, model.Name, model.SpecialtyId, model.StudyForm, model.Course);
 }

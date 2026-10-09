@@ -10,6 +10,7 @@ using DiplomaManagementSystem.Domain.Entities;
 using DiplomaManagementSystem.Domain.Enums;
 using DiplomaManagementSystem.Domain.Exceptions;
 using DiplomaManagementSystem.Infrastructure.Persistence;
+
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
@@ -21,6 +22,7 @@ public sealed class EmployeeAdminServiceTests : IDisposable
     private readonly ServiceProvider _serviceProvider;
     private readonly ApplicationDbContext _dbContext;
     private readonly EmployeeAdminService _service;
+    private readonly Guid _departmentId;
 
     public EmployeeAdminServiceTests()
     {
@@ -34,12 +36,14 @@ public sealed class EmployeeAdminServiceTests : IDisposable
             .AddEntityFrameworkStores<ApplicationDbContext>()
             .AddDefaultTokenProviders();
 
+        AdminDepartmentTestSupport.RegisterDepartmentServices(services);
         services.AddSingleton(new EmailDomainValidator(Microsoft.Extensions.Options.Options.Create(new SecurityOptions())));
         services.AddScoped<IUserProvisioningService, UserProvisioningService>();
         services.AddScoped<EmployeeAdminService>();
 
         _serviceProvider = services.BuildServiceProvider();
         _dbContext = _serviceProvider.GetRequiredService<ApplicationDbContext>();
+        _departmentId = AdminDepartmentTestSupport.SeedDefaultDepartmentAsync(_dbContext).GetAwaiter().GetResult();
         _service = _serviceProvider.GetRequiredService<EmployeeAdminService>();
     }
 
@@ -111,7 +115,7 @@ public sealed class EmployeeAdminServiceTests : IDisposable
 
     private async Task<Guid> SeedEmployeeAsync(string fullName, string email)
     {
-        Guid employeeId = Guid.NewGuid();
+        var employeeId = Guid.NewGuid();
         _dbContext.Users.Add(new ApplicationUser
         {
             Id = employeeId,
@@ -121,6 +125,15 @@ public sealed class EmployeeAdminServiceTests : IDisposable
             NormalizedUserName = email.ToUpperInvariant(),
             FullName = fullName,
             UserKind = UserKind.Employee,
+            CreatedAt = DateTimeOffset.UtcNow,
+        });
+        _dbContext.DepartmentEmployees.Add(new DepartmentEmployee
+        {
+            Id = Guid.NewGuid(),
+            DepartmentId = _departmentId,
+            UserId = employeeId,
+            FullName = fullName,
+            IsActive = true,
             CreatedAt = DateTimeOffset.UtcNow,
         });
         await _dbContext.SaveChangesAsync();

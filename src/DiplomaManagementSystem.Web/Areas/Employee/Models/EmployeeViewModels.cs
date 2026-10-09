@@ -1,10 +1,9 @@
-namespace DiplomaManagementSystem.Web.Areas.Employee.Models;
 
+using DiplomaManagementSystem.Application.Employee.Dtos;
 using DiplomaManagementSystem.Domain.Enums;
 using DiplomaManagementSystem.Web.Areas.Secretary.Models;
-using DiplomaManagementSystem.Web.Models.Shared;
 
-using Microsoft.AspNetCore.Http;
+namespace DiplomaManagementSystem.Web.Areas.Employee.Models;
 
 public sealed class EmployeeHomeViewModel
 {
@@ -85,6 +84,15 @@ public sealed class EmployeeRoleSubmenuItemViewModel
     public int PendingCount { get; set; }
 
     public bool CountsStudents { get; set; }
+}
+
+public sealed class DepartmentProgressReportPageViewModel
+{
+    public Guid? SelectedSessionId { get; set; }
+
+    public IReadOnlyList<Microsoft.AspNetCore.Mvc.Rendering.SelectListItem> Sessions { get; set; } = [];
+
+    public DepartmentProgressReportDto? Report { get; set; }
 }
 
 public sealed class PendingStudentsViewModel

@@ -12,11 +12,8 @@ public sealed class ReviewerAssignmentServiceTests
     [Fact]
     public void Assign_WhenAdmitted_Throws()
     {
-        Diploma diploma = new()
-        {
-            AdmissionStatus = DiplomaAdmissionStatus.Admitted,
-            ReviewAssignmentStatus = ReviewAssignmentStatus.NotAssigned,
-        };
+        Diploma diploma = CreateTopicApprovedDiploma();
+        diploma.AdmissionStatus = DiplomaAdmissionStatus.Admitted;
 
         Assert.Throws<DomainException>(() =>
             _service.Assign(diploma, CreateSession(), Guid.NewGuid(), [], hasApprovedTopic: true));
@@ -25,10 +22,7 @@ public sealed class ReviewerAssignmentServiceTests
     [Fact]
     public void Assign_WhenSessionArchived_Throws()
     {
-        Diploma diploma = new()
-        {
-            ReviewAssignmentStatus = ReviewAssignmentStatus.NotAssigned,
-        };
+        Diploma diploma = CreateTopicApprovedDiploma();
 
         DefenceSession session = CreateSession();
         session.Status = DefenceSessionStatus.Archived;
@@ -38,16 +32,11 @@ public sealed class ReviewerAssignmentServiceTests
     }
 
     [Fact]
-    public void Assign_WhenTopicApprovedOnly_SetsReviewerWithoutAdmissionStep()
+    public void Assign_WhenTopicApproved_SetsReviewerWithoutAdmissionStep()
     {
-        Diploma diploma = new()
-        {
-            LifecycleStatus = DiplomaLifecycleStatus.WorkInProgressByStudent,
-            ReviewAssignmentStatus = ReviewAssignmentStatus.NotAssigned,
-            CurrentAdmissionStep = null,
-        };
+        Diploma diploma = CreateTopicApprovedDiploma();
 
-        Guid reviewerId = Guid.NewGuid();
+        var reviewerId = Guid.NewGuid();
         _service.Assign(diploma, CreateSession(), reviewerId, [], hasApprovedTopic: true);
 
         Assert.Equal(reviewerId, diploma.ReviewerId);
@@ -56,17 +45,33 @@ public sealed class ReviewerAssignmentServiceTests
     }
 
     [Fact]
-    public void Assign_SetsReviewerAndAssignedStatus()
+    public void Assign_WhenWorkInProgress_SetsReviewer()
     {
-        Guid diplomaId = Guid.NewGuid();
-        Diploma diploma = new()
-        {
-            ReviewAssignmentStatus = ReviewAssignmentStatus.NotAssigned,
-        };
+        Diploma diploma = CreateTopicApprovedDiploma();
+        diploma.LifecycleStatus = DiplomaLifecycleStatus.WorkInProgressByStudent;
 
-        List<DiplomaAdmissionStepAttempt> attempts = CreateAttemptsReadyForReviewer(diplomaId);
+        var reviewerId = Guid.NewGuid();
+        _service.Assign(diploma, CreateSession(), reviewerId, [], hasApprovedTopic: true);
 
-        Guid reviewerId = Guid.NewGuid();
+        Assert.Equal(reviewerId, diploma.ReviewerId);
+        Assert.Equal(ReviewAssignmentStatus.Assigned, diploma.ReviewAssignmentStatus);
+    }
+
+    [Fact]
+    public void Assign_WhenAdmissionStartedAndReady_SetsExternalReviewStep()
+    {
+        Diploma diploma = CreateTopicApprovedDiploma();
+        diploma.LifecycleStatus = DiplomaLifecycleStatus.DocumentsInProgress;
+        diploma.CurrentAdmissionStep = AdmissionStep.ReviewerAssignment;
+
+        List<DiplomaAdmissionStepAttempt> attempts =
+        [
+            CreatePassing(AdmissionStep.SupervisorFeedback),
+            CreatePassing(AdmissionStep.FormattingReview),
+            CreatePassing(AdmissionStep.AntiPlagiarismClearance),
+        ];
+
+        var reviewerId = Guid.NewGuid();
         _service.Assign(diploma, CreateSession(), reviewerId, attempts, hasApprovedTopic: true);
 
         Assert.Equal(reviewerId, diploma.ReviewerId);
@@ -75,88 +80,56 @@ public sealed class ReviewerAssignmentServiceTests
     }
 
     [Fact]
+    public void Assign_WhenAlreadyAssigned_AllowsReassignment()
+    {
+        Diploma diploma = CreateTopicApprovedDiploma();
+        diploma.ReviewAssignmentStatus = ReviewAssignmentStatus.Assigned;
+        diploma.ReviewerId = Guid.NewGuid();
+
+        var reviewerId = Guid.NewGuid();
+        _service.Assign(diploma, CreateSession(), reviewerId, [], hasApprovedTopic: true);
+
+        Assert.Equal(reviewerId, diploma.ReviewerId);
+        Assert.Equal(ReviewAssignmentStatus.Assigned, diploma.ReviewAssignmentStatus);
+    }
+
+    [Fact]
     public void Assign_WhenTopicNotApproved_Throws()
     {
-        Diploma diploma = new()
-        {
-            ReviewAssignmentStatus = ReviewAssignmentStatus.NotAssigned,
-        };
+        Diploma diploma = CreateTopicApprovedDiploma();
 
         Assert.Throws<DomainException>(() =>
             _service.Assign(diploma, CreateSession(), Guid.NewGuid(), [], hasApprovedTopic: false));
     }
 
     [Fact]
-    public void Assign_WhenAdmissionInProgressBeforeAntiPlagiarism_SetsReviewerWithoutAdvancingStep()
-    {
-        Guid diplomaId = Guid.NewGuid();
-        Diploma diploma = new()
-        {
-            LifecycleStatus = DiplomaLifecycleStatus.DocumentsInProgress,
-            ReviewAssignmentStatus = ReviewAssignmentStatus.NotAssigned,
-            CurrentAdmissionStep = AdmissionStep.FormattingReview,
-        };
-
-        List<DiplomaAdmissionStepAttempt> attempts =
-        [
-            new()
-            {
-                DiplomaId = diplomaId,
-                Step = AdmissionStep.SupervisorFeedback,
-                AttemptNumber = 1,
-                Outcome = CheckpointOutcome.Approved,
-            },
-        ];
-
-        Guid reviewerId = Guid.NewGuid();
-        _service.Assign(diploma, CreateSession(), reviewerId, attempts, hasApprovedTopic: true);
-
-        Assert.Equal(reviewerId, diploma.ReviewerId);
-        Assert.Equal(ReviewAssignmentStatus.Assigned, diploma.ReviewAssignmentStatus);
-        Assert.Equal(AdmissionStep.FormattingReview, diploma.CurrentAdmissionStep);
-    }
-
-    [Fact]
     public void Assign_WhenCompleted_Throws()
     {
-        Diploma diploma = new()
-        {
-            ReviewAssignmentStatus = ReviewAssignmentStatus.Completed,
-        };
+        Diploma diploma = CreateTopicApprovedDiploma();
+        diploma.ReviewAssignmentStatus = ReviewAssignmentStatus.Completed;
 
         Assert.Throws<DomainException>(() =>
-            _service.Assign(
-                diploma,
-                CreateSession(),
-                Guid.NewGuid(),
-                CreateAttemptsReadyForReviewer(Guid.NewGuid()),
-                hasApprovedTopic: true));
+            _service.Assign(diploma, CreateSession(), Guid.NewGuid(), [], hasApprovedTopic: true));
     }
 
-    private static List<DiplomaAdmissionStepAttempt> CreateAttemptsReadyForReviewer(Guid diplomaId) =>
-    [
+    private static Diploma CreateTopicApprovedDiploma() =>
         new()
         {
-            DiplomaId = diplomaId,
-            Step = AdmissionStep.SupervisorFeedback,
-            AttemptNumber = 1,
-            Outcome = CheckpointOutcome.Approved,
-        },
+            LifecycleStatus = DiplomaLifecycleStatus.TopicApproved,
+            ReviewAssignmentStatus = ReviewAssignmentStatus.NotAssigned,
+            CurrentAdmissionStep = null,
+        };
+
+    private static DiplomaAdmissionStepAttempt CreatePassing(AdmissionStep step) =>
         new()
         {
-            DiplomaId = diplomaId,
-            Step = AdmissionStep.FormattingReview,
+            Id = Guid.NewGuid(),
+            Step = step,
             AttemptNumber = 1,
             Outcome = CheckpointOutcome.Approved,
-        },
-        new()
-        {
-            DiplomaId = diplomaId,
-            Step = AdmissionStep.AntiPlagiarismClearance,
-            AttemptNumber = 1,
-            Outcome = CheckpointOutcome.Approved,
-        },
-    ];
+            RecordedById = Guid.NewGuid(),
+            RecordedAt = DateTimeOffset.UtcNow,
+        };
 
     private static DefenceSession CreateSession() => new()
     {
@@ -169,18 +142,17 @@ public sealed class DiplomaAdmissionServiceTests
     private readonly DiplomaAdmissionService _service = new();
 
     [Fact]
-    public void Admit_WhenReady_SetsAdmitted()
+    public void Admit_WhenReady_SetsAdmittedWithoutDate()
     {
         Diploma diploma = new()
         {
             AdmissionStatus = DiplomaAdmissionStatus.NotAdmitted,
         };
 
-        DateOnly defenceDate = new(2026, 6, 15);
-        _service.Admit(diploma, CreateSession(), defenceDate, DiplomaLifecycleStatus.ReadyForAdmission);
+        _service.Admit(diploma, CreateSession(), DiplomaLifecycleStatus.ReadyForAdmission);
 
         Assert.Equal(DiplomaAdmissionStatus.Admitted, diploma.AdmissionStatus);
-        Assert.Equal(defenceDate, diploma.DefenceDate);
+        Assert.Null(diploma.DefenceDate);
     }
 
     [Fact]
@@ -192,7 +164,6 @@ public sealed class DiplomaAdmissionServiceTests
             _service.Admit(
                 diploma,
                 CreateSession(),
-                new DateOnly(2026, 6, 15),
                 DiplomaLifecycleStatus.DocumentsInProgress));
     }
 
@@ -211,7 +182,6 @@ public sealed class DiplomaAdmissionServiceTests
             _service.Admit(
                 diploma,
                 session,
-                new DateOnly(2026, 6, 15),
                 DiplomaLifecycleStatus.ReadyForAdmission));
     }
 
@@ -227,8 +197,57 @@ public sealed class DiplomaAdmissionServiceTests
             _service.Admit(
                 diploma,
                 CreateSession(),
-                new DateOnly(2026, 6, 15),
                 DiplomaLifecycleStatus.ReadyForAdmission));
+    }
+
+    [Fact]
+    public void ConfirmDefenceDate_WhenAdmittedAndAvailable_SetsDate()
+    {
+        Diploma diploma = new()
+        {
+            AdmissionStatus = DiplomaAdmissionStatus.Admitted,
+        };
+
+        DateOnly defenceDate = new(2026, 6, 20);
+        _service.ConfirmDefenceDate(
+            diploma,
+            CreateSession(),
+            defenceDate,
+            [new DefenceDateOption { Date = defenceDate }]);
+
+        Assert.Equal(defenceDate, diploma.DefenceDate);
+    }
+
+    [Fact]
+    public void ConfirmDefenceDate_WhenDateUnavailable_Throws()
+    {
+        Diploma diploma = new()
+        {
+            AdmissionStatus = DiplomaAdmissionStatus.Admitted,
+        };
+
+        Assert.Throws<DomainException>(() =>
+            _service.ConfirmDefenceDate(
+                diploma,
+                CreateSession(),
+                new DateOnly(2026, 6, 20),
+                [new DefenceDateOption { Date = new DateOnly(2026, 6, 21) }]));
+    }
+
+    [Fact]
+    public void ConfirmDefenceDate_WhenNotAdmitted_Throws()
+    {
+        Diploma diploma = new()
+        {
+            AdmissionStatus = DiplomaAdmissionStatus.NotAdmitted,
+        };
+
+        Assert.Throws<DomainException>(() =>
+            _service.ConfirmDefenceDate(
+                diploma,
+                CreateSession(),
+                new DateOnly(2026, 6, 20),
+                [new DefenceDateOption { Date = new DateOnly(2026, 6, 20) }]));
     }
 
     private static DefenceSession CreateSession() => new()

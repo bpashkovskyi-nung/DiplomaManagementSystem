@@ -1,0 +1,80 @@
+@model DiplomaManagementSystem.Web.Areas.Admin.Models.CommissionParticipantFieldsModel
+@{
+    ExaminationCommissionParticipantFormViewModel participant = Model.Participant;
+    string prefix = Model.Prefix;
+    string safeId = prefix.Replace("[", "_", StringComparison.Ordinal).Replace("]", "_", StringComparison.Ordinal);
+}
+
+<div class="row g-3 commission-participant" data-prefix="@prefix">
+    <div class="col-12">
+        <div class="form-check form-check-inline">
+            <input class="form-check-input source-internal"
+                   type="radio"
+                   name="@(prefix).IsExternal"
+                   value="false"
+                   id="@(safeId)_internal"
+                   @(participant.IsExternal ? null : "checked") />
+            <label class="form-check-label" for="@(safeId)_internal">Викладач кафедри</label>
+        </div>
+        <div class="form-check form-check-inline">
+            <input class="form-check-input source-external"
+                   type="radio"
+                   name="@(prefix).IsExternal"
+                   value="true"
+                   id="@(safeId)_external"
+                   @(participant.IsExternal ? "checked" : null) />
+            <label class="form-check-label" for="@(safeId)_external">Зовнішня особа</label>
+        </div>
+    </div>
+
+    <div class="col-md-6 internal-fields @(participant.IsExternal ? "d-none" : null)">
+        <label class="form-label" for="@(safeId)_employee">Викладач</label>
+        <select class="form-select employee-select"
+                name="@(prefix).EmployeeId"
+                id="@(safeId)_employee"
+                data-selected="@(participant.EmployeeId?.ToString() ?? string.Empty)">
+            <option value="">— оберіть —</option>
+            @foreach (CommissionEmployeeOptionViewModel employee in Model.Employees)
+            {
+                if (participant.EmployeeId == employee.Id)
+                {
+                    <option value="@employee.Id" data-position="@(employee.Position ?? string.Empty)" selected>
+                        @employee.FullName (@employee.Email)
+                    </option>
+                }
+                else
+                {
+                    <option value="@employee.Id" data-position="@(employee.Position ?? string.Empty)">
+                        @employee.FullName (@employee.Email)
+                    </option>
+                }
+            }
+        </select>
+    </div>
+    <div class="col-md-6 internal-fields @(participant.IsExternal ? "d-none" : null)">
+        <label class="form-label">Посада (звання)</label>
+        <input type="text"
+               class="form-control position-readonly"
+               value="@(participant.IsExternal ? string.Empty : participant.Position)"
+               readonly />
+    </div>
+
+    <div class="col-md-6 external-fields @(participant.IsExternal ? null : "d-none")">
+        <label class="form-label" for="@(safeId)_fullName">ПІБ</label>
+        <input type="text"
+               class="form-control"
+               name="@(prefix).FullName"
+               id="@(safeId)_fullName"
+               value="@(participant.IsExternal ? participant.FullName : null)"
+               maxlength="200" />
+    </div>
+    <div class="col-md-6 external-fields @(participant.IsExternal ? null : "d-none")">
+        <label class="form-label" for="@(safeId)_position">Посада</label>
+        <input type="text"
+               class="form-control"
+               name="@(prefix).Position"
+               id="@(safeId)_position"
+               value="@(participant.IsExternal ? participant.Position : null)"
+               maxlength="300" />
+    </div>
+</div>

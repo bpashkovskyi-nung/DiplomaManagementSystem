@@ -1,6 +1,7 @@
-namespace DiplomaManagementSystem.Application.AdminPreview.Contracts;
 
 using DiplomaManagementSystem.Domain.Enums;
+
+namespace DiplomaManagementSystem.Application.AdminPreview.Contracts;
 
 public interface IAdminPreviewUserPickerService
 {

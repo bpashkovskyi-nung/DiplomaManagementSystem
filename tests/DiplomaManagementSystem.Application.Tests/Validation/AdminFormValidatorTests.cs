@@ -1,11 +1,13 @@
-using DiplomaManagementSystem.Application.Admin.EmployeeWorkloadLimits;
-using DiplomaManagementSystem.Application.Admin.EmployeeWorkloadLimits.Dtos;
 using DiplomaManagementSystem.Application.Admin.AnnualRoles;
 using DiplomaManagementSystem.Application.Admin.AnnualRoles.Dtos;
 using DiplomaManagementSystem.Application.Admin.DefenceSessions;
 using DiplomaManagementSystem.Application.Admin.DefenceSessions.Dtos;
 using DiplomaManagementSystem.Application.Admin.Employees;
 using DiplomaManagementSystem.Application.Admin.Employees.Dtos;
+using DiplomaManagementSystem.Application.Admin.EmployeeWorkloadLimits;
+using DiplomaManagementSystem.Application.Admin.EmployeeWorkloadLimits.Dtos;
+using DiplomaManagementSystem.Application.Admin.ExaminationCommission;
+using DiplomaManagementSystem.Application.Admin.ExaminationCommission.Dtos;
 using DiplomaManagementSystem.Application.Admin.Students;
 using DiplomaManagementSystem.Application.Admin.Students.Dtos;
 using DiplomaManagementSystem.Application.Admin.StudyGroups;
@@ -66,12 +68,64 @@ public sealed class AdminFormValidatorTests
         Assert.False(result.IsValid);
     }
 
+    [Fact]
+    public void SaveExaminationCommissionValidator_FewerThanThreeMembers_Invalid()
+    {
+        SaveExaminationCommissionValidator validator = new();
+        ValidationResult result = validator.Validate(
+            new SaveExaminationCommissionDto(
+                Guid.NewGuid(),
+                new SaveExaminationCommissionParticipantDto(true, null, "Голова", "проф."),
+                [
+                    new SaveExaminationCommissionParticipantDto(true, null, "Ч1", "доц."),
+                    new SaveExaminationCommissionParticipantDto(true, null, "Ч2", "доц."),
+                ]));
+
+        Assert.False(result.IsValid);
+        Assert.Contains(result.Errors, error => error.ErrorMessage.Contains("щонайменше 3", StringComparison.Ordinal));
+    }
+
+    [Fact]
+    public void SaveExaminationCommissionValidator_ExternalWithoutName_Invalid()
+    {
+        SaveExaminationCommissionValidator validator = new();
+        ValidationResult result = validator.Validate(
+            new SaveExaminationCommissionDto(
+                Guid.NewGuid(),
+                new SaveExaminationCommissionParticipantDto(true, null, "", "проф."),
+                [
+                    new SaveExaminationCommissionParticipantDto(true, null, "Ч1", "доц."),
+                    new SaveExaminationCommissionParticipantDto(true, null, "Ч2", "доц."),
+                    new SaveExaminationCommissionParticipantDto(true, null, "Ч3", "доц."),
+                ]));
+
+        Assert.False(result.IsValid);
+    }
+
+    [Fact]
+    public void SaveExaminationCommissionValidator_ValidExternalRoster_Valid()
+    {
+        SaveExaminationCommissionValidator validator = new();
+        ValidationResult result = validator.Validate(
+            new SaveExaminationCommissionDto(
+                Guid.NewGuid(),
+                new SaveExaminationCommissionParticipantDto(true, null, "Голова", "проф."),
+                [
+                    new SaveExaminationCommissionParticipantDto(true, null, "Ч1", "доц."),
+                    new SaveExaminationCommissionParticipantDto(true, null, "Ч2", "доц."),
+                    new SaveExaminationCommissionParticipantDto(true, null, "Ч3", "доц."),
+                ]));
+
+        Assert.True(result.IsValid);
+    }
+
     // TC-APP-ADM-005e
     [Fact]
     public void StudyGroupFormValidator_EmptyName_Invalid()
     {
         StudyGroupFormValidator validator = new();
-        ValidationResult result = validator.Validate(new StudyGroupFormDto(null, Guid.NewGuid(), ""));
+        ValidationResult result = validator.Validate(
+            new StudyGroupFormDto(null, Guid.NewGuid(), "", Guid.NewGuid(), "очної форми навчання"));
 
         Assert.False(result.IsValid);
     }

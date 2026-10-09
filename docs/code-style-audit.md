@@ -1,5 +1,8 @@
 # Code Style & Maintainability Audit — Consolidated
 
+> **Архів.** Актуальні правила стилю та якості: **[coding-style.md](coding-style.md)**.  
+> Цей документ зберігає історичні findings (F-01–F-76); не використовуйте його як джерело enforcement.
+
 **Дата:** 2026-06-30  
 **Джерела:** [Pass 1](code-style-audit-pass1.md) · [Pass 2](code-style-audit-pass2.md) · [Pass 3](code-style-audit-pass3.md)  
 **Scope:** Solution-wide maintainability (не security/performance)  

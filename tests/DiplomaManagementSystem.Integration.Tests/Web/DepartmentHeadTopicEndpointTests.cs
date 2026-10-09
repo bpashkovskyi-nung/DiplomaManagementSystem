@@ -1,4 +1,5 @@
 using System.Net;
+
 using DiplomaManagementSystem.Application;
 using DiplomaManagementSystem.Application.Employee.Contracts;
 using DiplomaManagementSystem.Application.Employee.Dtos;
@@ -6,6 +7,7 @@ using DiplomaManagementSystem.Application.Student.Contracts;
 using DiplomaManagementSystem.Application.Student.Dtos;
 using DiplomaManagementSystem.Domain.Enums;
 using DiplomaManagementSystem.Integration.Tests.Support;
+
 using Microsoft.Extensions.DependencyInjection;
 
 namespace DiplomaManagementSystem.Integration.Tests.Web;

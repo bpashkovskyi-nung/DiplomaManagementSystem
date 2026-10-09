@@ -24,7 +24,7 @@ internal sealed class AdminPreviewImpersonationFilter(IAdminPreviewService admin
         }
 
         string? area = context.RouteData.Values["area"]?.ToString();
-        if (area is "Admin" or "Student" or "Employee" or "Secretary"
+        if (area is "Admin" or "Student" or "Employee" or "Secretary" or "SuperAdmin"
             && !AdminPreviewModeRules.AreaMatchesMode(area, mode))
         {
             context.Result = CreateModeHomeRedirect(mode);
@@ -58,7 +58,9 @@ internal sealed class AdminPreviewImpersonationFilter(IAdminPreviewService admin
 
     private static RedirectToActionResult CreateModeHomeRedirect(AdminPreviewMode mode) => AdminPreviewModeRules.Normalize(mode) switch
     {
+        AdminPreviewMode.SuperAdmin => new RedirectToActionResult("Index", "Home", new { area = "SuperAdmin" }),
         AdminPreviewMode.Student => new RedirectToActionResult("Index", "Diploma", new { area = "Student" }),
+        AdminPreviewMode.Secretary => new RedirectToActionResult("Index", "Dashboard", new { area = "Secretary" }),
         AdminPreviewMode.Employee => new RedirectToActionResult("Index", "Home", new { area = "Employee" }),
         _ => new RedirectToActionResult("Index", "Home", new { area = "Admin" }),
     };

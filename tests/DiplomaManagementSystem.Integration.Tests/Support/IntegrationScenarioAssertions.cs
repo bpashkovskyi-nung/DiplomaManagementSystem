@@ -4,8 +4,8 @@ using DiplomaManagementSystem.Application.Secretary.Contracts;
 using DiplomaManagementSystem.Application.Secretary.Dtos;
 using DiplomaManagementSystem.Application.Student.Contracts;
 using DiplomaManagementSystem.Application.Student.Dtos;
-using DiplomaManagementSystem.Domain.Entities;
 using DiplomaManagementSystem.Domain.Enums;
+
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -68,9 +68,10 @@ internal static class IntegrationScenarioAssertions
 
     public static void AssertTopicApproved(DiplomaDetailsDto details)
     {
-        Assert.Equal(DiplomaLifecycleStatus.WorkInProgressByStudent, details.State.LifecycleStatus);
+        Assert.Equal(DiplomaLifecycleStatus.TopicApproved, details.State.LifecycleStatus);
         Assert.Contains(details.History.TopicVersions, version => version.Status == TopicVersionStatus.Approved);
         Assert.Empty(details.History.AttemptHistory);
+        Assert.Equal(ReviewAssignmentStatus.NotAssigned, details.Assignments.ReviewAssignmentStatus);
     }
 
     public static void AssertTopicRejectedBySupervisor(DiplomaDetailsDto details)
@@ -145,7 +146,6 @@ internal static class IntegrationScenarioAssertions
     {
         Assert.Equal(DiplomaLifecycleStatus.Admitted, details.State.LifecycleStatus);
         Assert.Equal(DiplomaAdmissionStatus.Admitted, details.State.AdmissionStatus);
-        Assert.NotNull(details.State.DefenceDate);
     }
 
     public static void AssertEmptyMyDiploma(MyDiplomaDto dto)

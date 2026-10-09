@@ -11,6 +11,7 @@ using DiplomaManagementSystem.Domain;
 using DiplomaManagementSystem.Domain.Enums;
 using DiplomaManagementSystem.Domain.Exceptions;
 using DiplomaManagementSystem.Integration.Tests.Support;
+
 using Microsoft.Extensions.DependencyInjection;
 
 namespace DiplomaManagementSystem.Integration.Tests.Scenarios;
@@ -260,6 +261,8 @@ public sealed class EmployeeWorkloadLimitScenarioTests(PostgreSqlFixture fixture
     {
         IUserProvisioningService userProvisioningService = services.GetRequiredService<IUserProvisioningService>();
         string suffix = Guid.NewGuid().ToString("N")[..8];
-        return await userProvisioningService.CreateEmployeeAsync(fullName, $"{suffix}@test.local");
+        ApplicationUser employee = await userProvisioningService.CreateEmployeeAsync(fullName, $"{suffix}@test.local");
+        await IntegrationDepartmentHelper.AssignEmployeeAsync(services, employee.Id, employee.FullName);
+        return employee;
     }
 }

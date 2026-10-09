@@ -2,10 +2,12 @@ using DiplomaManagementSystem.Application.Admin.AnnualRoles;
 using DiplomaManagementSystem.Application.Admin.AnnualRoles.Contracts;
 using DiplomaManagementSystem.Application.Admin.DefenceSessions;
 using DiplomaManagementSystem.Application.Admin.DefenceSessions.Contracts;
-using DiplomaManagementSystem.Application.Admin.EmployeeWorkloadLimits;
-using DiplomaManagementSystem.Application.Admin.EmployeeWorkloadLimits.Contracts;
 using DiplomaManagementSystem.Application.Admin.Employees;
 using DiplomaManagementSystem.Application.Admin.Employees.Contracts;
+using DiplomaManagementSystem.Application.Admin.EmployeeWorkloadLimits;
+using DiplomaManagementSystem.Application.Admin.EmployeeWorkloadLimits.Contracts;
+using DiplomaManagementSystem.Application.Admin.ExaminationCommission;
+using DiplomaManagementSystem.Application.Admin.ExaminationCommission.Contracts;
 using DiplomaManagementSystem.Application.Admin.Students;
 using DiplomaManagementSystem.Application.Admin.Students.Contracts;
 using DiplomaManagementSystem.Application.Admin.StudyGroups;
@@ -18,6 +20,8 @@ using DiplomaManagementSystem.Application.Authorization;
 using DiplomaManagementSystem.Application.Authorization.Contracts;
 using DiplomaManagementSystem.Application.Common;
 using DiplomaManagementSystem.Application.Common.Contracts;
+using DiplomaManagementSystem.Application.Departments;
+using DiplomaManagementSystem.Application.Departments.Contracts;
 using DiplomaManagementSystem.Application.Documents;
 using DiplomaManagementSystem.Application.Documents.Contracts;
 using DiplomaManagementSystem.Application.Employee;
@@ -38,8 +42,20 @@ using DiplomaManagementSystem.Application.Security;
 using DiplomaManagementSystem.Application.Student;
 using DiplomaManagementSystem.Application.Student.Contracts;
 using DiplomaManagementSystem.Application.Student.Validation;
+using DiplomaManagementSystem.Application.SuperAdmin.DepartmentAdmins;
+using DiplomaManagementSystem.Application.SuperAdmin.DepartmentAdmins.Contracts;
+using DiplomaManagementSystem.Application.SuperAdmin.Departments;
+using DiplomaManagementSystem.Application.SuperAdmin.Departments.Contracts;
+using DiplomaManagementSystem.Application.SuperAdmin.Faculties;
+using DiplomaManagementSystem.Application.SuperAdmin.Faculties.Contracts;
+using DiplomaManagementSystem.Application.SuperAdmin.OrganizationImport;
+using DiplomaManagementSystem.Application.SuperAdmin.OrganizationImport.Contracts;
+using DiplomaManagementSystem.Application.SuperAdmin.Specialties;
+using DiplomaManagementSystem.Application.SuperAdmin.Specialties.Contracts;
 using DiplomaManagementSystem.Domain.Services;
+
 using FluentValidation;
+
 using Microsoft.Extensions.DependencyInjection;
 
 namespace DiplomaManagementSystem.Application;
@@ -48,7 +64,16 @@ public static class DependencyInjection
 {
     public static IServiceCollection AddApplication(this IServiceCollection services)
     {
+        services.AddScoped<DefaultDepartmentResolver>();
+        services.AddScoped<CurrentDepartmentResolver>();
+        services.AddScoped<IDepartmentAuthorizationService, DepartmentAuthorizationService>();
+        services.AddScoped<IFacultyAdminService, FacultyAdminService>();
+        services.AddScoped<IDepartmentAdminService, DepartmentAdminService>();
+        services.AddScoped<ISpecialtyAdminService, SpecialtyAdminService>();
+        services.AddScoped<IDepartmentAdminAssignmentService, DepartmentAdminAssignmentService>();
+        services.AddScoped<IOrganizationStructureImportService, OrganizationStructureImportService>();
         services.AddSingleton<DiplomaWorkflowInvariantValidator>();
+        services.AddScoped<DefaultDepartmentResolver>();
         services.AddSingleton<DiplomaCreationService>();
         services.AddSingleton<DiplomaTopicService>();
         services.AddSingleton<AdmissionReadinessService>();
@@ -59,6 +84,8 @@ public static class DependencyInjection
         services.AddSingleton<AdmissionWorkflowService>();
         services.AddSingleton<ReviewerAssignmentService>();
         services.AddSingleton<DiplomaAdmissionService>();
+        services.AddSingleton<DefenceSessionMilestoneService>();
+        services.AddSingleton<DefenceDatePreferenceService>();
         services.AddSingleton<SecretarySupervisorOverrideService>();
         services.AddSingleton<WorkReadinessService>();
         services.AddSingleton<DefenceSessionArchiveService>();
@@ -86,6 +113,8 @@ public static class DependencyInjection
             .BindConfiguration(AppLocalizationOptions.SectionName);
         services.AddOptions<FileStorageOptions>()
             .BindConfiguration(FileStorageOptions.SectionName);
+        services.AddOptions<DepartmentOptions>()
+            .BindConfiguration(DepartmentOptions.SectionName);
         services.AddOptions<OrganizationOptions>()
             .BindConfiguration(OrganizationOptions.SectionName);
 
@@ -102,6 +131,7 @@ public static class DependencyInjection
         services.AddScoped<IStudentAdminService, StudentAdminService>();
         services.AddScoped<IEmployeeAdminService, EmployeeAdminService>();
         services.AddScoped<IAnnualRoleService, AnnualRoleService>();
+        services.AddScoped<IExaminationCommissionService, ExaminationCommissionService>();
         services.AddScoped<IEmployeeWorkloadLimitAdminService, EmployeeWorkloadLimitAdminService>();
         services.AddScoped<IEmployeeWorkloadLimitService, EmployeeWorkloadLimitService>();
         services.AddScoped<ISecretaryAccessService, SecretaryAccessService>();
@@ -119,6 +149,11 @@ public static class DependencyInjection
         services.AddScoped<DiplomaDetailsAssembler>();
         services.AddScoped<ISecretaryDiplomaDetailsService, SecretaryDiplomaDetailsService>();
         services.AddScoped<ISecretaryDiplomaActionService, SecretaryDiplomaActionService>();
+        services.AddScoped<ISessionSetupService, SessionSetupService>();
+        services.AddScoped<IDefenceDatePreferenceQueueService, DefenceDatePreferenceQueueService>();
+        services.AddScoped<ISupervisorProgressService, SupervisorProgressService>();
+        services.AddScoped<IDepartmentProgressReportService, DepartmentProgressReportService>();
+        services.AddScoped<IDefenceDateRequestService, DefenceDateRequestService>();
         services.AddScoped<IAdmittedReportService, AdmittedReportService>();
         services.AddScoped<TopicOrderDocxGenerator>();
         services.AddScoped<ITopicOrderDocumentService, TopicOrderDocumentService>();

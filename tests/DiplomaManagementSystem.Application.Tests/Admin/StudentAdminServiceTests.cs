@@ -11,6 +11,7 @@ using DiplomaManagementSystem.Domain.Enums;
 using DiplomaManagementSystem.Domain.Exceptions;
 using DiplomaManagementSystem.Domain.Services;
 using DiplomaManagementSystem.Infrastructure.Persistence;
+
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
@@ -22,6 +23,7 @@ public sealed class StudentAdminServiceTests : IDisposable
     private readonly ServiceProvider _serviceProvider;
     private readonly ApplicationDbContext _dbContext;
     private readonly StudentAdminService _service;
+    private readonly Guid _departmentId;
 
     public StudentAdminServiceTests()
     {
@@ -35,6 +37,7 @@ public sealed class StudentAdminServiceTests : IDisposable
             .AddEntityFrameworkStores<ApplicationDbContext>()
             .AddDefaultTokenProviders();
 
+        AdminDepartmentTestSupport.RegisterDepartmentServices(services);
         services.AddSingleton(new EmailDomainValidator(Microsoft.Extensions.Options.Options.Create(new SecurityOptions())));
         services.AddSingleton<DiplomaCreationService>();
         services.AddScoped<IUserProvisioningService, UserProvisioningService>();
@@ -42,6 +45,7 @@ public sealed class StudentAdminServiceTests : IDisposable
 
         _serviceProvider = services.BuildServiceProvider();
         _dbContext = _serviceProvider.GetRequiredService<ApplicationDbContext>();
+        _departmentId = AdminDepartmentTestSupport.SeedDefaultDepartmentAsync(_dbContext).GetAwaiter().GetResult();
         _service = _serviceProvider.GetRequiredService<StudentAdminService>();
     }
 
@@ -98,13 +102,14 @@ public sealed class StudentAdminServiceTests : IDisposable
 
     private async Task<Guid> SeedSessionAsync(DefenceSessionType type = DefenceSessionType.Bachelor)
     {
-        Guid sessionId = Guid.NewGuid();
+        var sessionId = Guid.NewGuid();
         _dbContext.DefenceSessions.Add(new DefenceSession
         {
             Id = sessionId,
             Year = 2026,
             Type = type,
             Status = DefenceSessionStatus.Active,
+            DepartmentId = _departmentId,
             CreatedAt = DateTimeOffset.UtcNow,
         });
         await _dbContext.SaveChangesAsync();
@@ -113,7 +118,7 @@ public sealed class StudentAdminServiceTests : IDisposable
 
     private async Task<Guid> SeedGroupAsync(Guid sessionId, string name)
     {
-        Guid groupId = Guid.NewGuid();
+        var groupId = Guid.NewGuid();
         _dbContext.StudyGroups.Add(new StudyGroup
         {
             Id = groupId,
@@ -134,7 +139,7 @@ public sealed class StudentAdminServiceTests : IDisposable
 
     private async Task<Guid> SeedStudentAsync(string fullName, string email, Guid sessionId, Guid groupId)
     {
-        Guid studentId = Guid.NewGuid();
+        var studentId = Guid.NewGuid();
         _dbContext.Users.Add(new ApplicationUser
         {
             Id = studentId,

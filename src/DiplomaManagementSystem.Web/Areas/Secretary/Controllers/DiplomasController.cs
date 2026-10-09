@@ -5,7 +5,9 @@ using DiplomaManagementSystem.Domain.Exceptions;
 using DiplomaManagementSystem.Web.Areas.Secretary.Models;
 using DiplomaManagementSystem.Web.Mapping;
 using DiplomaManagementSystem.Web.Secretary;
+
 using FluentValidation;
+
 using Microsoft.AspNetCore.Mvc;
 
 namespace DiplomaManagementSystem.Web.Areas.Secretary.Controllers;
@@ -18,6 +20,7 @@ public sealed class DiplomasController(
     ISecretaryDiplomaActionService diplomaActionService,
     IValidator<AssignReviewerDto> assignReviewerValidator,
     IValidator<AdmitDiplomaDto> admitDiplomaValidator,
+    IValidator<ConfirmDefenceDateDto> confirmDefenceDateValidator,
     IValidator<OverrideSupervisorDto> overrideSupervisorValidator,
     IValidator<AddCommentDto> addCommentValidator,
     IValidator<OverrideAdmissionStepDto> overrideAdmissionStepValidator) : SecretaryControllerBase(sessionService, accessService)
@@ -103,13 +106,37 @@ public sealed class DiplomasController(
             return redirect;
         }
 
-        AdmitDiplomaDto dto = new(model.DiplomaId, model.DefenceDate);
+        AdmitDiplomaDto dto = new(model.DiplomaId);
         await ExecuteActionAsync(
             dto,
             admitDiplomaValidator,
             actorId => diplomaActionService.AdmitAsync(actorId, sessionId, dto, cancellationToken),
             model.DiplomaId,
             "Студента допущено до захисту.",
+            cancellationToken);
+
+        return RedirectToAction(nameof(Details), new { id = model.DiplomaId });
+    }
+
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> ConfirmDefenceDate(
+        ConfirmDefenceDateViewModel model,
+        CancellationToken cancellationToken)
+    {
+        (Guid sessionId, IActionResult? redirect) = await ResolveSessionAsync(cancellationToken);
+        if (redirect is not null)
+        {
+            return redirect;
+        }
+
+        ConfirmDefenceDateDto dto = new(model.DiplomaId, model.DefenceDate);
+        await ExecuteActionAsync(
+            dto,
+            confirmDefenceDateValidator,
+            actorId => diplomaActionService.ConfirmDefenceDateAsync(actorId, sessionId, dto, cancellationToken),
+            model.DiplomaId,
+            "Дату захисту підтверджено.",
             cancellationToken);
 
         return RedirectToAction(nameof(Details), new { id = model.DiplomaId });

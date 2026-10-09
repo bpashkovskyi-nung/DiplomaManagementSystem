@@ -1,11 +1,13 @@
 using System.Net;
 using System.Net.Http.Headers;
+
 using DiplomaManagementSystem.Application.Documents.Contracts;
 using DiplomaManagementSystem.Application.Documents.Dtos;
 using DiplomaManagementSystem.Application.Student.Contracts;
 using DiplomaManagementSystem.Application.Student.Dtos;
 using DiplomaManagementSystem.Domain.Enums;
 using DiplomaManagementSystem.Integration.Tests.Support;
+
 using Microsoft.Extensions.DependencyInjection;
 
 namespace DiplomaManagementSystem.Integration.Tests.Web;
@@ -21,7 +23,7 @@ public sealed class StudentDiplomaEndpointTests(PostgreSqlFixture fixture)
             .SeedFullScenarioAsync();
 
         await using AsyncServiceScope setupScope = fixture.CreateProvider().CreateAsyncScope();
-        await WorkflowScenarioRunner.RunTopicApprovalAsync(setupScope.ServiceProvider, scenario);
+        await WorkflowScenarioRunner.RunUpToReviewerAssignedAsync(setupScope.ServiceProvider, scenario);
 
         await using DiplomaManagementSystemWebApplicationFactory factory = fixture.CreateWebFactory();
         HttpClient client = IntegrationTestWebClient.CreateClient(factory, scenario.StudentId);
@@ -51,8 +53,8 @@ public sealed class StudentDiplomaEndpointTests(PostgreSqlFixture fixture)
         MyDiplomaDto diploma = await studentService.GetMyDiplomaAsync(scenario.StudentId, CancellationToken.None);
 
         Assert.Single(bundle.StudentWorkVersions);
-        Assert.Equal(DiplomaLifecycleStatus.DocumentsInProgress, diploma.State!.LifecycleStatus);
-        Assert.Equal(AdmissionStep.SupervisorFeedback, diploma.State.CurrentAdmissionStep);
+        Assert.Equal(DiplomaLifecycleStatus.WorkInProgressByStudent, diploma.State!.LifecycleStatus);
+        Assert.Null(diploma.State.CurrentAdmissionStep);
     }
 
     [SkippableFact]
@@ -63,7 +65,7 @@ public sealed class StudentDiplomaEndpointTests(PostgreSqlFixture fixture)
             .SeedFullScenarioAsync();
 
         await using AsyncServiceScope setupScope = fixture.CreateProvider().CreateAsyncScope();
-        await WorkflowScenarioRunner.RunTopicApprovalAsync(setupScope.ServiceProvider, scenario);
+        await WorkflowScenarioRunner.RunUpToReviewerAssignedAsync(setupScope.ServiceProvider, scenario);
         await WorkflowScenarioRunner.UploadStudentWorkAsync(setupScope.ServiceProvider, scenario);
 
         await using DiplomaManagementSystemWebApplicationFactory factory = fixture.CreateWebFactory();

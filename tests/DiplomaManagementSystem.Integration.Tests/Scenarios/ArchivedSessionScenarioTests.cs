@@ -4,6 +4,7 @@ using DiplomaManagementSystem.Application.Secretary.Dtos;
 using DiplomaManagementSystem.Application.Student.Contracts;
 using DiplomaManagementSystem.Domain.Exceptions;
 using DiplomaManagementSystem.Integration.Tests.Support;
+
 using Microsoft.Extensions.DependencyInjection;
 
 namespace DiplomaManagementSystem.Integration.Tests.Scenarios;
@@ -42,7 +43,7 @@ public sealed class ArchivedSessionScenarioTests(PostgreSqlFixture fixture)
         await using AsyncServiceScope scope = fixture.CreateProvider().CreateAsyncScope();
         IServiceProvider services = scope.ServiceProvider;
 
-        await WorkflowScenarioRunner.RunTopicApprovalAsync(services, scenario);
+        await WorkflowScenarioRunner.RunUpToReviewerAssignedAsync(services, scenario);
 
         IDefenceSessionService defenceSessionService = services.GetRequiredService<IDefenceSessionService>();
         await defenceSessionService.ArchiveAsync(scenario.SessionId, scenario.SecretaryId);
@@ -68,7 +69,7 @@ public sealed class ArchivedSessionScenarioTests(PostgreSqlFixture fixture)
         await using AsyncServiceScope scope = fixture.CreateProvider().CreateAsyncScope();
         IServiceProvider services = scope.ServiceProvider;
 
-        await WorkflowScenarioRunner.RunTopicApprovalAsync(services, scenario);
+        await WorkflowScenarioRunner.RunUpToReviewerAssignedAsync(services, scenario);
         await WorkflowScenarioRunner.UploadStudentWorkAsync(services, scenario);
 
         IDefenceSessionService defenceSessionService = services.GetRequiredService<IDefenceSessionService>();

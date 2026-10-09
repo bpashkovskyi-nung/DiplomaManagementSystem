@@ -1,5 +1,3 @@
-using DiplomaManagementSystem.Integration.Tests.Web;
-
 namespace DiplomaManagementSystem.Integration.Tests.Web;
 
 [Collection(nameof(IntegrationCollection))]

@@ -1,5 +1,3 @@
-using DiplomaManagementSystem.Application.Student;
-using DiplomaManagementSystem.Domain.Enums;
 using DiplomaManagementSystem.Web.Areas.Secretary.Models;
 using DiplomaManagementSystem.Web.Areas.Student.Models;
 using DiplomaManagementSystem.Web.Mapping;

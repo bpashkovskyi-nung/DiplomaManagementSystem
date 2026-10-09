@@ -1,5 +1,7 @@
 using System.Security.Claims;
+
 using DiplomaManagementSystem.Application.Secretary.Contracts;
+
 using Microsoft.AspNetCore.Authorization;
 
 namespace DiplomaManagementSystem.Web.Authorization;

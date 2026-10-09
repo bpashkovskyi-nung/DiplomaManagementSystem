@@ -27,11 +27,17 @@ internal sealed class EmployeeHomeQueries(ApplicationDbContext dbContext) : IEmp
                 cancellationToken);
     }
 
-    public Task<bool> HasAnySupervisorDiplomasAsync(Guid supervisorId, CancellationToken cancellationToken = default)
+    public Task<bool> HasAnySupervisorDiplomasAsync(
+        Guid supervisorId,
+        Guid? departmentId = null,
+        CancellationToken cancellationToken = default)
     {
         return dbContext.Diplomas
             .AsNoTracking()
-            .AnyAsync(diploma => diploma.SupervisorId == supervisorId, cancellationToken);
+            .AnyAsync(
+                diploma => diploma.SupervisorId == supervisorId
+                           && (departmentId == null || diploma.DefenceSession.DepartmentId == departmentId),
+                cancellationToken);
     }
 
     public Task<int> CountPendingHeadTopicsAsync(
@@ -72,11 +78,17 @@ internal sealed class EmployeeHomeQueries(ApplicationDbContext dbContext) : IEmp
                 cancellationToken);
     }
 
-    public Task<bool> HasAnyReviewerDiplomasAsync(Guid reviewerId, CancellationToken cancellationToken = default)
+    public Task<bool> HasAnyReviewerDiplomasAsync(
+        Guid reviewerId,
+        Guid? departmentId = null,
+        CancellationToken cancellationToken = default)
     {
         return dbContext.Diplomas
             .AsNoTracking()
-            .AnyAsync(diploma => diploma.ReviewerId == reviewerId, cancellationToken);
+            .AnyAsync(
+                diploma => diploma.ReviewerId == reviewerId
+                           && (departmentId == null || diploma.DefenceSession.DepartmentId == departmentId),
+                cancellationToken);
     }
 
     public Task<int> CountPendingAntiPlagiarismAsync(

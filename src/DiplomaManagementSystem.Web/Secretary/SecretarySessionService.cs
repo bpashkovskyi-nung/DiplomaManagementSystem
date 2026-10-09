@@ -1,5 +1,6 @@
 using DiplomaManagementSystem.Application.Options;
 using DiplomaManagementSystem.Application.Secretary.Contracts;
+
 using Microsoft.Extensions.Options;
 
 namespace DiplomaManagementSystem.Web.Secretary;

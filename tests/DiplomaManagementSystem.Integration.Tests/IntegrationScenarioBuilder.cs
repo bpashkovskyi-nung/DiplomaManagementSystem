@@ -10,6 +10,8 @@ using DiplomaManagementSystem.Application.Persistence.Contracts;
 using DiplomaManagementSystem.Domain.Entities;
 using DiplomaManagementSystem.Domain.Enums;
 using DiplomaManagementSystem.Domain.Services;
+using DiplomaManagementSystem.Integration.Tests.Support;
+
 using Microsoft.Extensions.DependencyInjection;
 
 namespace DiplomaManagementSystem.Integration.Tests;
@@ -26,6 +28,7 @@ internal sealed class IntegrationScenarioBuilder
     public async Task<Guid> SeedSessionOnlyAsync()
     {
         await using AsyncServiceScope scope = _serviceProvider.CreateAsyncScope();
+        await IntegrationDepartmentHelper.EnsureDefaultDepartmentContextAsync(scope.ServiceProvider);
         IDefenceSessionService defenceSessionService = scope.ServiceProvider.GetRequiredService<IDefenceSessionService>();
         return await defenceSessionService.CreateAsync(
             new DefenceSessionFormDto(null, 2026, DefenceSessionType.Bachelor, 1));
@@ -35,6 +38,7 @@ internal sealed class IntegrationScenarioBuilder
     {
         await using AsyncServiceScope scope = _serviceProvider.CreateAsyncScope();
         IServiceProvider services = scope.ServiceProvider;
+        await IntegrationDepartmentHelper.EnsureDefaultDepartmentContextAsync(services);
 
         string suffix = Guid.NewGuid().ToString("N")[..8];
 
@@ -48,8 +52,10 @@ internal sealed class IntegrationScenarioBuilder
         Guid sessionId = await defenceSessionService.CreateAsync(
             new DefenceSessionFormDto(null, 2026, DefenceSessionType.Bachelor, 1));
 
+        Guid specialtyId = await IntegrationDepartmentHelper.GetDefaultSpecialtyIdAsync(services);
+
         Guid groupId = await studyGroupAdminService.CreateAsync(
-            new StudyGroupFormDto(null, sessionId, $"КН-41-{suffix}"));
+            new StudyGroupFormDto(null, sessionId, $"КН-41-{suffix}", specialtyId, "очної форми навчання"));
 
         ApplicationUser student = await userProvisioningService.CreateStudentAsync(
             "Student One",
@@ -74,6 +80,13 @@ internal sealed class IntegrationScenarioBuilder
         ApplicationUser formatting = await userProvisioningService.CreateEmployeeAsync(
             "Formatting Reviewer",
             $"formatting.{suffix}@test.local");
+
+        await IntegrationDepartmentHelper.AssignEmployeeAsync(services, supervisor.Id, supervisor.FullName);
+        await IntegrationDepartmentHelper.AssignEmployeeAsync(services, head.Id, head.FullName);
+        await IntegrationDepartmentHelper.AssignEmployeeAsync(services, secretary.Id, secretary.FullName);
+        await IntegrationDepartmentHelper.AssignEmployeeAsync(services, reviewer.Id, reviewer.FullName);
+        await IntegrationDepartmentHelper.AssignEmployeeAsync(services, antiPlagiarism.Id, antiPlagiarism.FullName);
+        await IntegrationDepartmentHelper.AssignEmployeeAsync(services, formatting.Id, formatting.FullName);
 
         await annualRoleService.AssignAsync(new AssignAnnualRoleDto(sessionId, AnnualRoleType.DepartmentHead, head.Id));
         await annualRoleService.AssignAsync(
@@ -105,6 +118,7 @@ internal sealed class IntegrationScenarioBuilder
             reviewer.Id,
             antiPlagiarism.Id,
             formatting.Id,
+            specialtyId,
             $"КН-41-{suffix}");
     }
 
@@ -112,6 +126,7 @@ internal sealed class IntegrationScenarioBuilder
     {
         await using AsyncServiceScope scope = _serviceProvider.CreateAsyncScope();
         IServiceProvider services = scope.ServiceProvider;
+        await IntegrationDepartmentHelper.EnsureDefaultDepartmentContextAsync(services);
 
         string suffix = Guid.NewGuid().ToString("N")[..8];
 
@@ -122,8 +137,10 @@ internal sealed class IntegrationScenarioBuilder
         Guid sessionId = await defenceSessionService.CreateAsync(
             new DefenceSessionFormDto(null, 2026, DefenceSessionType.Bachelor, 1));
 
+        Guid specialtyId = await IntegrationDepartmentHelper.GetDefaultSpecialtyIdAsync(services);
+
         Guid groupId = await studyGroupAdminService.CreateAsync(
-            new StudyGroupFormDto(null, sessionId, $"КН-42-{suffix}"));
+            new StudyGroupFormDto(null, sessionId, $"КН-42-{suffix}", specialtyId, "очної форми навчання"));
 
         ApplicationUser student = await userProvisioningService.CreateStudentAsync(
             "Student Without Diploma",
@@ -152,4 +169,5 @@ internal sealed record IntegrationScenario(
     Guid ReviewerId,
     Guid AntiPlagiarismId,
     Guid FormattingId,
+    Guid SpecialtyId,
     string StudyGroupName);

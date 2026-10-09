@@ -10,7 +10,20 @@ public sealed class StudyGroupFormViewModel
 
     public string Name { get; set; } = string.Empty;
 
+    public Guid SpecialtyId { get; set; }
+
+    public string StudyForm { get; set; } = "очної форми навчання";
+
     public int? Course { get; set; }
+
+    public IReadOnlyList<StudyGroupSpecialtyOptionViewModel> SpecialtyOptions { get; set; } = [];
+}
+
+public sealed class StudyGroupSpecialtyOptionViewModel
+{
+    public Guid Id { get; init; }
+
+    public string Label { get; init; } = string.Empty;
 }
 
 public sealed class StudyGroupDeleteViewModel

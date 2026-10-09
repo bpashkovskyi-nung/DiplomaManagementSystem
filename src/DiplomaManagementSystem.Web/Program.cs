@@ -1,16 +1,27 @@
 using System.Globalization;
+
 using DiplomaManagementSystem.Application;
 using DiplomaManagementSystem.Application.Constants;
+using DiplomaManagementSystem.Application.Departments.Contracts;
 using DiplomaManagementSystem.Application.Options;
 using DiplomaManagementSystem.Infrastructure;
 using DiplomaManagementSystem.Infrastructure.Persistence;
 using DiplomaManagementSystem.Web;
 using DiplomaManagementSystem.Web.AdminPreview;
+using DiplomaManagementSystem.Web.Areas.SuperAdmin.Models;
+using DiplomaManagementSystem.Web.Areas.SuperAdmin.Validation;
 using DiplomaManagementSystem.Web.Authorization;
+using DiplomaManagementSystem.Web.Departments;
 using DiplomaManagementSystem.Web.Filters;
 using DiplomaManagementSystem.Web.Secretary;
+
+using FluentValidation;
+
+using HealthChecks.UI.Client;
+
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 using Microsoft.AspNetCore.Localization;
 using Microsoft.Extensions.Options;
 
@@ -31,12 +42,19 @@ builder.Services.AddSession(options =>
     options.Cookie.IsEssential = true;
     options.Cookie.SameSite = SameSiteMode.Lax;
 });
+builder.Services.AddScoped<IDepartmentContext, DepartmentContextAccessor>();
+builder.Services.AddScoped<IDepartmentSessionService, DepartmentSessionService>();
+builder.Services.AddScoped<IDepartmentContextService, DepartmentContextService>();
+builder.Services.AddScoped<AdminDepartmentContextFilter>();
+builder.Services.AddScoped<EmployeeDepartmentContextFilter>();
+builder.Services.AddScoped<IValidator<OrganizationImportViewModel>, OrganizationImportViewModelValidator>();
 builder.Services.AddScoped<IAdminPreviewService, AdminPreviewService>();
 builder.Services.AddScoped<AdminPreviewImpersonationFilter>();
 builder.Services.AddScoped<IClaimsTransformation, AdminPreviewClaimsTransformation>();
 builder.Services.AddScoped<ISecretarySessionService, SecretarySessionService>();
 builder.Services.AddScoped<IAuthorizationHandler, SecretaryAuthorizationHandler>();
 builder.Services.AddAuthorizationBuilder()
+    .AddPolicy(RoleNames.SuperAdmin, policy => policy.RequireRole(RoleNames.SuperAdmin))
     .AddPolicy(RoleNames.Admin, policy => policy.RequireRole(RoleNames.Admin))
     .AddPolicy(PolicyNames.ExamCommissionSecretary, policy => policy.AddRequirements(new SecretaryRequirement()));
 builder.Services.AddGoogleAuthentication(builder.Configuration);
@@ -84,7 +102,13 @@ app.UseSession();
 app.UseAuthentication();
 app.UseAuthorization();
 app.MapStaticAssets();
-app.MapHealthChecks("/health");
+app.UseHealthChecks(
+    "/healthchecks",
+    new HealthCheckOptions
+    {
+        Predicate = _ => true,
+        ResponseWriter = UIResponseWriter.WriteHealthCheckUIResponse,
+    });
 
 app.MapControllerRoute(
         name: "areas",

@@ -38,8 +38,8 @@ public sealed class SecretaryListAndDashboardMapperTests
     [Fact]
     public void MapIndex_BuildsFilterSelectLists()
     {
-        Guid sessionId = Guid.NewGuid();
-        Guid groupId = Guid.NewGuid();
+        var sessionId = Guid.NewGuid();
+        var groupId = Guid.NewGuid();
         DiplomaListPageDto page = new(
             sessionId,
             DefenceSessionType.Bachelor,

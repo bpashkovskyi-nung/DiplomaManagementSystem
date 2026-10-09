@@ -11,6 +11,7 @@ using DiplomaManagementSystem.Domain.Entities;
 using DiplomaManagementSystem.Domain.Enums;
 using DiplomaManagementSystem.Domain.Exceptions;
 using DiplomaManagementSystem.Domain.Services;
+
 using Microsoft.Extensions.Options;
 
 namespace DiplomaManagementSystem.Application.Documents;
@@ -22,7 +23,6 @@ internal sealed class DiplomaDocumentService(
     IUserDisplayQueries userDisplayQueries,
     IAdmissionStepQueries admissionStepQueries,
     IArchiveGuard archiveGuard,
-    AdmissionWorkflowService admissionWorkflowService,
     DiplomaLifecycleService diplomaLifecycleService,
     IFileStorageService fileStorageService,
     IOptions<FileStorageOptions> storageOptions) : IDiplomaDocumentService
@@ -118,20 +118,6 @@ internal sealed class DiplomaDocumentService(
         DiplomaTopicVersion? latestTopic = diploma.TopicVersions
             .OrderByDescending(version => version.VersionNumber)
             .FirstOrDefault();
-
-        bool shouldStartAdmissionReview = diploma.CurrentAdmissionStep is null
-                                          && attempts.Count == 0
-                                          && diploma.LifecycleStatus == DiplomaLifecycleStatus.WorkInProgressByStudent
-                                          && latestTopic?.Status == TopicVersionStatus.Approved;
-
-        if (shouldStartAdmissionReview && latestTopic is not null)
-        {
-            admissionWorkflowService.StartAdmissionReview(
-                diploma,
-                diploma.DefenceSession,
-                latestTopic,
-                attempts);
-        }
 
         diploma.LifecycleStatus = diplomaLifecycleService.Recalculate(diploma, latestTopic, attempts);
         diploma.UpdatedAt = DateTimeOffset.UtcNow;

@@ -18,11 +18,15 @@ public sealed class DisplayLocalizationTests
         Assert.Equal("Секретар ДЕК", UkrainianDisplay.FormatAnnualRoleType(AnnualRoleType.ExamCommissionSecretary));
         Assert.Equal("Відповідальний за антиплагіат", UkrainianDisplay.FormatAnnualRoleType(AnnualRoleType.AntiPlagiarismOfficer));
         Assert.Equal("Нормоконтролер", UkrainianDisplay.FormatAnnualRoleType(AnnualRoleType.FormattingReviewer));
+        Assert.Equal("Голова ЕК", UkrainianDisplay.FormatEnum(ExaminationCommissionRole.Chair));
+        Assert.Equal("Член ЕК", UkrainianDisplay.FormatEnum(ExaminationCommissionRole.Member));
     }
 
     [Fact]
     public void UkrainianDisplay_FormatsOtherEnumLabels()
     {
+        Assert.Equal("Тема затверджена", UkrainianDisplay.FormatDiplomaLifecycleStatus(DiplomaLifecycleStatus.TopicApproved));
+        Assert.Equal("Робота в процесі", UkrainianDisplay.FormatDiplomaLifecycleStatus(DiplomaLifecycleStatus.WorkInProgressByStudent));
         Assert.Equal("Готово до допуску", UkrainianDisplay.FormatDiplomaLifecycleStatus(DiplomaLifecycleStatus.ReadyForAdmission));
         Assert.Equal("Нормоконтроль", UkrainianDisplay.FormatAdmissionStep(AdmissionStep.FormattingReview));
         Assert.Equal("Бакалавр", UkrainianDisplay.FormatDefenceSessionType(DefenceSessionType.Bachelor));

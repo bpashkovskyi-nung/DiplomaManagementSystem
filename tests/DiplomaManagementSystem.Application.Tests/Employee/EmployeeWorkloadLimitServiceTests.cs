@@ -10,9 +10,9 @@ public sealed class EmployeeWorkloadLimitServiceTests
     [Fact]
     public async Task EnsureCanAssignSupervisorAsync_WhenLimitReached_Throws()
     {
-        Guid sessionId = Guid.NewGuid();
-        Guid supervisorId = Guid.NewGuid();
-        Guid diplomaId = Guid.NewGuid();
+        var sessionId = Guid.NewGuid();
+        var supervisorId = Guid.NewGuid();
+        var diplomaId = Guid.NewGuid();
 
         FakeWorkloadLimitQueries queries = new()
         {

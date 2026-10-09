@@ -1,6 +1,8 @@
 using DiplomaManagementSystem.Application.Admin.StudyGroups.Contracts;
 using DiplomaManagementSystem.Application.Admin.StudyGroups.Dtos;
 using DiplomaManagementSystem.Domain.Exceptions;
+using DiplomaManagementSystem.Integration.Tests.Support;
+
 using Microsoft.Extensions.DependencyInjection;
 
 namespace DiplomaManagementSystem.Integration.Tests.Admin;
@@ -16,11 +18,17 @@ public sealed class StudyGroupAdminScenarioTests(PostgreSqlFixture fixture)
             .SeedFullScenarioAsync();
 
         await using AsyncServiceScope scope = fixture.CreateProvider().CreateAsyncScope();
+        await IntegrationDepartmentHelper.EnsureDefaultDepartmentContextAsync(scope.ServiceProvider);
         IStudyGroupAdminService studyGroupAdminService = scope.ServiceProvider.GetRequiredService<IStudyGroupAdminService>();
 
         DomainException exception = await Assert.ThrowsAsync<DomainException>(() =>
             studyGroupAdminService.CreateAsync(
-                new StudyGroupFormDto(null, scenario.SessionId, scenario.StudyGroupName)));
+                new StudyGroupFormDto(
+                    null,
+                    scenario.SessionId,
+                    scenario.StudyGroupName,
+                    scenario.SpecialtyId,
+                    "очної форми навчання")));
 
         Assert.Contains("already in use", exception.Message, StringComparison.OrdinalIgnoreCase);
     }
@@ -33,15 +41,21 @@ public sealed class StudyGroupAdminScenarioTests(PostgreSqlFixture fixture)
             .SeedFullScenarioAsync();
 
         await using AsyncServiceScope scope = fixture.CreateProvider().CreateAsyncScope();
+        await IntegrationDepartmentHelper.EnsureDefaultDepartmentContextAsync(scope.ServiceProvider);
         IStudyGroupAdminService studyGroupAdminService = scope.ServiceProvider.GetRequiredService<IStudyGroupAdminService>();
 
         string suffix = Guid.NewGuid().ToString("N")[..6];
         Guid extraGroupId = await studyGroupAdminService.CreateAsync(
-            new StudyGroupFormDto(null, scenario.SessionId, $"КН-99-{suffix}"));
+            new StudyGroupFormDto(null, scenario.SessionId, $"КН-99-{suffix}", scenario.SpecialtyId, "очної форми навчання"));
 
         await studyGroupAdminService.UpdateAsync(
             extraGroupId,
-            new StudyGroupFormDto(extraGroupId, scenario.SessionId, $"КН-UPD-{suffix}"),
+            new StudyGroupFormDto(
+                extraGroupId,
+                scenario.SessionId,
+                $"КН-UPD-{suffix}",
+                scenario.SpecialtyId,
+                "очної форми навчання"),
             CancellationToken.None);
 
         StudyGroupListItemDto? item = await studyGroupAdminService.GetListItemAsync(extraGroupId, CancellationToken.None);
@@ -57,11 +71,12 @@ public sealed class StudyGroupAdminScenarioTests(PostgreSqlFixture fixture)
             .SeedFullScenarioAsync();
 
         await using AsyncServiceScope scope = fixture.CreateProvider().CreateAsyncScope();
+        await IntegrationDepartmentHelper.EnsureDefaultDepartmentContextAsync(scope.ServiceProvider);
         IStudyGroupAdminService studyGroupAdminService = scope.ServiceProvider.GetRequiredService<IStudyGroupAdminService>();
 
         string suffix = Guid.NewGuid().ToString("N")[..6];
         Guid extraGroupId = await studyGroupAdminService.CreateAsync(
-            new StudyGroupFormDto(null, scenario.SessionId, $"КН-DEL-{suffix}"));
+            new StudyGroupFormDto(null, scenario.SessionId, $"КН-DEL-{suffix}", scenario.SpecialtyId, "очної форми навчання"));
 
         await studyGroupAdminService.DeleteAsync(extraGroupId, CancellationToken.None);
 

@@ -26,7 +26,7 @@ public sealed class SupervisorSelectionServiceTests
     {
         Diploma diploma = CreateDiploma();
         DefenceSession session = CreateSession();
-        Guid supervisorId = Guid.NewGuid();
+        var supervisorId = Guid.NewGuid();
 
         _service.RequestSupervisor(diploma, session, supervisorId);
 
@@ -41,7 +41,7 @@ public sealed class SupervisorSelectionServiceTests
         diploma.SupervisorId = Guid.NewGuid();
         diploma.SupervisorAssignmentStatus = SupervisorAssignmentStatus.Pending;
         DefenceSession session = CreateSession();
-        Guid supervisorId = Guid.NewGuid();
+        var supervisorId = Guid.NewGuid();
 
         Assert.Throws<DomainException>(() =>
             _service.RequestSupervisor(diploma, session, supervisorId));
@@ -53,7 +53,7 @@ public sealed class SupervisorSelectionServiceTests
         Diploma diploma = CreateDiploma();
         diploma.SupervisorAssignmentStatus = SupervisorAssignmentStatus.Pending;
         DefenceSession session = CreateSession();
-        Guid supervisorId = Guid.NewGuid();
+        var supervisorId = Guid.NewGuid();
 
         _service.RequestSupervisor(diploma, session, supervisorId);
 
@@ -67,7 +67,7 @@ public sealed class SupervisorSelectionServiceTests
         Diploma diploma = CreateDiploma();
         DefenceSession session = CreateSession();
         session.Status = DefenceSessionStatus.Archived;
-        Guid supervisorId = Guid.NewGuid();
+        var supervisorId = Guid.NewGuid();
 
         Assert.Throws<DomainException>(() =>
             _service.RequestSupervisor(diploma, session, supervisorId));

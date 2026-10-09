@@ -55,8 +55,8 @@ internal static class EmployeeRoleNavigationBuilder
 
     public static EmployeeRoleArea ResolveArea(string roleKey) => roleKey switch
     {
-        "SupervisorStudents" or "SupervisorPendingStudents" or "SupervisorTopicReviews" or "SupervisorFeedback" =>
-            EmployeeRoleArea.Supervisor,
+        "SupervisorStudents" or "SupervisorPendingStudents" or "SupervisorTopicReviews" or "SupervisorFeedback"
+            or "SupervisorProgress" => EmployeeRoleArea.Supervisor,
         "ReviewerStudents" or "Reviewer" => EmployeeRoleArea.Reviewer,
         "DepartmentHead" => EmployeeRoleArea.DepartmentHead,
         "AntiPlagiarism" => EmployeeRoleArea.AntiPlagiarism,
@@ -80,6 +80,7 @@ internal static class EmployeeRoleNavigationBuilder
         "SupervisorPendingStudents" => EmployeePageTitles.ConfirmStudentRequestNav,
         "SupervisorTopicReviews" => EmployeePageTitles.ApproveTopicNav,
         "SupervisorFeedback" => EmployeePageTitles.SubmitSupervisorFeedbackNav,
+        "SupervisorProgress" => EmployeePageTitles.SupervisorProgress,
         "Reviewer" => EmployeePageTitles.SubmitExternalReviewNav,
         "DepartmentHead" => EmployeePageTitles.ApproveTopicNav,
         "AntiPlagiarism" => EmployeePageTitles.AntiPlagiarismRole,

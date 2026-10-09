@@ -19,4 +19,6 @@ public static class AdminPageTitles
     public const string ImportEmployees = "Імпорт викладачів";
 
     public const string ImportStudents = "Імпорт студентів";
+
+    public const string SelectDepartment = "Оберіть кафедру";
 }

@@ -32,7 +32,7 @@ public sealed class DiplomaLifecycleService(
             return DiplomaLifecycleStatus.ReadyForAdmission;
         }
 
-        List<DiplomaAdmissionStepAttempt> attemptList = attempts.ToList();
+        var attemptList = attempts.ToList();
 
         if (attemptList.Count > 0 || diploma.CurrentAdmissionStep is not null)
         {

@@ -1,7 +1,9 @@
 using System.Security.Claims;
+
 using DiplomaManagementSystem.Application.Constants;
 using DiplomaManagementSystem.Application.Secretary.Contracts;
 using DiplomaManagementSystem.Web.Secretary;
+
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 

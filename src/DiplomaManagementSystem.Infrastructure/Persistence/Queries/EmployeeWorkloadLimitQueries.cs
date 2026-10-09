@@ -1,5 +1,4 @@
 using DiplomaManagementSystem.Application.Persistence.Contracts;
-using DiplomaManagementSystem.Domain;
 using DiplomaManagementSystem.Domain.Enums;
 
 using Microsoft.EntityFrameworkCore;

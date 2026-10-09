@@ -1,8 +1,9 @@
-using DocumentFormat.OpenXml.Packaging;
-using DocumentFormat.OpenXml.Wordprocessing;
 using DiplomaManagementSystem.Application.Options;
 using DiplomaManagementSystem.Application.Secretary.Documents;
 using DiplomaManagementSystem.Application.Secretary.Documents.Dtos;
+
+using DocumentFormat.OpenXml.Packaging;
+using DocumentFormat.OpenXml.Wordprocessing;
 
 namespace DiplomaManagementSystem.Application.Tests.Secretary.Documents;
 
@@ -27,6 +28,7 @@ public sealed class TopicOrderDocxGeneratorTests
             "першого бакалаврського рівня вищої освіти",
             "КІ-22-1",
             "четвертого курсу",
+            new TopicOrderDepartmentInfoDto("123", "Комп'ютерна інженерія", "ФІТ", "очної форми навчання", "кафедри КСМ"),
             [new TopicOrderStudentRowDto("Студент Тест Тестович", "Тема роботи", "доц. Керівник К.К.")],
             [new TopicOrderReviewerRowDto("доц. Рецензент Р.Р.", 1)],
             "асист. Нормоконтроль Н.Н.",
@@ -48,7 +50,7 @@ public sealed class TopicOrderDocxGeneratorTests
     private static string ExtractDocumentText(byte[] content)
     {
         using MemoryStream stream = new(content);
-        using WordprocessingDocument wordDocument = WordprocessingDocument.Open(stream, false);
+        using var wordDocument = WordprocessingDocument.Open(stream, false);
         Body body = wordDocument.MainDocumentPart!.Document!.Body!;
         return string.Concat(body.Descendants<Text>().Select(text => text.Text));
     }

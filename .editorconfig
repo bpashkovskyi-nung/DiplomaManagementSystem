@@ -4,20 +4,147 @@ root = true
 end_of_line = crlf
 insert_final_newline = true
 trim_trailing_whitespace = true
+indent_style = space
+indent_size = 4
+
+[*.{yml,yaml,json,md,csproj,props,targets,xml}]
+indent_size = 2
 
 [*.cs]
 charset = utf-8
+indent_style = space
+indent_size = 4
 
-# F-07: usings and namespace style
+# Usings and namespace
 dotnet_sort_system_directives_first = true
-dotnet_separate_import_directive_groups = false
-csharp_using_directive_placement = outside_namespace:suggestion
-csharp_style_namespace_declarations = file_scoped:suggestion
+dotnet_separate_import_directive_groups = true
+csharp_using_directive_placement = outside_namespace:warning
+csharp_style_namespace_declarations = file_scoped:warning
 
-# F-07: at most one consecutive blank line (IDE2000; max_blank_lines_in_row for Rider/ReSharper)
-dotnet_style_allow_multiple_blank_lines_experimental = false
+# Blank lines
+dotnet_style_allow_multiple_blank_lines_experimental = false:warning
 max_blank_lines_in_row = 1
 dotnet_diagnostic.IDE2000.severity = warning
 
+# Line length / query formatting
+max_line_length = 120
 csharp_new_line_between_query_expression_clauses = true
-max_line_length = off
+
+# Braces / new lines (Allman)
+csharp_prefer_braces = true:warning
+csharp_new_line_before_open_brace = all
+csharp_new_line_before_else = true
+csharp_new_line_before_catch = true
+csharp_new_line_before_finally = true
+csharp_new_line_before_members_in_object_initializers = true
+csharp_new_line_before_members_in_anonymous_types = true
+csharp_new_line_between_query_expression_clauses = true
+
+# var when type is evident
+csharp_style_var_for_built_in_types = false:warning
+csharp_style_var_when_type_is_apparent = true:warning
+csharp_style_var_elsewhere = false:warning
+
+# Expression-bodied for simple members
+csharp_style_expression_bodied_methods = when_on_single_line:suggestion
+csharp_style_expression_bodied_properties = when_on_single_line:suggestion
+csharp_style_expression_bodied_accessors = when_on_single_line:suggestion
+csharp_style_expression_bodied_lambdas = when_on_single_line:suggestion
+csharp_style_expression_bodied_local_functions = when_on_single_line:suggestion
+csharp_style_expression_bodied_constructors = false:suggestion
+csharp_style_expression_bodied_operators = when_on_single_line:suggestion
+csharp_style_expression_bodied_indexers = when_on_single_line:suggestion
+
+# Pattern matching / null checks
+csharp_style_prefer_pattern_matching = true:suggestion
+csharp_style_prefer_switch_expression = true:suggestion
+csharp_style_prefer_not_pattern = true:suggestion
+csharp_style_prefer_extended_property_pattern = true:suggestion
+csharp_style_pattern_matching_over_as_with_null_check = true:warning
+csharp_style_pattern_matching_over_is_with_cast_check = true:warning
+dotnet_style_prefer_is_null_check_over_reference_equality_method = true:warning
+
+# Modern language preferences
+csharp_style_prefer_primary_constructors = true:suggestion
+csharp_style_implicit_object_creation_when_type_is_apparent = true:suggestion
+dotnet_style_prefer_collection_expression = when_types_exactly_match:suggestion
+csharp_prefer_simple_using_statement = true:suggestion
+csharp_style_prefer_method_group_conversion = true:suggestion
+csharp_style_prefer_top_level_statements = false:suggestion
+
+# this. qualification — only when needed
+dotnet_style_qualification_for_field = false:warning
+dotnet_style_qualification_for_property = false:warning
+dotnet_style_qualification_for_method = false:warning
+dotnet_style_qualification_for_event = false:warning
+
+# Modifier preferences
+dotnet_style_require_accessibility_modifiers = for_non_interface_members:warning
+csharp_preferred_modifier_order = public,private,protected,internal,file,static,extern,new,virtual,abstract,sealed,override,readonly,unsafe,required,volatile,async:warning
+
+# Naming — types / members PascalCase
+dotnet_naming_style.pascal_case.capitalization = pascal_case
+dotnet_naming_style.camel_case.capitalization = camel_case
+dotnet_naming_style.camel_case_underscore.required_prefix = _
+dotnet_naming_style.camel_case_underscore.capitalization = camel_case
+
+dotnet_naming_symbols.types.applicable_kinds = class,struct,interface,enum,delegate
+dotnet_naming_symbols.types.applicable_accessibilities = *
+dotnet_naming_rule.types_pascal.symbols = types
+dotnet_naming_rule.types_pascal.style = pascal_case
+dotnet_naming_rule.types_pascal.severity = warning
+
+dotnet_naming_symbols.non_field_members.applicable_kinds = property,event,method
+dotnet_naming_symbols.non_field_members.applicable_accessibilities = *
+dotnet_naming_rule.non_field_members_pascal.symbols = non_field_members
+dotnet_naming_rule.non_field_members_pascal.style = pascal_case
+dotnet_naming_rule.non_field_members_pascal.severity = warning
+
+dotnet_naming_symbols.interfaces.applicable_kinds = interface
+dotnet_naming_symbols.interfaces.applicable_accessibilities = *
+dotnet_naming_style.interface_style.required_prefix = I
+dotnet_naming_style.interface_style.capitalization = pascal_case
+dotnet_naming_rule.interfaces_i_prefix.symbols = interfaces
+dotnet_naming_rule.interfaces_i_prefix.style = interface_style
+dotnet_naming_rule.interfaces_i_prefix.severity = warning
+
+dotnet_naming_symbols.private_fields.applicable_kinds = field
+dotnet_naming_symbols.private_fields.applicable_accessibilities = private,private_protected
+dotnet_naming_rule.private_fields_underscore.symbols = private_fields
+dotnet_naming_rule.private_fields_underscore.style = camel_case_underscore
+dotnet_naming_rule.private_fields_underscore.severity = warning
+
+dotnet_naming_symbols.locals_params.applicable_kinds = parameter,local
+dotnet_naming_symbols.locals_params.applicable_accessibilities = *
+dotnet_naming_rule.locals_params_camel.symbols = locals_params
+dotnet_naming_rule.locals_params_camel.style = camel_case
+dotnet_naming_rule.locals_params_camel.severity = warning
+
+dotnet_naming_symbols.constants.applicable_kinds = field
+dotnet_naming_symbols.constants.required_modifiers = const
+dotnet_naming_symbols.constants.applicable_accessibilities = *
+dotnet_naming_rule.constants_pascal.symbols = constants
+dotnet_naming_rule.constants_pascal.style = pascal_case
+dotnet_naming_rule.constants_pascal.severity = warning
+
+dotnet_naming_symbols.static_readonly.applicable_kinds = field
+dotnet_naming_symbols.static_readonly.required_modifiers = static,readonly
+dotnet_naming_symbols.static_readonly.applicable_accessibilities = *
+dotnet_naming_rule.static_readonly_pascal.symbols = static_readonly
+dotnet_naming_rule.static_readonly_pascal.style = pascal_case
+dotnet_naming_rule.static_readonly_pascal.severity = suggestion
+
+# EF Core migrations are generated — do not enforce product style or CA noise there
+[**/Migrations/**.cs]
+csharp_style_namespace_declarations = block_scoped:none
+dotnet_diagnostic.IDE0161.severity = none
+dotnet_diagnostic.IDE0005.severity = none
+dotnet_diagnostic.IDE0011.severity = none
+dotnet_diagnostic.IDE0041.severity = none
+dotnet_diagnostic.CA1861.severity = none
+
+# Test method names use Method_Scenario_Expected
+[**/*Tests*/**/*.cs]
+dotnet_diagnostic.CA1707.severity = none
+[**/tests/**/*.cs]
+dotnet_diagnostic.CA1707.severity = none

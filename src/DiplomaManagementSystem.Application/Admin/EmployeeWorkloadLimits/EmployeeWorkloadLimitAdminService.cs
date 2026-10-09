@@ -1,10 +1,11 @@
 using DiplomaManagementSystem.Application.Admin.EmployeeWorkloadLimits.Contracts;
 using DiplomaManagementSystem.Application.Admin.EmployeeWorkloadLimits.Dtos;
-using DiplomaManagementSystem.Application.Identity;
+using DiplomaManagementSystem.Application.Departments;
+using DiplomaManagementSystem.Application.Departments.Contracts;
+using DiplomaManagementSystem.Application.Persistence;
 using DiplomaManagementSystem.Application.Persistence.Contracts;
 using DiplomaManagementSystem.Application.Secretary;
 using DiplomaManagementSystem.Domain.Entities;
-using DiplomaManagementSystem.Domain.Enums;
 using DiplomaManagementSystem.Domain.Exceptions;
 
 using Microsoft.EntityFrameworkCore;
@@ -13,26 +14,24 @@ namespace DiplomaManagementSystem.Application.Admin.EmployeeWorkloadLimits;
 
 internal sealed class EmployeeWorkloadLimitAdminService(
     IApplicationDbContext dbContext,
-    IEmployeeWorkloadLimitQueries workloadLimitQueries) : IEmployeeWorkloadLimitAdminService
+    IEmployeeWorkloadLimitQueries workloadLimitQueries,
+    IUserDisplayQueries userDisplayQueries,
+    CurrentDepartmentResolver currentDepartmentResolver,
+    IDepartmentAuthorizationService departmentAuthorization) : IEmployeeWorkloadLimitAdminService
 {
     public async Task<EmployeeWorkloadLimitsPageDto?> GetPageAsync(
         Guid defenceSessionId,
         CancellationToken cancellationToken = default)
     {
-        DefenceSession? session = await dbContext.DefenceSessions
-            .AsNoTracking()
-            .FirstOrDefaultAsync(s => s.Id == defenceSessionId, cancellationToken);
-
+        DefenceSession? session = await GetScopedSessionAsync(defenceSessionId, cancellationToken);
         if (session is null)
         {
             return null;
         }
 
-        List<ApplicationUser> employees = await dbContext.Users
-            .AsNoTracking()
-            .Where(user => user.UserKind == UserKind.Employee)
-            .OrderBy(user => user.FullName)
-            .ToListAsync(cancellationToken);
+        List<UserOption> employees = await userDisplayQueries.LoadEmployeeOptionsForDepartmentAsync(
+            session.DepartmentId,
+            cancellationToken);
 
         Dictionary<Guid, EmployeeSessionWorkloadLimit> limits = await dbContext.EmployeeSessionWorkloadLimits
             .AsNoTracking()
@@ -40,7 +39,7 @@ internal sealed class EmployeeWorkloadLimitAdminService(
             .ToDictionaryAsync(limit => limit.EmployeeId, cancellationToken);
 
         List<EmployeeWorkloadLimitRowDto> rows = [];
-        foreach (ApplicationUser employee in employees)
+        foreach (UserOption employee in employees)
         {
             limits.TryGetValue(employee.Id, out EmployeeSessionWorkloadLimit? limit);
 
@@ -57,7 +56,7 @@ internal sealed class EmployeeWorkloadLimitAdminService(
             rows.Add(new EmployeeWorkloadLimitRowDto(
                 employee.Id,
                 employee.FullName,
-                employee.Email ?? string.Empty,
+                employee.Email,
                 limit?.MaxSupervisorStudents,
                 limit?.MaxReviewerStudents,
                 supervisorCount,
@@ -71,17 +70,12 @@ internal sealed class EmployeeWorkloadLimitAdminService(
 
     public async Task SetLimitAsync(SetEmployeeWorkloadLimitDto request, CancellationToken cancellationToken = default)
     {
-        bool sessionExists = await dbContext.DefenceSessions.AnyAsync(
-            session => session.Id == request.DefenceSessionId,
-            cancellationToken);
+        DefenceSession session = await GetScopedSessionAsync(request.DefenceSessionId, cancellationToken)
+                                 ?? throw new DomainException($"Defence session {request.DefenceSessionId} not found.");
 
-        if (!sessionExists)
-        {
-            throw new DomainException($"Defence session {request.DefenceSessionId} not found.");
-        }
-
-        bool employeeExists = await dbContext.Users.AnyAsync(
-            user => user.Id == request.EmployeeId && user.UserKind == UserKind.Employee,
+        bool employeeExists = await userDisplayQueries.IsActiveDepartmentEmployeeAsync(
+            request.EmployeeId,
+            session.DepartmentId,
             cancellationToken);
 
         if (!employeeExists)
@@ -132,5 +126,21 @@ internal sealed class EmployeeWorkloadLimitAdminService(
         }
 
         await dbContext.SaveChangesAsync(cancellationToken);
+    }
+
+    private async Task<DefenceSession?> GetScopedSessionAsync(Guid defenceSessionId, CancellationToken cancellationToken)
+    {
+        DefenceSession? session = await dbContext.DefenceSessions
+            .AsNoTracking()
+            .FirstOrDefaultAsync(item => item.Id == defenceSessionId, cancellationToken);
+
+        if (session is null)
+        {
+            return null;
+        }
+
+        Guid departmentId = await currentDepartmentResolver.ResolveRequiredScopedDepartmentIdAsync(cancellationToken);
+        await departmentAuthorization.EnsureSessionInDepartmentAsync(defenceSessionId, departmentId, cancellationToken);
+        return session;
     }
 }

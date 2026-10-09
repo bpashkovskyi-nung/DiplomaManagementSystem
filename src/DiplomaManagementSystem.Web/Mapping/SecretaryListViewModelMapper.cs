@@ -102,9 +102,7 @@ internal static class SecretaryListViewModelMapper
     private static List<SelectListItem> BuildLifecycleSelectList(DiplomaLifecycleStatus? selected)
     {
         return Enum.GetValues<DiplomaLifecycleStatus>()
-            .Where(status => status is not (
-                DiplomaLifecycleStatus.TopicApproved
-                or DiplomaLifecycleStatus.DocumentsInProgress))
+            .Where(status => status is not DiplomaLifecycleStatus.DocumentsInProgress)
             .Select(status => new SelectListItem(
                 UkrainianDisplay.FormatDiplomaLifecycleStatus(status),
                 status.ToString(),
