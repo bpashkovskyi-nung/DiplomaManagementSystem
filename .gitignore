@@ -445,3 +445,4 @@ FodyWeavers.xsd
 *.msm
 *.msp
 /.build-out
+/src/DiplomaManagementSystem.Web/appsettings.json
